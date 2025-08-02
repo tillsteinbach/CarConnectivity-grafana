@@ -1,0 +1,18 @@
+# config file version
+apiVersion: 1
+
+deleteDatasources:
+  - name: CarConnectivity-SQLite
+    orgId: 1
+
+datasources:
+  - name: CarConnectivity-SQLite
+    orgId: 1
+    uid: P2EF847825A020B66
+    type: frser-sqlite-datasource
+    access: proxy
+    jsonData:
+      path: /root/.carconnectivity/carconnectivity.db
+    url: $DB_HOSTNAME:$DB_PORT
+    isDefault: true
+    editable: false
