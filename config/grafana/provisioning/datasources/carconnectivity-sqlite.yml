@@ -12,7 +12,7 @@ datasources:
     type: frser-sqlite-datasource
     access: proxy
     jsonData:
-      path: /root/.carconnectivity/carconnectivity.db
+      path: /home/grafana/.carconnectivity/carconnectivity.db
     url: $DB_HOSTNAME:$DB_PORT
     isDefault: true
     editable: false
