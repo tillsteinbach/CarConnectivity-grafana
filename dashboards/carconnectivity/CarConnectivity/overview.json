@@ -1,0 +1,2728 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "limit": 100,
+        "name": "Annotations & Alerts",
+        "showIn": 0,
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      },
+      {
+        "datasource": {
+          "type": "postgres",
+          "uid": "P2EF847825A020B66"
+        },
+        "enable": true,
+        "hide": false,
+        "iconColor": "#73BF69",
+        "name": "Online",
+        "rawQuery": "SELECT\n  \"onlineTime\" as \"time\",\n  \"offlineTime\" as \"timeend\",\n  CASE WHEN \"onlineTime\"=\"offlineTime\" THEN 'Car sent update'\n            ELSE 'Car went online (' || (\"offlineTime\"-\"onlineTime\") || ')'\n  END AS \"text\"\nFROM\n  onlinestates\nWHERE\n  vehicle_vin = '$VIN' and\n  ($__timeFilter(\"onlineTime\") OR $__timeFilter(\"offlineTime\"))",
+        "showIn": 0
+      },
+      {
+        "datasource": {
+          "type": "postgres",
+          "uid": "P2EF847825A020B66"
+        },
+        "enable": false,
+        "iconColor": "red",
+        "name": "Climatization",
+        "rawQuery": "SELECT \"time\",\n       \"timeend\",\n       'Climatization on ('\n              || (\"timeend\"-\"time\")\n              || ')' AS \"text\"\nFROM   (\n                SELECT   *,\n                         \"carCapturedTimestamp\"                                           AS \"time\",\n                         Lag(\"climatisationState\") OVER (ORDER BY \"carCapturedTimestamp\") AS \"beforeClimatisationState\",\n                         (\n                                  SELECT   \"carCapturedTimestamp\" AS \"timeend\"\n                                  FROM     climatization          AS climatization2\n                                  WHERE    climatization2.\"climatisationState\" = 'OFF'\n                                  AND      climatization.vehicle_vin = climatization2.vehicle_vin\n                                  AND      climatization.\"carCapturedTimestamp\" < climatization2.\"carCapturedTimestamp\"\n                                  ORDER BY \"carCapturedTimestamp\" limit 1) \"timeend\"\n                FROM     climatization\n                WHERE    vehicle_vin = '$VIN') AS data\nWHERE  \"climatisationState\" != 'OFF'\nAND (\"timeend\"-\"time\") < INTERVAL '1 hour'\nAND    \"beforeClimatisationState\" = 'OFF'\nAND ($__timeFilter(\"time\") OR $__timeFilter(\"timeend\"))"
+      },
+      {
+        "datasource": {
+          "type": "postgres",
+          "uid": "P2EF847825A020B66"
+        },
+        "enable": false,
+        "iconColor": "blue",
+        "name": "Charging",
+        "rawQuery": "SELECT \"time\",\n       \"timeend\",\n       'Charging ('\n              || (\"timeend\"-\"time\")\n              || ')' AS \"text\"\nFROM   (\n                SELECT   *,\n                         \"carCapturedTimestamp\"                                           AS \"time\",\n                         Lag(\"chargingState\") OVER (ORDER BY \"carCapturedTimestamp\") AS \"beforeChargingState\",\n                         (\n                                  SELECT   \"carCapturedTimestamp\" AS \"timeend\"\n                                  FROM     charges          AS charges2\n                                  WHERE    charges2.\"chargingState\" != 'CHARGING'\n                                  AND      charges.vehicle_vin = charges2.vehicle_vin\n                                  AND      charges.\"carCapturedTimestamp\" < charges2.\"carCapturedTimestamp\"\n                                  ORDER BY \"carCapturedTimestamp\" limit 1) \"timeend\"\n                FROM     charges\n                WHERE    vehicle_vin = '${VIN}'\n                ) AS data\nWHERE  \"chargingState\" = 'CHARGING'\nAND (\"timeend\"-\"time\") < INTERVAL '1 day'\nAND    \"beforeChargingState\" != 'CHARGING'\nAND ($__timeFilter(\"time\") OR $__timeFilter(\"timeend\"))"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Car settings",
+      "tooltip": "",
+      "type": "link",
+      "url": "${vwsfriend_url:raw}/settings/vehicle/database/${VIN}"
+    },
+    {
+      "asDropdown": true,
+      "icon": "dashboard",
+      "includeVars": true,
+      "keepTime": false,
+      "tags": [
+        "vwsfriend"
+      ],
+      "targetBlank": false,
+      "title": "Dashboards",
+      "tooltip": "",
+      "type": "dashboards",
+      "url": ""
+    }
+  ],
+  "liveNow": true,
+  "panels": [
+    {
+      "datasource": {
+        "type": "marcusolsson-json-datasource",
+        "uid": "P36D08C1A0297C737"
+      },
+      "description": "Current status of the car ${VIN:text} with VIN ${VIN:raw}. To receive reasonable results you have to make settings for your car.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 3,
+        "x": 0,
+        "y": 0
+      },
+      "id": 5,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Car Settings",
+          "url": "${vwsfriend_url:raw}/settings/vehicle/database/${VIN}"
+        }
+      ],
+      "options": {
+        "SVGBaseFix": true,
+        "add100Percentage": false,
+        "calcsMutation": "standard",
+        "centerAlignContent": true,
+        "codeData": "{\n  \"text\": \"Random text\"\n}",
+        "css": "",
+        "dynamicData": false,
+        "dynamicFieldDisplayValues": false,
+        "dynamicHtmlGraphics": true,
+        "dynamicProps": false,
+        "html": "<a id='carlink' target=”_blank”>\n<img src=\"\" id='carimage' style='max-height: 100%; max-width: 100%'/>\n</a>",
+        "onInit": "// Sets the text from customProperties\nconst htmlgraphicsText = htmlNode.getElementById('htmlgraphics-text');\n\nif (htmlgraphicsText) {\n  htmlgraphicsText.textContent = customProperties.text;\n\n  // Change the text color based on the theme\n  if (theme.isDark) {\n    htmlgraphicsText.style.color = 'green';\n  } else {\n    htmlgraphicsText.style.color = 'red';\n  }\n}\n",
+        "onInitOnResize": false,
+        "onRender": "const vin = getTemplateSrv().replace(`$VIN`);\nconst vwsfriend_url = getTemplateSrv().replace(`$vwsfriend_url`);\nconst carimage = htmlNode.querySelector('#carimage');\nconst carlink = htmlNode.querySelector('#carlink');\n\nconst filteredSeriesImage = data.series.filter((series) => series.name == 'A');\njsonImage = null;\nif(filteredSeriesImage.length > 0 && filteredSeriesImage[0].fields != null && filteredSeriesImage[0].fields.length > 0){\n  jsonImage = filteredSeriesImage[0].fields[0].values.get(0);\n  const vehicleImage = JSON.parse(jsonImage);\n  carimage.src = \"data:\"+vehicleImage.type+\";\"+vehicleImage.encoding+\",\"+vehicleImage.data\n}\nelse {\n  carimage.src = vwsfriend_url+'/status/vehicles/'+vin+'-status_or_car-badge.png';\n}\n\n\ncarlink.href = vwsfriend_url+'/status/vehicle/'+vin+'/';",
+        "overflow": "visible",
+        "panelupdateOnMount": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull",
+            "last",
+            "firstNotNull",
+            "first",
+            "min",
+            "max",
+            "mean",
+            "sum",
+            "count",
+            "range",
+            "delta",
+            "step",
+            "diff",
+            "logmin",
+            "allIsZero",
+            "allIsNull",
+            "diffperc"
+          ]
+        },
+        "renderOnMount": true,
+        "rootCSS": "",
+        "useGrafanaScrollbar": true
+      },
+      "pluginVersion": "9.0.4",
+      "targets": [
+        {
+          "cacheDurationSeconds": 30,
+          "datasource": {
+            "type": "marcusolsson-json-datasource",
+            "uid": "P36D08C1A0297C737"
+          },
+          "fields": [
+            {
+              "jsonPath": "$"
+            }
+          ],
+          "method": "GET",
+          "queryParams": "",
+          "refId": "A",
+          "urlPath": "/status/vehicles/$VIN-status_or_car-badge.png.json"
+        }
+      ],
+      "title": "$VIN",
+      "type": "gapit-htmlgraphics-panel"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P2EF847825A020B66"
+      },
+      "description": "Current state of charge in percent",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 10
+              }
+            ]
+          },
+          "unit": "percent",
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 3,
+        "x": 3,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto",
+        "text": {}
+      },
+      "pluginVersion": "10.3.3",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "groupBy": [],
+          "measurement": "",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"currentSOC_pct\" AS \"Battery SoC\"\nFROM battery\nWHERE\n  vehicle_vin = '$VIN'\nORDER BY \"time\" DESC\nLIMIT 1",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "\"primary_currentSOC_pct\""
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ranges",
+          "tags": [],
+          "timeColumn": "\"carCapturedTimestamp\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "varchar",
+              "name": "",
+              "params": [
+                "vehicle_vin",
+                "=",
+                "'$VIN'"
+              ],
+              "type": "expression"
+            }
+          ]
+        }
+      ],
+      "title": "Battery (now)",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P2EF847825A020B66"
+      },
+      "description": "Battery level and projected range plotted over time.\nSome cars only update these values during startup and shutdown.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "SoC",
+            "axisPlacement": "auto",
+            "axisSoftMax": 100,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent",
+          "unitScale": true
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*Range/"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "lengthkm"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Range"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 6,
+        "y": 0
+      },
+      "id": 2,
+      "interval": "5m",
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "8.2.5",
+      "targets": [
+        {
+          "alias": "Battery SoC",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "previous"
+              ],
+              "type": "fill"
+            }
+          ],
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"currentSOC_pct\" AS \"Battery SoC\"\nFROM battery\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1",
+          "refId": "2",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "\"primary_currentSOC_pct\""
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ranges",
+          "tags": [],
+          "timeColumn": "\"carCapturedTimestamp\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "varchar",
+              "name": "",
+              "params": [
+                "vehicle_vin",
+                "=",
+                "'$VIN'"
+              ],
+              "type": "expression"
+            }
+          ]
+        },
+        {
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"cruisingRangeElectric_km\" AS \"Electric Range\"\nFROM battery\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1  ",
+          "refId": "1",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Battery Level",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P2EF847825A020B66"
+      },
+      "description": "Indicates if the car is currently awake (online) or sleeping.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "text": "Car is offline"
+                },
+                "1": {
+                  "text": "Car is online"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "none",
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "id": 22,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^online$/",
+          "values": true
+        },
+        "showPercentChange": false,
+        "text": {
+          "titleSize": 40,
+          "valueSize": 40
+        },
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.3.3",
+      "targets": [
+        {
+          "alias": "Car is online",
+          "format": "table",
+          "group": [],
+          "groupBy": [],
+          "measurement": "",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"lastUpdate\" AS \"time\",\n  CASE WHEN \"online\"=True THEN 1\n       WHEN \"online\"=False THEN 0\n  END as \"online\"\nFROM vehicles\nWHERE\n  vin = '$VIN'",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            []
+          ],
+          "table": "vehicles",
+          "tags": [],
+          "timeColumn": "\"lastUpdate\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Car Online State",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P2EF847825A020B66"
+      },
+      "description": "Time when the last successful connection to the servers were made and time when the last information from the car was received.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "dateTimeAsIso",
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 3
+      },
+      "id": 13,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": true
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.3.3",
+      "targets": [
+        {
+          "alias": "Last connection",
+          "format": "table",
+          "group": [],
+          "groupBy": [],
+          "measurement": "",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"lastUpdate\" AS \"Last update from Server\",\n  \"lastChange\" AS \"Last update from Car\"\nFROM vehicles\nWHERE\n  vin = '$VIN'",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Last Data from Car",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P2EF847825A020B66"
+      },
+      "description": "Current range calculated from current consumption",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 5
+              },
+              {
+                "color": "green",
+                "value": 10
+              }
+            ]
+          },
+          "unit": "lengthkm",
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 3,
+        "x": 0,
+        "y": 8
+      },
+      "id": 11,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto",
+        "text": {}
+      },
+      "pluginVersion": "10.3.3",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "groupBy": [],
+          "measurement": "",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "(SELECT\n  to_timestamp(0) AS \"time\",\n  CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_wltp_range\"::NUMERIC\n  ELSE vehicle_settings.\"secondary_wltp_range\"::NUMERIC END AS \"Electric Range\"\nFROM vehicles\nLEFT JOIN vehicle_settings ON vehicles.vin = vehicle_settings.vehicle_vin\nWHERE\n  vehicles.vin = '$VIN')\nUNION\n(SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"cruisingRangeElectric_km\" AS \"Electric Range\"\nFROM battery\nWHERE\n  battery.vehicle_vin = '$VIN'\nORDER BY \"time\" DESC\nLIMIT 1)",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "\"totalRange_km\""
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ranges",
+          "tags": [],
+          "timeColumn": "\"carCapturedTimestamp\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "varchar",
+              "name": "",
+              "params": [
+                "vehicle_vin",
+                "=",
+                "'$VIN'"
+              ],
+              "type": "expression"
+            }
+          ]
+        }
+      ],
+      "title": "Projected Electric Range (now)",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P2EF847825A020B66"
+      },
+      "description": "Time remaining until climatization is turned off automatically.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "m",
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 3,
+        "x": 3,
+        "y": 8
+      },
+      "id": 19,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto",
+        "text": {}
+      },
+      "pluginVersion": "10.3.3",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "groupBy": [],
+          "measurement": "",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "(SELECT\n  to_timestamp(0) AS \"time\",\n  MAX(\"remainingClimatisationTime_min\")\nFROM climatization\nWHERE\n  vehicle_vin = '$VIN')\nUNION\n(SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  CASE WHEN \"climatisationState\" != 'OFF' THEN \"remainingClimatisationTime_min\"\n  ELSE 0 END\nFROM climatization\nWHERE\n  vehicle_vin = '$VIN'\nORDER BY \"time\" DESC\nLIMIT 1)",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Remaining Climatization Time (now)",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P2EF847825A020B66"
+      },
+      "description": "Battery level and projected range plotted over time for primary and secondary engine. This is useful especially for hybrids.\nSome cars only update these values during startup and shutdown.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "SoC",
+            "axisPlacement": "auto",
+            "axisSoftMax": 100,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent",
+          "unitScale": true
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*Range/"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "lengthkm"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Range"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 6,
+        "y": 8
+      },
+      "id": 23,
+      "interval": "5m",
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "8.2.5",
+      "targets": [
+        {
+          "alias": "Battery SoC",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "previous"
+              ],
+              "type": "fill"
+            }
+          ],
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"primary_currentSOC_pct\" AS \"Primary Engine SoC\"\nFROM ranges\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1",
+          "refId": "2",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "\"primary_currentSOC_pct\""
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ranges",
+          "tags": [],
+          "timeColumn": "\"carCapturedTimestamp\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "varchar",
+              "name": "",
+              "params": [
+                "vehicle_vin",
+                "=",
+                "'$VIN'"
+              ],
+              "type": "expression"
+            }
+          ]
+        },
+        {
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"totalRange_km\" AS \"Total Range\"\nFROM ranges\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1  ",
+          "refId": "1",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "Projected Range",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "previous"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"primary_remainingRange_km\" AS \"Primary Engine Range\"\nFROM ranges\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1",
+          "refId": "3",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "\"primary_remainingRange_km\""
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ranges",
+          "tags": [],
+          "timeColumn": "\"carCapturedTimestamp\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "varchar",
+              "name": "",
+              "params": [
+                "vehicle_vin",
+                "=",
+                "'$VIN'"
+              ],
+              "type": "expression"
+            }
+          ]
+        },
+        {
+          "alias": "Battery SoC",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "previous"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"secondary_currentSOC_pct\" AS \"Secondary Engine SoC\"\nFROM ranges\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1",
+          "refId": "4",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "\"primary_currentSOC_pct\""
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ranges",
+          "tags": [],
+          "timeColumn": "\"carCapturedTimestamp\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "varchar",
+              "name": "",
+              "params": [
+                "vehicle_vin",
+                "=",
+                "'$VIN'"
+              ],
+              "type": "expression"
+            }
+          ]
+        },
+        {
+          "alias": "Projected Range",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "previous"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"secondary_remainingRange_km\" AS \"Secondary Engine Range\"\nFROM ranges\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1",
+          "refId": "5",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "\"primary_remainingRange_km\""
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ranges",
+          "tags": [],
+          "timeColumn": "\"carCapturedTimestamp\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "varchar",
+              "name": "",
+              "params": [
+                "vehicle_vin",
+                "=",
+                "'$VIN'"
+              ],
+              "type": "expression"
+            }
+          ]
+        }
+      ],
+      "title": "Levels & Range",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P2EF847825A020B66"
+      },
+      "description": "Shows information for the usage of VWsFriend",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 16,
+        "w": 6,
+        "x": 18,
+        "y": 8
+      },
+      "id": 25,
+      "options": {
+        "SVGBaseFix": false,
+        "add100Percentage": true,
+        "calcsMutation": "none",
+        "centerAlignContent": false,
+        "codeData": "{\n  \"text\": \"Random text\"\n}",
+        "css": "",
+        "dynamicData": false,
+        "dynamicFieldDisplayValues": false,
+        "dynamicHtmlGraphics": true,
+        "dynamicProps": false,
+        "html": "<div>\n  <div id=\"warningsDiv\" style=\"display: none;\">\n    <h2>Warnings:</h2>\n    <ul id=\"warningsList\">\n    <ul>\n  </div>\n\n  <div id=\"newsDiv\" style=\"display: none;\">\n    <h2>News:</h2>\n  </div>\n\n  <div id=\"logDiv\" style=\"display: none;\">\n    <h2>Recent Events:</h2>\n    <ul id=\"logsList\" style=\"list-style-type:none\">\n    <ul>\n  </div>\n</div>",
+        "onInit": "",
+        "onInitOnResize": false,
+        "onRender": "const warningsDiv = htmlNode.getElementById('warningsDiv');\nconst warningsList = htmlNode.getElementById('warningsList');\nwarningsDiv.style.display = 'none'\nwhile (warningsList.firstChild) {\n    warningsList.firstChild.remove()\n}\nconst logsDiv = htmlNode.getElementById('logDiv');\nconst logsList = htmlNode.getElementById('logsList');\nlogsDiv.style.display = 'none'\nwhile (logsList.firstChild) {\n    logsList.firstChild.remove()\n}\n\nfunction addWarning(html) {\n  warningsDiv.style.display = ''\n  warning = document.createElement(\"li\")\n  warning.style.color = 'yellow'\n  var template = document.createElement('template');\n  html = html.trim();\n  template.innerHTML = html;\n  warning.append(template.content);\n  warningsList.appendChild(warning)\n}\n\nfunction addLog(html) {\n  logsDiv.style.display = ''\n  log = document.createElement(\"li\")\n  var template = document.createElement('template');\n  html = html.trim();\n  template.innerHTML = html;\n  log.append(template.content);\n  logsList.appendChild(log)\n}\n\nfunction getMetric(seriesName, metricName) {\n  const filteredSeries = data.series.filter((series) => series.refId == seriesName);\n  if(filteredSeries.length > 0 && filteredSeries[0].fields != null\n        && filteredSeries[0].fields.length > 0){\n    const filteredFields = filteredSeries[0].fields.filter((fields) => fields.name == metricName)\n    if(filteredFields.length > 0){\n      return filteredFields[0].values.get(0)\n    }\n  }\n  return null\n}\n\nconst vwsfriend_url = getTemplateSrv().replace(`$vwsfriend_url`);\nconst vin = getTemplateSrv().replace(`$VIN`);\nif(vwsfriend_url == null || vwsfriend_url== ''){\n  addWarning(\"You have to set the URL for the VWsFriend user interface correctly: Go to the user interface on port 4000 and select \\\"Database\\\" > \\”Connection Settings\\\"\")\n}\n\nconst carType = getMetric('vehicle_settings', 'carType')\nconst nickname = getMetric('vehicle_settings', 'nickname')\nconst primaryCapacity = getMetric('vehicle_settings', 'primary_capacity')\nconst primaryCapacityTotal = getMetric('vehicle_settings', 'primary_capacity_total')\nconst secondaryCapacity = getMetric('vehicle_settings', 'secondary_capacity')\nconst secondaryCapacityTotal = getMetric('vehicle_settings', 'secondary_capacity_total')\nconst timezone = getMetric('vehicle_settings', 'timezone')\n\nif(carType == null){\n  addWarning(\"The engine type of \"+nickname+\" could not be detected yet. This should happen soon when receiving data.\")\n}\nelse{\n  switch (carType) {\n    case 'HYBRID':\n      if(primaryCapacity == null){\n        addWarning(\"Some panels need the tank size of \"+nickname+\" to be set. Please set the size here: <a href=\\\"\"+vwsfriend_url+\"/settings/vehicle/database/\"+vin+\"\\\" target=\\”_blank\\”>Vehicle Parameters</a>\")\n      }\n      if(secondaryCapacity == null || secondaryCapacityTotal == null){\n        addWarning(\"Some panels need the battery capacity of \"+nickname+\" to be set. Please set the size here: <a href=\\\"\"+vwsfriend_url+\"/settings/vehicle/database/\"+vin+\"\\\" target=\\”_blank\\”>Vehicle Parameters</a>\")\n      }\n      break;\n    case 'ELECTRIC':\n      if(primaryCapacity == null || primaryCapacityTotal == null){\n        addWarning(\"Some panels need the battery capacity of \"+nickname+\" to be set. Please set the size here: <a href=\\\"\"+vwsfriend_url+\"/settings/vehicle/database/\"+vin+\"\\\" target=\\”_blank\\”>Vehicle Parameters</a>\")\n      }\n      break;\n    default:\n      if(primaryCapacity == null){\n        addWarning(\"Some panels need the battery capacity of \"+nickname+\" to be set. Please set the size here: <a href=\\\"\"+vwsfriend_url+\"/settings/vehicle/database/\"+vin+\"\\\" target=\\”_blank\\”>Vehicle Parameters</a>\")\n      }\n      break;\n  }\n}\nif(timezone == null){\n  addWarning(\"Some panels need the timezone of \"+nickname+\" to be set. Please set the timezone here: <a href=\\\"\"+vwsfriend_url+\"/settings/vehicle/database/\"+vin+\"\\\" target=\\”_blank\\”>Vehicle Parameters</a>\")\n}\nconst hasError = getMetric('error', 'has_error')\nif(hasError){\n  addWarning(\"There were more then two errors in the last 30 minutes when fetching data from the servers.<br/>It seems that there are technical issues.\")\n}\n\n//Log\nconst filteredSeries = data.series.filter((series) => series.refId == 'log');\n  if(filteredSeries.length > 0 && filteredSeries[0].fields != null\n        && filteredSeries[0].fields.length > 0){\n    const filteredFields = filteredSeries[0].fields.filter((fields) => (fields.name == 'logtime' || fields.name == 'log'))\n    timeZone = htmlGraphics.props.timeZone;\n    if(filteredFields.length == 2){\n      time = filteredFields[0];\n      logstring = filteredFields[1];\n      var options = { dateStyle: 'short' };\n      if(timeZone!='browser'){\n        options.timeZone = timeZone;\n      }\n      var timeOptions = { timeStyle: 'short' };\n      if(timeZone!='browser'){\n        timeOptions.timeZone = timeZone;\n      }\n      var beforedate = new Intl.DateTimeFormat('default', options).format(new Date());\n      for(let i = 0; i < time.values.length; i++) {\n        var date = new Intl.DateTimeFormat('default', options).format(new Date(time.values.get(i)));\n        if(beforedate != date){\n          addLog('<b>'+date+'</b>');\n        }\n        beforedate = date;\n        var timestr = new Intl.DateTimeFormat('default', timeOptions).format(new Date(time.values.get(i)));\n        addLog(timestr+\": \"+logstring.values.get(i));\n      }\n    }\n  }",
+        "overflow": "auto",
+        "panelupdateOnMount": true,
+        "reduceOptions": {
+          "calcs": []
+        },
+        "renderOnMount": true,
+        "rootCSS": "",
+        "useGrafanaScrollbar": true
+      },
+      "pluginVersion": "8.3.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "P2EF847825A020B66"
+          },
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  *\nFROM vehicles\nLEFT JOIN vehicle_settings ON vehicles.vin = vehicle_settings.vehicle_vin\nWHERE\n  vehicles.vin = '${VIN}'\nORDER BY 1",
+          "refId": "vehicle_settings",
+          "select": [
+            [
+              {
+                "params": [
+                  "\"maximumChargePower_kW\""
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "settings",
+          "timeColumn": "connected",
+          "timeColumnType": "timestamp",
+          "where": []
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "P2EF847825A020B66"
+          },
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  logtime,\n  log FROM\n(\n  (SELECT\n    started AS logtime,\n    'charging started' AS log\n  FROM charging_sessions\n  WHERE started IS NOT NULL AND vehicle_vin = '${VIN}'\n  ORDER BY started DESC\n  LIMIT 3)\n  UNION\n  (SELECT\n    connected AS logtime,\n    'charger connected' AS log\n  FROM charging_sessions\n  WHERE connected IS NOT NULL AND vehicle_vin = '${VIN}'\n  ORDER BY connected DESC\n  LIMIT 3)\n  UNION\n  (SELECT\n    locked AS logtime,\n    'connector locked' AS log\n  FROM charging_sessions\n  WHERE locked IS NOT NULL AND vehicle_vin = '${VIN}'\n  ORDER BY locked DESC\n  LIMIT 3)\n  UNION\n    (SELECT\n    ended AS logtime,\n    'charging ended' AS log\n  FROM charging_sessions\n  WHERE ended IS NOT NULL AND vehicle_vin = '${VIN}'\n  ORDER BY ended DESC\n  LIMIT 3)\n  UNION\n  (SELECT\n    disconnected AS logtime,\n    'charger disconnected' AS log\n  FROM charging_sessions\n  WHERE disconnected IS NOT NULL AND vehicle_vin = '${VIN}'\n  ORDER BY disconnected DESC\n  LIMIT 3)\n  UNION\n  (SELECT\n    unlocked AS logtime,\n    'connector unlocked' AS log\n  FROM charging_sessions\n  WHERE unlocked IS NOT NULL AND vehicle_vin = '${VIN}'\n  ORDER BY unlocked DESC\n  LIMIT 3)\n  UNION\n  (SELECT\n    date AS logtime,\n    'car was refueled' AS log\n  FROM refuel_sessions\n  WHERE date IS NOT NULL AND vehicle_vin = '${VIN}'\n  ORDER BY date DESC\n  LIMIT 3)\n   UNION\n  (SELECT\n    \"startDate\" AS logtime,\n    'trip started' AS log\n  FROM trips\n  WHERE \"startDate\" IS NOT NULL AND vehicle_vin = '${VIN}'\n  ORDER BY \"startDate\" DESC\n  LIMIT 10)\n  UNION\n  (SELECT\n    \"endDate\" AS logtime,\n    'trip ended' AS log\n  FROM trips\n  WHERE \"endDate\" IS NOT NULL AND vehicle_vin = '${VIN}'\n  ORDER BY \"endDate\" DESC\n  LIMIT 10)\n  UNION\n  (SELECT\n  \"carCapturedTimestamp\" AS logtime,\n  CASE WHEN \"climatisationState\"= 'OFF' THEN 'climatisation stopped'\n       WHEN \"climatisationState\"= 'HEATING' THEN 'climatisation heating'\n       WHEN \"climatisationState\"= 'COOLING' THEN 'climatisation cooling'\n       WHEN \"climatisationState\"= 'VENTILATION' THEN 'climatisation ventilating'\n       ELSE 'unkown'\n  END AS log\nFROM\n  (SELECT\n        \"carCapturedTimestamp\",\n        \"climatisationState\",\n        LAG(\"climatisationState\") OVER (ORDER BY \"carCapturedTimestamp\") AS \"beforeClimatisationState\",\n        'climatisation started' AS log\n      FROM climatization\n      WHERE \"carCapturedTimestamp\" IS NOT NULL AND \"climatisationState\" IS NOT NULL AND vehicle_vin = '${VIN}'\n        AND \"climatisationState\" IN ('OFF', 'HEATING', 'COOLING', 'VENTILATION')\n      ORDER BY \"carCapturedTimestamp\" DESC\n    ) AS climatization\n  WHERE \"climatisationState\" != \"beforeClimatisationState\"\n  ORDER BY \"carCapturedTimestamp\" DESC\n  LIMIT 10)\n  UNION\n  (SELECT\n    start AS logtime,\n    'New warning: '||text AS log\n  FROM warning_lights\n  WHERE start IS NOT NULL AND vehicle_vin = '${VIN}'\n  ORDER BY start DESC\n  LIMIT 3)\n  UNION\n  (SELECT\n    \"end\" AS logtime,\n    'Warning gone: '||text AS log\n  FROM warning_lights\n  WHERE \"end\" IS NOT NULL AND vehicle_vin = '${VIN}'\n  ORDER BY \"end\" DESC\n  LIMIT 3)\n) AS logs\nORDER BY 1 DESC\nLIMIT 20",
+          "refId": "log",
+          "select": [
+            [
+              {
+                "params": [
+                  "\"maximumChargePower_kW\""
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "settings",
+          "timeColumn": "connected",
+          "timeColumnType": "timestamp",
+          "where": []
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "P2EF847825A020B66"
+          },
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  COUNT(*)>2 AS has_error\nFROM weconnect_errors\nWHERE datetime > (NOW() - INTERVAL '30 MINUTES')",
+          "refId": "error",
+          "select": [
+            [
+              {
+                "params": [
+                  "\"maximumChargePower_kW\""
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "settings",
+          "timeColumn": "connected",
+          "timeColumnType": "timestamp",
+          "where": []
+        }
+      ],
+      "title": "Information",
+      "type": "gapit-htmlgraphics-panel"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P2EF847825A020B66"
+      },
+      "description": "If the car is charging, current charging power. This value is not available on all cars.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 11
+              }
+            ]
+          },
+          "unit": "kwatt",
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 3,
+        "x": 0,
+        "y": 16
+      },
+      "id": 9,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto",
+        "text": {}
+      },
+      "pluginVersion": "10.3.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "P2EF847825A020B66"
+          },
+          "format": "table",
+          "group": [],
+          "groupBy": [],
+          "measurement": "",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"chargePower_kW\"\nFROM charges\nWHERE\n  vehicle_vin = '$VIN'\nORDER BY \"time\" DESC\nLIMIT 1",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Charging Power (now)",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P2EF847825A020B66"
+      },
+      "description": "Time remaining until desired state of charge is reached.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "m",
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 3,
+        "x": 3,
+        "y": 16
+      },
+      "id": 20,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto",
+        "text": {}
+      },
+      "pluginVersion": "10.3.3",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "groupBy": [],
+          "measurement": "",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "(SELECT\n  to_timestamp(0) AS \"time\",\n  MAX(\"remainingChargingTimeToComplete_min\")\nFROM charges\nWHERE\n  vehicle_vin = '$VIN')\nUNION\n(SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"remainingChargingTimeToComplete_min\"\nFROM charges\nWHERE\n  vehicle_vin = '$VIN'\nORDER BY \"time\" DESC\nLIMIT 1)",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Remaining Charging Time (now)",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P2EF847825A020B66"
+      },
+      "description": "Current consumption and Range if the car would be at 100% SoC. Consumption is calculated as capacity divided by current range. The green area shows the WLTP range.\nSome cars only update these values during startup and shutdown. Value is only useful for electric cars or hybrids running on electricity only.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Extrapolated range at 100% SoC",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "km",
+          "unitScale": true
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "WLTP"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "km"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Calculated consumption"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "kWh/100km"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Calculated consumption"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "WLTP"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#73BF69",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 20
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 6,
+        "y": 16
+      },
+      "id": 14,
+      "interval": "5m",
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "8.2.5",
+      "targets": [
+        {
+          "alias": "Extrapolated range at 100% SoC",
+          "datasource": {
+            "type": "postgres",
+            "uid": "P2EF847825A020B66"
+          },
+          "format": "table",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "previous"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  $__time(\"carCapturedTimestamp\"),\n  CASE WHEN \"currentSOC_pct\"::NUMERIC > 0 THEN \"cruisingRangeElectric_km\"::NUMERIC / \"currentSOC_pct\"::NUMERIC * 100::NUMERIC END AS \"Current Range at 100%\",\n  CASE WHEN \"currentSOC_pct\"::NUMERIC = 0 OR \"cruisingRangeElectric_km\"::NUMERIC = 0 THEN NULL\n  ELSE\n       CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_capacity\"::NUMERIC\n       ELSE vehicle_settings.\"secondary_capacity\"::NUMERIC END / (\"cruisingRangeElectric_km\"::NUMERIC / \"currentSOC_pct\"::NUMERIC * 100::NUMERIC) * 100::NUMERIC END AS \"Calculated consumption\"\nFROM\n  battery\nLEFT JOIN vehicles ON battery.vehicle_vin = vehicles.vin\nLEFT JOIN vehicle_settings ON battery.vehicle_vin = vehicle_settings.vehicle_vin\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  battery.vehicle_vin = '$VIN'\nORDER BY 1",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "Extrapolated range at 100% SoC",
+          "datasource": {
+            "type": "postgres",
+            "uid": "P2EF847825A020B66"
+          },
+          "format": "table",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "previous"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  unnest(ARRAY[to_timestamp(${__from}/1000), to_timestamp(${__to}/1000)]) AS time,\n  CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_wltp_range\"::NUMERIC\n  ELSE vehicle_settings.\"secondary_wltp_range\"::NUMERIC END AS \"WLTP\"\nFROM\n  vehicles\nLEFT JOIN vehicle_settings ON vehicles.vin = vehicle_settings.vehicle_vin\nWHERE\n  vehicles.vin = '$VIN'\nORDER BY 1",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Consumption & Range extrapolated to 100% SoC",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P2EF847825A020B66"
+      },
+      "description": "Current efficiency. 100% means that with the current consumption the WLTP range is reached.\nSome cars only update these values during startup and shutdown. Value is only useful for electric cars or hybrids running on electricity only.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Efficiency",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent",
+          "unitScale": true
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Temperature"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "celsius"
+              },
+              {
+                "id": "min",
+                "value": -15
+              },
+              {
+                "id": "max",
+                "value": 40
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "hidden"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Temperature"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "100% = WLTP Range"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#c9c9c9",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    10
+                  ],
+                  "fill": "dash"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 6,
+        "y": 24
+      },
+      "id": 15,
+      "interval": "5m",
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "8.2.5",
+      "targets": [
+        {
+          "alias": "Efficiency (Compared to WLTP range)",
+          "datasource": {
+            "type": "postgres",
+            "uid": "P2EF847825A020B66"
+          },
+          "format": "time_series",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "previous"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  $__time(\"carCapturedTimestamp\"),\n  CASE WHEN \"currentSOC_pct\"::NUMERIC > 0 THEN\n    (\"cruisingRangeElectric_km\"::NUMERIC / \"currentSOC_pct\"::NUMERIC * 100::NUMERIC) / \n      CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_wltp_range\"::NUMERIC\n           ELSE vehicle_settings.\"secondary_wltp_range\"::NUMERIC END * 100::NUMERIC\n  ELSE NULL END AS \"Efficiency\"\nFROM\n  battery\nLEFT JOIN vehicles ON battery.vehicle_vin = vehicles.vin\nLEFT JOIN vehicle_settings ON battery.vehicle_vin = vehicle_settings.vehicle_vin\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  battery.vehicle_vin = '$VIN'\nORDER BY 1",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "Efficiency (Compared to WLTP range)",
+          "datasource": {
+            "type": "postgres",
+            "uid": "P2EF847825A020B66"
+          },
+          "format": "time_series",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "previous"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  unnest(ARRAY[to_timestamp(${__from}/1000), to_timestamp(${__to}/1000)]) AS time,\n  100 AS \"100% = WLTP Range\"\nFROM\n  vehicles\nLEFT JOIN vehicle_settings ON vehicles.vin = vehicle_settings.vehicle_vin\nWHERE\n  vehicles.vin = '$VIN'\nORDER BY 1",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Efficiency",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P2EF847825A020B66"
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 6,
+        "x": 18,
+        "y": 24
+      },
+      "id": 27,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "VWsFriend on GitHub",
+          "url": "https://github.com/tillsteinbach/VWsFriend/"
+        }
+      ],
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "VWsFriend version: [0.0.0dev](https://github.com/tillsteinbach/VWsFriend/)",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.3.3",
+      "title": "Version",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "P2EF847825A020B66"
+      },
+      "description": "Charging power and charging rate in kilometers over time.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Charge Power",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "kwatt",
+          "unitScale": true
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Charge Rate"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "velocitykmh"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Charge Rate"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Battery Temperature"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "celsius"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Battery Temperature"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "hidden"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 6,
+        "y": 32
+      },
+      "id": 18,
+      "interval": "5m",
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "8.2.5",
+      "targets": [
+        {
+          "alias": "Charge Power",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "P2EF847825A020B66"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "previous"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "(SELECT\r\n  \"carCapturedTimestamp\" AS \"time\",\r\n  \"chargePower_kW\" AS \"Charge Power\",\r\n  \"chargeRate_kmph\" AS \"Charge Rate\"\r\nFROM charges\r\nWHERE\r\n  $__timeFilter(\"carCapturedTimestamp\") AND\r\n  vehicle_vin = '$VIN'\r\nORDER BY \"carCapturedTimestamp\")\r\nUNION ALL\r\n(SELECT\r\n  \"carCapturedTimestamp\" AS \"time\",\r\n  CASE WHEN \"chargingState\" = 'CHARGING' THEN \"delta\"::decimal*( CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_capacity\"::NUMERIC\r\n  ELSE vehicle_settings.\"secondary_capacity\"::NUMERIC END::decimal/100::decimal) / (EXTRACT(epoch FROM \"timedelta\") / 3600)\r\n  ELSE NULL END AS \"Charge Power\",\r\n  CASE WHEN \"chargingState\" = 'CHARGING' THEN \"deltakm\"::decimal / (EXTRACT(epoch FROM \"timedelta\") / 3600)\r\n  ELSE NULL END AS \"Charge Rate\"\r\nFROM\r\n  (SELECT *,\r\n  DATE_TRUNC('minute', \"carCapturedTimestamp\") AS \"batteryTime\",\r\n  (\"carCapturedTimestamp\" - LAG(\"carCapturedTimestamp\") OVER (ORDER BY \"carCapturedTimestamp\")) AS \"timedelta\",\r\n  (\"currentSOC_pct\" - LAG(\"currentSOC_pct\") OVER (ORDER BY \"carCapturedTimestamp\")) AS \"delta\",\r\n  (\"cruisingRangeElectric_km\" - LAG(\"cruisingRangeElectric_km\") OVER (ORDER BY \"carCapturedTimestamp\")) AS \"deltakm\"\r\nFROM\r\n  battery\r\nWHERE\r\n  $__timeFilter(\"carCapturedTimestamp\") AND\r\n  vehicle_vin = '$VIN'\r\nORDER BY \"carCapturedTimestamp\") AS delta\r\nLEFT JOIN\r\n(\r\nSELECT\r\n\"chargingState\",\r\nDATE_TRUNC('minute', charges.\"carCapturedTimestamp\") AS \"chargeTime\"\r\nFROM charges\r\nWHERE\r\n  $__timeFilter(\"carCapturedTimestamp\") AND\r\n  vehicle_vin = '$VIN') as charging ON \"chargeTime\" = \"batteryTime\"\r\nLEFT JOIN vehicles ON delta.vehicle_vin = vehicles.vin\r\nLEFT JOIN vehicle_settings ON delta.vehicle_vin = vehicle_settings.vehicle_vin\r\nWHERE\r\n  \"delta\" > 0 AND\r\n  NOT EXISTS (SELECT 1 FROM charges WHERE \"chargePower_kW\" IS NOT NULL AND \"chargeRate_kmph\" IS NOT NULL AND $__timeFilter(\"carCapturedTimestamp\") AND vehicle_vin = '$VIN' LIMIT 1)\r\nORDER BY \"carCapturedTimestamp\")",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "P2EF847825A020B66"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "SELECT\n    \"carCapturedTimestamp\" AS \"time\",\n    (((\"temperatureHvBatteryMin_K\" + \"temperatureHvBatteryMax_K\")/2) - 273.15) AS \"Battery Temperature\"\nFROM\n    battery_temperature\nWHERE\n    $__timeFilter(\"carCapturedTimestamp\") AND\n    vehicle_vin = '$VIN'\nORDER BY\n    \"carCapturedTimestamp\" DESC",
+          "refId": "B",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Charging",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P2EF847825A020B66"
+      },
+      "description": "Highlights the times when the car is online, heating and charging.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 70,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineWidth": 0,
+            "spanNulls": false
+          },
+          "mappings": [
+            {
+              "options": {
+                "CHARGE_PURPOSE_REACHED_CONSERVATION": {
+                  "color": "blue",
+                  "index": 11,
+                  "text": "conservation charging"
+                },
+                "CHARGE_PURPOSE_REACHED_NOT_CONSERVATION_CHARGING": {
+                  "color": "green",
+                  "index": 10,
+                  "text": "charge purpose reached"
+                },
+                "CHARGING": {
+                  "color": "blue",
+                  "index": 9,
+                  "text": "charging"
+                },
+                "CONSERVATION": {
+                  "color": "blue",
+                  "index": 13,
+                  "text": "conservation"
+                },
+                "COOLING": {
+                  "color": "blue",
+                  "index": 5,
+                  "text": "cooling"
+                },
+                "DISCHARGING": {
+                  "color": "yellow",
+                  "index": 16,
+                  "text": "discharging"
+                },
+                "ERROR": {
+                  "color": "red",
+                  "index": 8,
+                  "text": "error"
+                },
+                "HEATING": {
+                  "color": "red",
+                  "index": 3,
+                  "text": "heating"
+                },
+                "INVALID": {
+                  "color": "red",
+                  "index": 12,
+                  "text": "invalid"
+                },
+                "NOT_READY_FOR_CHARGING": {
+                  "color": "#3d3d3d",
+                  "index": 14,
+                  "text": "not ready for charging"
+                },
+                "OFF": {
+                  "color": "#3d3d3d",
+                  "index": 2,
+                  "text": "off"
+                },
+                "ON": {
+                  "color": "green",
+                  "index": 4,
+                  "text": "on"
+                },
+                "READY_FOR_CHARGING": {
+                  "color": "green",
+                  "index": 7,
+                  "text": "ready for charging"
+                },
+                "UNSUPPORTED": {
+                  "color": "#3d3d3d",
+                  "index": 15,
+                  "text": "unsupported"
+                },
+                "VENTILATION": {
+                  "color": "purple",
+                  "index": 6,
+                  "text": "ventilation"
+                },
+                "offline": {
+                  "color": "#3d3d3d",
+                  "index": 1
+                },
+                "online": {
+                  "color": "green",
+                  "index": 0
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none",
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 6,
+        "y": 40
+      },
+      "id": 21,
+      "interval": "5m",
+      "options": {
+        "alignValue": "center",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "mergeValues": true,
+        "rowHeight": 0.9,
+        "showValue": "auto",
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "7.5.2",
+      "targets": [
+        {
+          "alias": "Car state",
+          "datasource": {
+            "type": "postgres",
+            "uid": "P2EF847825A020B66"
+          },
+          "format": "table",
+          "group": [],
+          "groupBy": [],
+          "measurement": "",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "(SELECT\n  \"onlineTime\" AS \"time\",\n  'online' AS \"Online\"\nFROM onlinestates\nWHERE\n  (\"onlineTime\" != \"offlineTime\" OR \"offlineTime\" IS NULL) AND\n  $__timeFilter(\"onlineTime\") AND\n  vehicle_vin = '$VIN')\nUNION ALL\n(SELECT\n  \"offlineTime\" AS \"time\",\n  'offline' AS \"state\"\nFROM onlinestates\nWHERE\n  (\"onlineTime\" != \"offlineTime\" OR \"onlineTime\" IS NULL) AND\n  $__timeFilter(\"offlineTime\") AND\n  vehicle_vin = '$VIN')\nORDER BY \"time\"",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "Car state",
+          "datasource": {
+            "type": "postgres",
+            "uid": "P2EF847825A020B66"
+          },
+          "format": "table",
+          "group": [],
+          "groupBy": [],
+          "hide": false,
+          "measurement": "",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"climatisationState\" AS \"Climatization\"\nFROM climatization\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1  ",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "P2EF847825A020B66"
+          },
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"chargingState\" AS \"Charging\"\nFROM charges\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1  ",
+          "refId": "C",
+          "select": [
+            [
+              {
+                "params": [
+                  "position_latitude"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "refuel_sessions",
+          "timeColumn": "date",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "States",
+      "type": "state-timeline"
+    }
+  ],
+  "refresh": "1m",
+  "schemaVersion": 39,
+  "tags": [
+    "vwsfriend"
+  ],
+  "templating": {
+    "list": [
+      {
+        "datasource": {
+          "type": "postgres",
+          "uid": "P2EF847825A020B66"
+        },
+        "definition": "SELECT \"vin\" || ':' || \"nickname\" || ' (' || \"model\" || ' - ' || \"carType\" || ')' FROM vehicles LEFT JOIN vehicle_settings ON vehicles.VIN = vehicle_settings.vehicle_vin WHERE vehicle_settings.hide IS NOT True ORDER BY vehicle_settings.sorting_order ASC",
+        "description": "Select Car if you have multiple cars in your account",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Car",
+        "multi": false,
+        "name": "VIN",
+        "options": [],
+        "query": "SELECT \"vin\" || ':' || \"nickname\" || ' (' || \"model\" || ' - ' || \"carType\" || ')' FROM vehicles LEFT JOIN vehicle_settings ON vehicles.VIN = vehicle_settings.vehicle_vin WHERE vehicle_settings.hide IS NOT True ORDER BY vehicle_settings.sorting_order ASC",
+        "refresh": 1,
+        "regex": "/(?<value>[A-Z0-9]+):(?<text>.*)/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "datasource": {
+          "type": "postgres",
+          "uid": "P2EF847825A020B66"
+        },
+        "definition": "SELECT vwsfriend_url FROM settings LIMIT 1",
+        "hide": 2,
+        "includeAll": false,
+        "multi": false,
+        "name": "vwsfriend_url",
+        "options": [],
+        "query": "SELECT vwsfriend_url FROM settings LIMIT 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Car Overview",
+  "uid": "b0WnuNMnk",
+  "version": 1,
+  "weekStart": ""
+}
