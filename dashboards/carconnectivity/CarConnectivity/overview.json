@@ -26,7 +26,7 @@
           "type": "postgres",
           "uid": "P2EF847825A020B66"
         },
-        "enable": true,
+        "enable": false,
         "hide": false,
         "iconColor": "#73BF69",
         "name": "Online",
@@ -90,114 +90,7 @@
   "panels": [
     {
       "datasource": {
-        "type": "marcusolsson-json-datasource",
-        "uid": "P36D08C1A0297C737"
-      },
-      "description": "Current status of the car ${VIN:text} with VIN ${VIN:raw}. To receive reasonable results you have to make settings for your car.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unitScale": true
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 3,
-        "x": 0,
-        "y": 0
-      },
-      "id": 5,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Car Settings",
-          "url": "${vwsfriend_url:raw}/settings/vehicle/database/${VIN}"
-        }
-      ],
-      "options": {
-        "SVGBaseFix": true,
-        "add100Percentage": false,
-        "calcsMutation": "standard",
-        "centerAlignContent": true,
-        "codeData": "{\n  \"text\": \"Random text\"\n}",
-        "css": "",
-        "dynamicData": false,
-        "dynamicFieldDisplayValues": false,
-        "dynamicHtmlGraphics": true,
-        "dynamicProps": false,
-        "html": "<a id='carlink' target=”_blank”>\n<img src=\"\" id='carimage' style='max-height: 100%; max-width: 100%'/>\n</a>",
-        "onInit": "// Sets the text from customProperties\nconst htmlgraphicsText = htmlNode.getElementById('htmlgraphics-text');\n\nif (htmlgraphicsText) {\n  htmlgraphicsText.textContent = customProperties.text;\n\n  // Change the text color based on the theme\n  if (theme.isDark) {\n    htmlgraphicsText.style.color = 'green';\n  } else {\n    htmlgraphicsText.style.color = 'red';\n  }\n}\n",
-        "onInitOnResize": false,
-        "onRender": "const vin = getTemplateSrv().replace(`$VIN`);\nconst vwsfriend_url = getTemplateSrv().replace(`$vwsfriend_url`);\nconst carimage = htmlNode.querySelector('#carimage');\nconst carlink = htmlNode.querySelector('#carlink');\n\nconst filteredSeriesImage = data.series.filter((series) => series.name == 'A');\njsonImage = null;\nif(filteredSeriesImage.length > 0 && filteredSeriesImage[0].fields != null && filteredSeriesImage[0].fields.length > 0){\n  jsonImage = filteredSeriesImage[0].fields[0].values.get(0);\n  const vehicleImage = JSON.parse(jsonImage);\n  carimage.src = \"data:\"+vehicleImage.type+\";\"+vehicleImage.encoding+\",\"+vehicleImage.data\n}\nelse {\n  carimage.src = vwsfriend_url+'/status/vehicles/'+vin+'-status_or_car-badge.png';\n}\n\n\ncarlink.href = vwsfriend_url+'/status/vehicle/'+vin+'/';",
-        "overflow": "visible",
-        "panelupdateOnMount": true,
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull",
-            "last",
-            "firstNotNull",
-            "first",
-            "min",
-            "max",
-            "mean",
-            "sum",
-            "count",
-            "range",
-            "delta",
-            "step",
-            "diff",
-            "logmin",
-            "allIsZero",
-            "allIsNull",
-            "diffperc"
-          ]
-        },
-        "renderOnMount": true,
-        "rootCSS": "",
-        "useGrafanaScrollbar": true
-      },
-      "pluginVersion": "9.0.4",
-      "targets": [
-        {
-          "cacheDurationSeconds": 30,
-          "datasource": {
-            "type": "marcusolsson-json-datasource",
-            "uid": "P36D08C1A0297C737"
-          },
-          "fields": [
-            {
-              "jsonPath": "$"
-            }
-          ],
-          "method": "GET",
-          "queryParams": "",
-          "refId": "A",
-          "urlPath": "/status/vehicles/$VIN-status_or_car-badge.png.json"
-        }
-      ],
-      "title": "$VIN",
-      "type": "gapit-htmlgraphics-panel"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
+        "type": "frser-sqlite-datasource",
         "uid": "P2EF847825A020B66"
       },
       "description": "Current state of charge in percent",
@@ -253,49 +146,12 @@
       "pluginVersion": "10.3.3",
       "targets": [
         {
-          "format": "table",
-          "group": [],
-          "groupBy": [],
-          "measurement": "",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"currentSOC_pct\" AS \"Battery SoC\"\nFROM battery\nWHERE\n  vehicle_vin = '$VIN'\nORDER BY \"time\" DESC\nLIMIT 1",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Battery SoC\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/level'\nORDER BY time DESC\nLIMIT 1",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Battery SoC\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/level'\nORDER BY time DESC\nLIMIT 1",
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "\"primary_currentSOC_pct\""
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ranges",
-          "tags": [],
-          "timeColumn": "\"carCapturedTimestamp\"",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            },
-            {
-              "datatype": "varchar",
-              "name": "",
-              "params": [
-                "vehicle_vin",
-                "=",
-                "'$VIN'"
-              ],
-              "type": "expression"
-            }
+          "queryType": "table",
+          "timeColumns": [
+            "time"
           ]
         }
       ],
@@ -304,7 +160,7 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "frser-sqlite-datasource",
         "uid": "P2EF847825A020B66"
       },
       "description": "Battery level and projected range plotted over time.\nSome cars only update these values during startup and shutdown.",
@@ -410,89 +266,21 @@
       "pluginVersion": "8.2.5",
       "targets": [
         {
-          "alias": "Battery SoC",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "previous"
-              ],
-              "type": "fill"
-            }
-          ],
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"currentSOC_pct\" AS \"Battery SoC\"\nFROM battery\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Battery SoC\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/level' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Battery SoC\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/level' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "refId": "2",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "\"primary_currentSOC_pct\""
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ranges",
-          "tags": [],
-          "timeColumn": "\"carCapturedTimestamp\"",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            },
-            {
-              "datatype": "varchar",
-              "name": "",
-              "params": [
-                "vehicle_vin",
-                "=",
-                "'$VIN'"
-              ],
-              "type": "expression"
-            }
+          "queryType": "table",
+          "timeColumns": [
+            "time"
           ]
         },
         {
-          "format": "time_series",
-          "group": [],
-          "hide": false,
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"cruisingRangeElectric_km\" AS \"Electric Range\"\nFROM battery\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1  ",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Electric Range\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/range' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Electric Range\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/range' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "refId": "1",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
+          "queryType": "table",
+          "timeColumns": [
+            "time"
           ]
         }
       ],
@@ -501,7 +289,7 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "frser-sqlite-datasource",
         "uid": "P2EF847825A020B66"
       },
       "description": "Indicates if the car is currently awake (online) or sleeping.",
@@ -571,33 +359,12 @@
       "pluginVersion": "10.3.3",
       "targets": [
         {
-          "alias": "Car is online",
-          "format": "table",
-          "group": [],
-          "groupBy": [],
-          "measurement": "",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  \"lastUpdate\" AS \"time\",\n  CASE WHEN \"online\"=True THEN 1\n       WHEN \"online\"=False THEN 0\n  END as \"online\"\nFROM vehicles\nWHERE\n  vin = '$VIN'",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  CASE WHEN v.value IN ('reachable', 'online', 'connected') THEN 1\n       ELSE 0\n  END AS \"online\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/connection_state'\nORDER BY time DESC\nLIMIT 1",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  CASE WHEN v.value IN ('reachable', 'online', 'connected') THEN 1\n       ELSE 0\n  END AS \"online\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/connection_state'\nORDER BY time DESC\nLIMIT 1",
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            []
-          ],
-          "table": "vehicles",
-          "tags": [],
-          "timeColumn": "\"lastUpdate\"",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
+          "queryType": "table",
+          "timeColumns": [
+            "time"
           ]
         }
       ],
@@ -606,7 +373,7 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "frser-sqlite-datasource",
         "uid": "P2EF847825A020B66"
       },
       "description": "Time when the last successful connection to the servers were made and time when the last information from the car was received.",
@@ -657,38 +424,12 @@
       "pluginVersion": "10.3.3",
       "targets": [
         {
-          "alias": "Last connection",
-          "format": "table",
-          "group": [],
-          "groupBy": [],
-          "measurement": "",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  \"lastUpdate\" AS \"Last update from Server\",\n  \"lastChange\" AS \"Last update from Car\"\nFROM vehicles\nWHERE\n  vin = '$VIN'",
+          "rawQueryText": "SELECT\n  MAX(last_update) * 1000 AS \"Last update from Car\"\nFROM (\n  SELECT unixepoch(start_date) as last_update FROM attribute_float_value WHERE attribute_id IN (SELECT id FROM attribute WHERE path LIKE '/garage/${VIN}/%')\n  UNION ALL\n  SELECT unixepoch(start_date) FROM attribute_enum_value WHERE attribute_id IN (SELECT id FROM attribute WHERE path LIKE '/garage/${VIN}/%')\n  UNION ALL\n  SELECT unixepoch(start_date) FROM attribute_string_value WHERE attribute_id IN (SELECT id FROM attribute WHERE path LIKE '/garage/${VIN}/%')\n  UNION ALL\n  SELECT unixepoch(start_date) FROM attribute_boolean_value WHERE attribute_id IN (SELECT id FROM attribute WHERE path LIKE '/garage/${VIN}/%')\n  UNION ALL\n  SELECT unixepoch(start_date) FROM attribute_integer_value WHERE attribute_id IN (SELECT id FROM attribute WHERE path LIKE '/garage/${VIN}/%')\n  UNION ALL\n  SELECT unixepoch(start_date) FROM attribute_datetime_value WHERE attribute_id IN (SELECT id FROM attribute WHERE path LIKE '/garage/${VIN}/%')\n)",
+          "queryText": "SELECT\n  MAX(last_update) * 1000 AS \"Last update from Car\"\nFROM (\n  SELECT unixepoch(start_date) as last_update FROM attribute_float_value WHERE attribute_id IN (SELECT id FROM attribute WHERE path LIKE '/garage/${VIN}/%')\n  UNION ALL\n  SELECT unixepoch(start_date) FROM attribute_enum_value WHERE attribute_id IN (SELECT id FROM attribute WHERE path LIKE '/garage/${VIN}/%')\n  UNION ALL\n  SELECT unixepoch(start_date) FROM attribute_string_value WHERE attribute_id IN (SELECT id FROM attribute WHERE path LIKE '/garage/${VIN}/%')\n  UNION ALL\n  SELECT unixepoch(start_date) FROM attribute_boolean_value WHERE attribute_id IN (SELECT id FROM attribute WHERE path LIKE '/garage/${VIN}/%')\n  UNION ALL\n  SELECT unixepoch(start_date) FROM attribute_integer_value WHERE attribute_id IN (SELECT id FROM attribute WHERE path LIKE '/garage/${VIN}/%')\n  UNION ALL\n  SELECT unixepoch(start_date) FROM attribute_datetime_value WHERE attribute_id IN (SELECT id FROM attribute WHERE path LIKE '/garage/${VIN}/%')\n)",
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
+          "queryType": "table",
+          "timeColumns": [
+            "time"
           ]
         }
       ],
@@ -697,7 +438,7 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "frser-sqlite-datasource",
         "uid": "P2EF847825A020B66"
       },
       "description": "Current range calculated from current consumption",
@@ -756,49 +497,12 @@
       "pluginVersion": "10.3.3",
       "targets": [
         {
-          "format": "table",
-          "group": [],
-          "groupBy": [],
-          "measurement": "",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "(SELECT\n  to_timestamp(0) AS \"time\",\n  CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_wltp_range\"::NUMERIC\n  ELSE vehicle_settings.\"secondary_wltp_range\"::NUMERIC END AS \"Electric Range\"\nFROM vehicles\nLEFT JOIN vehicle_settings ON vehicles.vin = vehicle_settings.vehicle_vin\nWHERE\n  vehicles.vin = '$VIN')\nUNION\n(SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"cruisingRangeElectric_km\" AS \"Electric Range\"\nFROM battery\nWHERE\n  battery.vehicle_vin = '$VIN'\nORDER BY \"time\" DESC\nLIMIT 1)",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Electric Range\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/range' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Electric Range\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/range' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "\"totalRange_km\""
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ranges",
-          "tags": [],
-          "timeColumn": "\"carCapturedTimestamp\"",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            },
-            {
-              "datatype": "varchar",
-              "name": "",
-              "params": [
-                "vehicle_vin",
-                "=",
-                "'$VIN'"
-              ],
-              "type": "expression"
-            }
+          "queryType": "table",
+          "timeColumns": [
+            "time"
           ]
         }
       ],
@@ -807,7 +511,7 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "frser-sqlite-datasource",
         "uid": "P2EF847825A020B66"
       },
       "description": "Time remaining until climatization is turned off automatically.",
@@ -858,37 +562,12 @@
       "pluginVersion": "10.3.3",
       "targets": [
         {
-          "format": "table",
-          "group": [],
-          "groupBy": [],
-          "measurement": "",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "(SELECT\n  to_timestamp(0) AS \"time\",\n  MAX(\"remainingClimatisationTime_min\")\nFROM climatization\nWHERE\n  vehicle_vin = '$VIN')\nUNION\n(SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  CASE WHEN \"climatisationState\" != 'OFF' THEN \"remainingClimatisationTime_min\"\n  ELSE 0 END\nFROM climatization\nWHERE\n  vehicle_vin = '$VIN'\nORDER BY \"time\" DESC\nLIMIT 1)",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Climatization\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/climatization/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Climatization\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/climatization/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
+          "queryType": "table",
+          "timeColumns": [
+            "time"
           ]
         }
       ],
@@ -897,7 +576,7 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "frser-sqlite-datasource",
         "uid": "P2EF847825A020B66"
       },
       "description": "Battery level and projected range plotted over time for primary and secondary engine. This is useful especially for hybrids.\nSome cars only update these values during startup and shutdown.",
@@ -1003,267 +682,48 @@
       "pluginVersion": "8.2.5",
       "targets": [
         {
-          "alias": "Battery SoC",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "previous"
-              ],
-              "type": "fill"
-            }
-          ],
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"primary_currentSOC_pct\" AS \"Primary Engine SoC\"\nFROM ranges\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1",
+          "rawQueryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
+          "queryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
           "refId": "2",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "\"primary_currentSOC_pct\""
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ranges",
-          "tags": [],
-          "timeColumn": "\"carCapturedTimestamp\"",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            },
-            {
-              "datatype": "varchar",
-              "name": "",
-              "params": [
-                "vehicle_vin",
-                "=",
-                "'$VIN'"
-              ],
-              "type": "expression"
-            }
+          "queryType": "table",
+          "timeColumns": [
+            "time"
           ]
         },
         {
-          "format": "time_series",
-          "group": [],
-          "hide": false,
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"totalRange_km\" AS \"Total Range\"\nFROM ranges\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1  ",
+          "rawQueryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
+          "queryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
           "refId": "1",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
+          "queryType": "table",
+          "timeColumns": [
+            "time"
           ]
         },
         {
-          "alias": "Projected Range",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "previous"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"primary_remainingRange_km\" AS \"Primary Engine Range\"\nFROM ranges\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1",
+          "rawQueryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
+          "queryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
           "refId": "3",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "\"primary_remainingRange_km\""
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ranges",
-          "tags": [],
-          "timeColumn": "\"carCapturedTimestamp\"",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            },
-            {
-              "datatype": "varchar",
-              "name": "",
-              "params": [
-                "vehicle_vin",
-                "=",
-                "'$VIN'"
-              ],
-              "type": "expression"
-            }
+          "queryType": "table",
+          "timeColumns": [
+            "time"
           ]
         },
         {
-          "alias": "Battery SoC",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "previous"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"secondary_currentSOC_pct\" AS \"Secondary Engine SoC\"\nFROM ranges\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1",
+          "rawQueryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
+          "queryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
           "refId": "4",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "\"primary_currentSOC_pct\""
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ranges",
-          "tags": [],
-          "timeColumn": "\"carCapturedTimestamp\"",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            },
-            {
-              "datatype": "varchar",
-              "name": "",
-              "params": [
-                "vehicle_vin",
-                "=",
-                "'$VIN'"
-              ],
-              "type": "expression"
-            }
+          "queryType": "table",
+          "timeColumns": [
+            "time"
           ]
         },
         {
-          "alias": "Projected Range",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "previous"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"secondary_remainingRange_km\" AS \"Secondary Engine Range\"\nFROM ranges\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1",
+          "rawQueryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
+          "queryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
           "refId": "5",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "\"primary_remainingRange_km\""
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ranges",
-          "tags": [],
-          "timeColumn": "\"carCapturedTimestamp\"",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            },
-            {
-              "datatype": "varchar",
-              "name": "",
-              "params": [
-                "vehicle_vin",
-                "=",
-                "'$VIN'"
-              ],
-              "type": "expression"
-            }
+          "queryType": "table",
+          "timeColumns": [
+            "time"
           ]
         }
       ],
@@ -1272,10 +732,10 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "frser-sqlite-datasource",
         "uid": "P2EF847825A020B66"
       },
-      "description": "Shows information for the usage of VWsFriend",
+      "description": "Shows information for the usage of VWsFriend\n\nNOTE: Requires configuration - not yet available in EAV schema",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1333,84 +793,31 @@
       "pluginVersion": "8.3.6",
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "P2EF847825A020B66"
-          },
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  *\nFROM vehicles\nLEFT JOIN vehicle_settings ON vehicles.vin = vehicle_settings.vehicle_vin\nWHERE\n  vehicles.vin = '${VIN}'\nORDER BY 1",
+          "rawQueryText": "-- NOTE: This panel requires configuration data not yet available in EAV schema\n-- Original query uses vehicle_settings table which is not migrated\nSELECT 0 AS value",
+          "queryText": "-- NOTE: This panel requires configuration data not yet available in EAV schema\n-- Original query uses vehicle_settings table which is not migrated\nSELECT 0 AS value",
           "refId": "vehicle_settings",
-          "select": [
-            [
-              {
-                "params": [
-                  "\"maximumChargePower_kW\""
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "settings",
-          "timeColumn": "connected",
-          "timeColumnType": "timestamp",
-          "where": []
+          "queryType": "table",
+          "timeColumns": [
+            "time"
+          ]
         },
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "P2EF847825A020B66"
-          },
-          "format": "table",
-          "group": [],
-          "hide": false,
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  logtime,\n  log FROM\n(\n  (SELECT\n    started AS logtime,\n    'charging started' AS log\n  FROM charging_sessions\n  WHERE started IS NOT NULL AND vehicle_vin = '${VIN}'\n  ORDER BY started DESC\n  LIMIT 3)\n  UNION\n  (SELECT\n    connected AS logtime,\n    'charger connected' AS log\n  FROM charging_sessions\n  WHERE connected IS NOT NULL AND vehicle_vin = '${VIN}'\n  ORDER BY connected DESC\n  LIMIT 3)\n  UNION\n  (SELECT\n    locked AS logtime,\n    'connector locked' AS log\n  FROM charging_sessions\n  WHERE locked IS NOT NULL AND vehicle_vin = '${VIN}'\n  ORDER BY locked DESC\n  LIMIT 3)\n  UNION\n    (SELECT\n    ended AS logtime,\n    'charging ended' AS log\n  FROM charging_sessions\n  WHERE ended IS NOT NULL AND vehicle_vin = '${VIN}'\n  ORDER BY ended DESC\n  LIMIT 3)\n  UNION\n  (SELECT\n    disconnected AS logtime,\n    'charger disconnected' AS log\n  FROM charging_sessions\n  WHERE disconnected IS NOT NULL AND vehicle_vin = '${VIN}'\n  ORDER BY disconnected DESC\n  LIMIT 3)\n  UNION\n  (SELECT\n    unlocked AS logtime,\n    'connector unlocked' AS log\n  FROM charging_sessions\n  WHERE unlocked IS NOT NULL AND vehicle_vin = '${VIN}'\n  ORDER BY unlocked DESC\n  LIMIT 3)\n  UNION\n  (SELECT\n    date AS logtime,\n    'car was refueled' AS log\n  FROM refuel_sessions\n  WHERE date IS NOT NULL AND vehicle_vin = '${VIN}'\n  ORDER BY date DESC\n  LIMIT 3)\n   UNION\n  (SELECT\n    \"startDate\" AS logtime,\n    'trip started' AS log\n  FROM trips\n  WHERE \"startDate\" IS NOT NULL AND vehicle_vin = '${VIN}'\n  ORDER BY \"startDate\" DESC\n  LIMIT 10)\n  UNION\n  (SELECT\n    \"endDate\" AS logtime,\n    'trip ended' AS log\n  FROM trips\n  WHERE \"endDate\" IS NOT NULL AND vehicle_vin = '${VIN}'\n  ORDER BY \"endDate\" DESC\n  LIMIT 10)\n  UNION\n  (SELECT\n  \"carCapturedTimestamp\" AS logtime,\n  CASE WHEN \"climatisationState\"= 'OFF' THEN 'climatisation stopped'\n       WHEN \"climatisationState\"= 'HEATING' THEN 'climatisation heating'\n       WHEN \"climatisationState\"= 'COOLING' THEN 'climatisation cooling'\n       WHEN \"climatisationState\"= 'VENTILATION' THEN 'climatisation ventilating'\n       ELSE 'unkown'\n  END AS log\nFROM\n  (SELECT\n        \"carCapturedTimestamp\",\n        \"climatisationState\",\n        LAG(\"climatisationState\") OVER (ORDER BY \"carCapturedTimestamp\") AS \"beforeClimatisationState\",\n        'climatisation started' AS log\n      FROM climatization\n      WHERE \"carCapturedTimestamp\" IS NOT NULL AND \"climatisationState\" IS NOT NULL AND vehicle_vin = '${VIN}'\n        AND \"climatisationState\" IN ('OFF', 'HEATING', 'COOLING', 'VENTILATION')\n      ORDER BY \"carCapturedTimestamp\" DESC\n    ) AS climatization\n  WHERE \"climatisationState\" != \"beforeClimatisationState\"\n  ORDER BY \"carCapturedTimestamp\" DESC\n  LIMIT 10)\n  UNION\n  (SELECT\n    start AS logtime,\n    'New warning: '||text AS log\n  FROM warning_lights\n  WHERE start IS NOT NULL AND vehicle_vin = '${VIN}'\n  ORDER BY start DESC\n  LIMIT 3)\n  UNION\n  (SELECT\n    \"end\" AS logtime,\n    'Warning gone: '||text AS log\n  FROM warning_lights\n  WHERE \"end\" IS NOT NULL AND vehicle_vin = '${VIN}'\n  ORDER BY \"end\" DESC\n  LIMIT 3)\n) AS logs\nORDER BY 1 DESC\nLIMIT 20",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Climatization\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/climatization/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Climatization\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/climatization/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "refId": "log",
-          "select": [
-            [
-              {
-                "params": [
-                  "\"maximumChargePower_kW\""
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "settings",
-          "timeColumn": "connected",
-          "timeColumnType": "timestamp",
-          "where": []
+          "queryType": "table",
+          "timeColumns": [
+            "time"
+          ]
         },
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "P2EF847825A020B66"
-          },
-          "format": "table",
-          "group": [],
-          "hide": false,
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  COUNT(*)>2 AS has_error\nFROM weconnect_errors\nWHERE datetime > (NOW() - INTERVAL '30 MINUTES')",
+          "rawQueryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
+          "queryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
           "refId": "error",
-          "select": [
-            [
-              {
-                "params": [
-                  "\"maximumChargePower_kW\""
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "settings",
-          "timeColumn": "connected",
-          "timeColumnType": "timestamp",
-          "where": []
+          "queryType": "table",
+          "timeColumns": [
+            "time"
+          ]
         }
       ],
       "title": "Information",
@@ -1418,7 +825,7 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "frser-sqlite-datasource",
         "uid": "P2EF847825A020B66"
       },
       "description": "If the car is charging, current charging power. This value is not available on all cars.",
@@ -1474,41 +881,12 @@
       "pluginVersion": "10.3.3",
       "targets": [
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "P2EF847825A020B66"
-          },
-          "format": "table",
-          "group": [],
-          "groupBy": [],
-          "measurement": "",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"chargePower_kW\"\nFROM charges\nWHERE\n  vehicle_vin = '$VIN'\nORDER BY \"time\" DESC\nLIMIT 1",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"chargePower_kW\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/charging/power'\nORDER BY time DESC\nLIMIT 1",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"chargePower_kW\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/charging/power'\nORDER BY time DESC\nLIMIT 1",
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
+          "queryType": "table",
+          "timeColumns": [
+            "time"
           ]
         }
       ],
@@ -1517,7 +895,7 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "frser-sqlite-datasource",
         "uid": "P2EF847825A020B66"
       },
       "description": "Time remaining until desired state of charge is reached.",
@@ -1568,37 +946,12 @@
       "pluginVersion": "10.3.3",
       "targets": [
         {
-          "format": "table",
-          "group": [],
-          "groupBy": [],
-          "measurement": "",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "(SELECT\n  to_timestamp(0) AS \"time\",\n  MAX(\"remainingChargingTimeToComplete_min\")\nFROM charges\nWHERE\n  vehicle_vin = '$VIN')\nUNION\n(SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"remainingChargingTimeToComplete_min\"\nFROM charges\nWHERE\n  vehicle_vin = '$VIN'\nORDER BY \"time\" DESC\nLIMIT 1)",
+          "rawQueryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
+          "queryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
+          "queryType": "table",
+          "timeColumns": [
+            "time"
           ]
         }
       ],
@@ -1607,10 +960,10 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "frser-sqlite-datasource",
         "uid": "P2EF847825A020B66"
       },
-      "description": "Current consumption and Range if the car would be at 100% SoC. Consumption is calculated as capacity divided by current range. The green area shows the WLTP range.\nSome cars only update these values during startup and shutdown. Value is only useful for electric cars or hybrids running on electricity only.",
+      "description": "Current consumption and Range if the car would be at 100% SoC. Consumption is calculated as capacity divided by current range. The green area shows the WLTP range.\nSome cars only update these values during startup and shutdown. Value is only useful for electric cars or hybrids running on electricity only.\n\nNOTE: Requires configuration - not yet available in EAV schema\n\nNOTE: Requires configuration - not yet available in EAV schema",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1747,117 +1100,21 @@
       "pluginVersion": "8.2.5",
       "targets": [
         {
-          "alias": "Extrapolated range at 100% SoC",
-          "datasource": {
-            "type": "postgres",
-            "uid": "P2EF847825A020B66"
-          },
-          "format": "table",
-          "group": [],
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "previous"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  $__time(\"carCapturedTimestamp\"),\n  CASE WHEN \"currentSOC_pct\"::NUMERIC > 0 THEN \"cruisingRangeElectric_km\"::NUMERIC / \"currentSOC_pct\"::NUMERIC * 100::NUMERIC END AS \"Current Range at 100%\",\n  CASE WHEN \"currentSOC_pct\"::NUMERIC = 0 OR \"cruisingRangeElectric_km\"::NUMERIC = 0 THEN NULL\n  ELSE\n       CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_capacity\"::NUMERIC\n       ELSE vehicle_settings.\"secondary_capacity\"::NUMERIC END / (\"cruisingRangeElectric_km\"::NUMERIC / \"currentSOC_pct\"::NUMERIC * 100::NUMERIC) * 100::NUMERIC END AS \"Calculated consumption\"\nFROM\n  battery\nLEFT JOIN vehicles ON battery.vehicle_vin = vehicles.vin\nLEFT JOIN vehicle_settings ON battery.vehicle_vin = vehicle_settings.vehicle_vin\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  battery.vehicle_vin = '$VIN'\nORDER BY 1",
+          "rawQueryText": "-- NOTE: This panel requires configuration data not yet available in EAV schema\n-- Original query uses vehicle_settings table which is not migrated\nSELECT 0 AS value",
+          "queryText": "-- NOTE: This panel requires configuration data not yet available in EAV schema\n-- Original query uses vehicle_settings table which is not migrated\nSELECT 0 AS value",
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
+          "queryType": "table",
+          "timeColumns": [
+            "time"
           ]
         },
         {
-          "alias": "Extrapolated range at 100% SoC",
-          "datasource": {
-            "type": "postgres",
-            "uid": "P2EF847825A020B66"
-          },
-          "format": "table",
-          "group": [],
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "previous"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  unnest(ARRAY[to_timestamp(${__from}/1000), to_timestamp(${__to}/1000)]) AS time,\n  CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_wltp_range\"::NUMERIC\n  ELSE vehicle_settings.\"secondary_wltp_range\"::NUMERIC END AS \"WLTP\"\nFROM\n  vehicles\nLEFT JOIN vehicle_settings ON vehicles.vin = vehicle_settings.vehicle_vin\nWHERE\n  vehicles.vin = '$VIN'\nORDER BY 1",
+          "rawQueryText": "-- NOTE: This panel requires configuration data not yet available in EAV schema\n-- Original query uses vehicle_settings table which is not migrated\nSELECT 0 AS value",
+          "queryText": "-- NOTE: This panel requires configuration data not yet available in EAV schema\n-- Original query uses vehicle_settings table which is not migrated\nSELECT 0 AS value",
           "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
+          "queryType": "table",
+          "timeColumns": [
+            "time"
           ]
         }
       ],
@@ -1866,10 +1123,10 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "frser-sqlite-datasource",
         "uid": "P2EF847825A020B66"
       },
-      "description": "Current efficiency. 100% means that with the current consumption the WLTP range is reached.\nSome cars only update these values during startup and shutdown. Value is only useful for electric cars or hybrids running on electricity only.",
+      "description": "Current efficiency. 100% means that with the current consumption the WLTP range is reached.\nSome cars only update these values during startup and shutdown. Value is only useful for electric cars or hybrids running on electricity only.\n\nNOTE: Requires configuration - not yet available in EAV schema\n\nNOTE: Requires configuration - not yet available in EAV schema",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2012,116 +1269,21 @@
       "pluginVersion": "8.2.5",
       "targets": [
         {
-          "alias": "Efficiency (Compared to WLTP range)",
-          "datasource": {
-            "type": "postgres",
-            "uid": "P2EF847825A020B66"
-          },
-          "format": "time_series",
-          "group": [],
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "previous"
-              ],
-              "type": "fill"
-            }
-          ],
-          "measurement": "",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  $__time(\"carCapturedTimestamp\"),\n  CASE WHEN \"currentSOC_pct\"::NUMERIC > 0 THEN\n    (\"cruisingRangeElectric_km\"::NUMERIC / \"currentSOC_pct\"::NUMERIC * 100::NUMERIC) / \n      CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_wltp_range\"::NUMERIC\n           ELSE vehicle_settings.\"secondary_wltp_range\"::NUMERIC END * 100::NUMERIC\n  ELSE NULL END AS \"Efficiency\"\nFROM\n  battery\nLEFT JOIN vehicles ON battery.vehicle_vin = vehicles.vin\nLEFT JOIN vehicle_settings ON battery.vehicle_vin = vehicle_settings.vehicle_vin\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  battery.vehicle_vin = '$VIN'\nORDER BY 1",
+          "rawQueryText": "-- NOTE: This panel requires configuration data not yet available in EAV schema\n-- Original query uses vehicle_settings table which is not migrated\nSELECT 0 AS value",
+          "queryText": "-- NOTE: This panel requires configuration data not yet available in EAV schema\n-- Original query uses vehicle_settings table which is not migrated\nSELECT 0 AS value",
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
+          "queryType": "table",
+          "timeColumns": [
+            "time"
           ]
         },
         {
-          "alias": "Efficiency (Compared to WLTP range)",
-          "datasource": {
-            "type": "postgres",
-            "uid": "P2EF847825A020B66"
-          },
-          "format": "time_series",
-          "group": [],
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "previous"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  unnest(ARRAY[to_timestamp(${__from}/1000), to_timestamp(${__to}/1000)]) AS time,\n  100 AS \"100% = WLTP Range\"\nFROM\n  vehicles\nLEFT JOIN vehicle_settings ON vehicles.vin = vehicle_settings.vehicle_vin\nWHERE\n  vehicles.vin = '$VIN'\nORDER BY 1",
+          "rawQueryText": "-- NOTE: This panel requires configuration data not yet available in EAV schema\n-- Original query uses vehicle_settings table which is not migrated\nSELECT 0 AS value",
+          "queryText": "-- NOTE: This panel requires configuration data not yet available in EAV schema\n-- Original query uses vehicle_settings table which is not migrated\nSELECT 0 AS value",
           "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
+          "queryType": "table",
+          "timeColumns": [
+            "time"
           ]
         }
       ],
@@ -2130,7 +1292,7 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "frser-sqlite-datasource",
         "uid": "P2EF847825A020B66"
       },
       "gridPos": {
@@ -2162,7 +1324,7 @@
     },
     {
       "datasource": {
-        "type": "grafana-postgresql-datasource",
+        "type": "frser-sqlite-datasource",
         "uid": "P2EF847825A020B66"
       },
       "description": "Charging power and charging rate in kilometers over time.",
@@ -2291,107 +1453,22 @@
       "pluginVersion": "8.2.5",
       "targets": [
         {
-          "alias": "Charge Power",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "P2EF847825A020B66"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "group": [],
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "previous"
-              ],
-              "type": "fill"
-            }
-          ],
-          "measurement": "",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "(SELECT\r\n  \"carCapturedTimestamp\" AS \"time\",\r\n  \"chargePower_kW\" AS \"Charge Power\",\r\n  \"chargeRate_kmph\" AS \"Charge Rate\"\r\nFROM charges\r\nWHERE\r\n  $__timeFilter(\"carCapturedTimestamp\") AND\r\n  vehicle_vin = '$VIN'\r\nORDER BY \"carCapturedTimestamp\")\r\nUNION ALL\r\n(SELECT\r\n  \"carCapturedTimestamp\" AS \"time\",\r\n  CASE WHEN \"chargingState\" = 'CHARGING' THEN \"delta\"::decimal*( CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_capacity\"::NUMERIC\r\n  ELSE vehicle_settings.\"secondary_capacity\"::NUMERIC END::decimal/100::decimal) / (EXTRACT(epoch FROM \"timedelta\") / 3600)\r\n  ELSE NULL END AS \"Charge Power\",\r\n  CASE WHEN \"chargingState\" = 'CHARGING' THEN \"deltakm\"::decimal / (EXTRACT(epoch FROM \"timedelta\") / 3600)\r\n  ELSE NULL END AS \"Charge Rate\"\r\nFROM\r\n  (SELECT *,\r\n  DATE_TRUNC('minute', \"carCapturedTimestamp\") AS \"batteryTime\",\r\n  (\"carCapturedTimestamp\" - LAG(\"carCapturedTimestamp\") OVER (ORDER BY \"carCapturedTimestamp\")) AS \"timedelta\",\r\n  (\"currentSOC_pct\" - LAG(\"currentSOC_pct\") OVER (ORDER BY \"carCapturedTimestamp\")) AS \"delta\",\r\n  (\"cruisingRangeElectric_km\" - LAG(\"cruisingRangeElectric_km\") OVER (ORDER BY \"carCapturedTimestamp\")) AS \"deltakm\"\r\nFROM\r\n  battery\r\nWHERE\r\n  $__timeFilter(\"carCapturedTimestamp\") AND\r\n  vehicle_vin = '$VIN'\r\nORDER BY \"carCapturedTimestamp\") AS delta\r\nLEFT JOIN\r\n(\r\nSELECT\r\n\"chargingState\",\r\nDATE_TRUNC('minute', charges.\"carCapturedTimestamp\") AS \"chargeTime\"\r\nFROM charges\r\nWHERE\r\n  $__timeFilter(\"carCapturedTimestamp\") AND\r\n  vehicle_vin = '$VIN') as charging ON \"chargeTime\" = \"batteryTime\"\r\nLEFT JOIN vehicles ON delta.vehicle_vin = vehicles.vin\r\nLEFT JOIN vehicle_settings ON delta.vehicle_vin = vehicle_settings.vehicle_vin\r\nWHERE\r\n  \"delta\" > 0 AND\r\n  NOT EXISTS (SELECT 1 FROM charges WHERE \"chargePower_kW\" IS NOT NULL AND \"chargeRate_kmph\" IS NOT NULL AND $__timeFilter(\"carCapturedTimestamp\") AND vehicle_vin = '$VIN' LIMIT 1)\r\nORDER BY \"carCapturedTimestamp\")",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"chargePower_kW\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/charging/power'\nORDER BY time DESC\nLIMIT 1",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"chargePower_kW\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/charging/power'\nORDER BY time DESC\nLIMIT 1",
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
+          "queryType": "table",
+          "timeColumns": [
+            "time"
           ]
         },
         {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "P2EF847825A020B66"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "hide": false,
-          "rawQuery": true,
-          "rawSql": "SELECT\n    \"carCapturedTimestamp\" AS \"time\",\n    (((\"temperatureHvBatteryMin_K\" + \"temperatureHvBatteryMax_K\")/2) - 273.15) AS \"Battery Temperature\"\nFROM\n    battery_temperature\nWHERE\n    $__timeFilter(\"carCapturedTimestamp\") AND\n    vehicle_vin = '$VIN'\nORDER BY\n    \"carCapturedTimestamp\" DESC",
+          "rawQueryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
+          "queryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
           "refId": "B",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
+          "queryType": "table",
+          "timeColumns": [
+            "time"
+          ]
         }
       ],
       "title": "Charging",
@@ -2399,7 +1476,7 @@
     },
     {
       "datasource": {
-        "type": "postgres",
+        "type": "frser-sqlite-datasource",
         "uid": "P2EF847825A020B66"
       },
       "description": "Highlights the times when the car is online, heating and charging.",
@@ -2549,115 +1626,30 @@
       "pluginVersion": "7.5.2",
       "targets": [
         {
-          "alias": "Car state",
-          "datasource": {
-            "type": "postgres",
-            "uid": "P2EF847825A020B66"
-          },
-          "format": "table",
-          "group": [],
-          "groupBy": [],
-          "measurement": "",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "(SELECT\n  \"onlineTime\" AS \"time\",\n  'online' AS \"Online\"\nFROM onlinestates\nWHERE\n  (\"onlineTime\" != \"offlineTime\" OR \"offlineTime\" IS NULL) AND\n  $__timeFilter(\"onlineTime\") AND\n  vehicle_vin = '$VIN')\nUNION ALL\n(SELECT\n  \"offlineTime\" AS \"time\",\n  'offline' AS \"state\"\nFROM onlinestates\nWHERE\n  (\"onlineTime\" != \"offlineTime\" OR \"onlineTime\" IS NULL) AND\n  $__timeFilter(\"offlineTime\") AND\n  vehicle_vin = '$VIN')\nORDER BY \"time\"",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Online\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/connection_state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Online\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/connection_state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
+          "queryType": "table",
+          "timeColumns": [
+            "time"
           ]
         },
         {
-          "alias": "Car state",
-          "datasource": {
-            "type": "postgres",
-            "uid": "P2EF847825A020B66"
-          },
-          "format": "table",
-          "group": [],
-          "groupBy": [],
-          "hide": false,
-          "measurement": "",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"climatisationState\" AS \"Climatization\"\nFROM climatization\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1  ",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Climatization\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/climatization/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Climatization\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/climatization/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
+          "queryType": "table",
+          "timeColumns": [
+            "time"
           ]
         },
         {
-          "datasource": {
-            "type": "postgres",
-            "uid": "P2EF847825A020B66"
-          },
-          "format": "table",
-          "group": [],
-          "hide": false,
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"chargingState\" AS \"Charging\"\nFROM charges\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1  ",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Charging\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/charging/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Charging\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/charging/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "refId": "C",
-          "select": [
-            [
-              {
-                "params": [
-                  "position_latitude"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "refuel_sessions",
-          "timeColumn": "date",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
+          "queryType": "table",
+          "timeColumns": [
+            "time"
           ]
         }
       ],
@@ -2674,10 +1666,10 @@
     "list": [
       {
         "datasource": {
-          "type": "postgres",
+          "type": "frser-sqlite-datasource",
           "uid": "P2EF847825A020B66"
         },
-        "definition": "SELECT \"vin\" || ':' || \"nickname\" || ' (' || \"model\" || ' - ' || \"carType\" || ')' FROM vehicles LEFT JOIN vehicle_settings ON vehicles.VIN = vehicle_settings.vehicle_vin WHERE vehicle_settings.hide IS NOT True ORDER BY vehicle_settings.sorting_order ASC",
+        "definition": "SELECT DISTINCT substr(path, 9, 17) as vin FROM attribute WHERE path LIKE '/garage/%' AND length(substr(path, 9, 17)) = 17",
         "description": "Select Car if you have multiple cars in your account",
         "hide": 0,
         "includeAll": false,
@@ -2685,7 +1677,7 @@
         "multi": false,
         "name": "VIN",
         "options": [],
-        "query": "SELECT \"vin\" || ':' || \"nickname\" || ' (' || \"model\" || ' - ' || \"carType\" || ')' FROM vehicles LEFT JOIN vehicle_settings ON vehicles.VIN = vehicle_settings.vehicle_vin WHERE vehicle_settings.hide IS NOT True ORDER BY vehicle_settings.sorting_order ASC",
+        "query": "SELECT DISTINCT substr(path, 9, 17) as vin FROM attribute WHERE path LIKE '/garage/%' AND length(substr(path, 9, 17)) = 17",
         "refresh": 1,
         "regex": "/(?<value>[A-Z0-9]+):(?<text>.*)/",
         "skipUrlSync": false,
@@ -2693,25 +1685,30 @@
         "tagValuesQuery": "",
         "tagsQuery": "",
         "type": "query",
-        "useTags": false
+        "useTags": false,
+        "current": {}
       },
       {
         "datasource": {
-          "type": "postgres",
+          "type": "frser-sqlite-datasource",
           "uid": "P2EF847825A020B66"
         },
-        "definition": "SELECT vwsfriend_url FROM settings LIMIT 1",
+        "definition": "",
         "hide": 2,
         "includeAll": false,
         "multi": false,
         "name": "vwsfriend_url",
         "options": [],
-        "query": "SELECT vwsfriend_url FROM settings LIMIT 1",
+        "query": "",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
-        "type": "query"
+        "type": "custom",
+        "current": {
+          "text": "",
+          "value": ""
+        }
       }
     ]
   },
@@ -2721,7 +1718,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Car Overview",
+  "title": "Car Overview (SQLite EAV)",
   "uid": "b0WnuNMnk",
   "version": 1,
   "weekStart": ""

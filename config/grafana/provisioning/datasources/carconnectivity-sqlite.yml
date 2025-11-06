@@ -13,6 +13,5 @@ datasources:
     access: proxy
     jsonData:
       path: /home/grafana/.carconnectivity/carconnectivity.db
-    url: $DB_HOSTNAME:$DB_PORT
     isDefault: true
     editable: false
