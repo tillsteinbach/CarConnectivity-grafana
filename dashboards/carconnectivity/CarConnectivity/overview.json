@@ -736,7 +736,7 @@
         "type": "frser-sqlite-datasource",
         "uid": "P2EF847825A020B66"
       },
-      "description": "Shows information for the usage of VWsFriend\n\nNOTE: Requires configuration - not yet available in EAV schema",
+      "description": "Shows version information for Garage (CarConnectivity)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1306,8 +1306,8 @@
       "links": [
         {
           "targetBlank": true,
-          "title": "VWsFriend on GitHub",
-          "url": "https://github.com/tillsteinbach/VWsFriend/"
+          "title": "CarConnectivity on GitHub",
+          "url": "https://github.com/tillsteinbach/CarConnectivity/"
         }
       ],
       "options": {
@@ -1316,7 +1316,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "VWsFriend version: [0.0.0dev](https://github.com/tillsteinbach/VWsFriend/)",
+        "content": "Garage (CarConnectivity) version: 0.0.1",
         "mode": "markdown"
       },
       "pluginVersion": "10.3.3",
