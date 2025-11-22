@@ -683,8 +683,8 @@
       "pluginVersion": "8.2.5",
       "targets": [
         {
-          "rawQueryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
-          "queryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Primary Level %\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/level' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Primary Level %\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/level' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "refId": "2",
           "queryType": "table",
           "timeColumns": [
@@ -692,8 +692,8 @@
           ]
         },
         {
-          "rawQueryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
-          "queryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Primary Range\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/range' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Primary Range\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/range' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "refId": "1",
           "queryType": "table",
           "timeColumns": [
@@ -701,8 +701,8 @@
           ]
         },
         {
-          "rawQueryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
-          "queryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Total Range\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/total_range' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Total Range\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/total_range' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "refId": "3",
           "queryType": "table",
           "timeColumns": [
@@ -710,8 +710,8 @@
           ]
         },
         {
-          "rawQueryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
-          "queryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Battery Temp Min\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/battery/temperature_min' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Battery Temp Min\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/battery/temperature_min' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "refId": "4",
           "queryType": "table",
           "timeColumns": [
@@ -719,8 +719,8 @@
           ]
         },
         {
-          "rawQueryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
-          "queryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Battery Temp Max\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/battery/temperature_max' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Battery Temp Max\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/battery/temperature_max' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "refId": "5",
           "queryType": "table",
           "timeColumns": [
