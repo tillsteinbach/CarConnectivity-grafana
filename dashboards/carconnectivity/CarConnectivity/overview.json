@@ -1598,88 +1598,60 @@
           "mappings": [
             {
               "options": {
-                "CHARGE_PURPOSE_REACHED_CONSERVATION": {
+                "charging": {
                   "color": "blue",
-                  "index": 11,
-                  "text": "conservation charging"
-                },
-                "CHARGE_PURPOSE_REACHED_NOT_CONSERVATION_CHARGING": {
-                  "color": "green",
-                  "index": 10,
-                  "text": "charge purpose reached"
-                },
-                "CHARGING": {
-                  "color": "blue",
-                  "index": 9,
+                  "index": 0,
                   "text": "charging"
                 },
-                "CONSERVATION": {
+                "conservation": {
                   "color": "blue",
-                  "index": 13,
+                  "index": 1,
                   "text": "conservation"
                 },
-                "COOLING": {
-                  "color": "blue",
-                  "index": 5,
-                  "text": "cooling"
-                },
-                "DISCHARGING": {
-                  "color": "yellow",
-                  "index": 16,
-                  "text": "discharging"
-                },
-                "ERROR": {
-                  "color": "red",
-                  "index": 8,
-                  "text": "error"
-                },
-                "HEATING": {
-                  "color": "red",
-                  "index": 3,
-                  "text": "heating"
-                },
-                "INVALID": {
-                  "color": "red",
-                  "index": 12,
-                  "text": "invalid"
-                },
-                "NOT_READY_FOR_CHARGING": {
-                  "color": "#3d3d3d",
-                  "index": 14,
-                  "text": "not ready for charging"
-                },
-                "OFF": {
-                  "color": "#3d3d3d",
+                "ready_for_charging": {
+                  "color": "green",
                   "index": 2,
-                  "text": "off"
-                },
-                "ON": {
-                  "color": "green",
-                  "index": 4,
-                  "text": "on"
-                },
-                "READY_FOR_CHARGING": {
-                  "color": "green",
-                  "index": 7,
                   "text": "ready for charging"
                 },
-                "UNSUPPORTED": {
+                "off": {
                   "color": "#3d3d3d",
-                  "index": 15,
-                  "text": "unsupported"
+                  "index": 3,
+                  "text": "off"
                 },
-                "VENTILATION": {
-                  "color": "purple",
+                "heating": {
+                  "color": "red",
+                  "index": 4,
+                  "text": "heating"
+                },
+                "connected": {
+                  "color": "green",
+                  "index": 5,
+                  "text": "connected"
+                },
+                "connecting": {
+                  "color": "yellow",
                   "index": 6,
-                  "text": "ventilation"
+                  "text": "connecting"
+                },
+                "reachable": {
+                  "color": "green",
+                  "index": 7,
+                  "text": "reachable"
+                },
+                "disconnected": {
+                  "color": "orange",
+                  "index": 8,
+                  "text": "disconnected"
                 },
                 "offline": {
                   "color": "#3d3d3d",
-                  "index": 1
+                  "index": 9,
+                  "text": "offline"
                 },
-                "online": {
-                  "color": "green",
-                  "index": 0
+                "error": {
+                  "color": "red",
+                  "index": 10,
+                  "text": "error"
                 }
               },
               "type": "value"
@@ -1729,8 +1701,8 @@
             "type": "frser-sqlite-datasource",
             "uid": "P2EF847825A020B66"
           },
-          "rawQueryText": "SELECT\n  unixepoch(v.start_date) * 1000 AS time,\n  v.value AS \"Online\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/connection_state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
-          "queryText": "SELECT\n  unixepoch(v.start_date) * 1000 AS time,\n  v.value AS \"Online\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/connection_state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Online\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/connection_state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Online\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/connection_state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "refId": "A",
           "queryType": "table",
           "timeColumns": [
@@ -1742,8 +1714,8 @@
             "type": "frser-sqlite-datasource",
             "uid": "P2EF847825A020B66"
           },
-          "rawQueryText": "SELECT\n  unixepoch(v.start_date) * 1000 AS time,\n  v.value AS \"Climatization\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/climatization/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
-          "queryText": "SELECT\n  unixepoch(v.start_date) * 1000 AS time,\n  v.value AS \"Climatization\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/climatization/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Climatization\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/climatization/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Climatization\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/climatization/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "refId": "B",
           "queryType": "table",
           "timeColumns": [
@@ -1755,8 +1727,8 @@
             "type": "frser-sqlite-datasource",
             "uid": "P2EF847825A020B66"
           },
-          "rawQueryText": "SELECT\n  unixepoch(v.start_date) * 1000 AS time,\n  v.value AS \"Charging\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/charging/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
-          "queryText": "SELECT\n  unixepoch(v.start_date) * 1000 AS time,\n  v.value AS \"Charging\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/charging/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Charging\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/charging/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Charging\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/charging/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "refId": "C",
           "queryType": "table",
           "timeColumns": [
