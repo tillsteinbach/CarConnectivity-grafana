@@ -1627,8 +1627,12 @@
       "pluginVersion": "7.5.2",
       "targets": [
         {
-          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Online\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/connection_state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
-          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Online\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/connection_state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "P2EF847825A020B66"
+          },
+          "rawQueryText": "SELECT\n  unixepoch(v.start_date) * 1000 AS time,\n  v.value AS \"Online\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/connection_state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  unixepoch(v.start_date) * 1000 AS time,\n  v.value AS \"Online\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/connection_state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "refId": "A",
           "queryType": "table",
           "timeColumns": [
@@ -1636,8 +1640,12 @@
           ]
         },
         {
-          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Climatization\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/climatization/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
-          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Climatization\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/climatization/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "P2EF847825A020B66"
+          },
+          "rawQueryText": "SELECT\n  unixepoch(v.start_date) * 1000 AS time,\n  v.value AS \"Climatization\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/climatization/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  unixepoch(v.start_date) * 1000 AS time,\n  v.value AS \"Climatization\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/climatization/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "refId": "B",
           "queryType": "table",
           "timeColumns": [
@@ -1645,8 +1653,12 @@
           ]
         },
         {
-          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Charging\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/charging/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
-          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Charging\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/charging/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "P2EF847825A020B66"
+          },
+          "rawQueryText": "SELECT\n  unixepoch(v.start_date) * 1000 AS time,\n  v.value AS \"Charging\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/charging/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  unixepoch(v.start_date) * 1000 AS time,\n  v.value AS \"Charging\"\nFROM attribute a\nJOIN attribute_enum_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/charging/state' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "refId": "C",
           "queryType": "table",
           "timeColumns": [
