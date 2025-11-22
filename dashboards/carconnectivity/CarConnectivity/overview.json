@@ -1045,8 +1045,8 @@
       "pluginVersion": "10.3.3",
       "targets": [
         {
-          "rawQueryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
-          "queryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  CAST((unixepoch(v.value) - unixepoch('now')) / 60.0 AS INTEGER) AS \"Remaining Time\"\nFROM attribute a\nJOIN attribute_datetime_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/charging/estimated_date_reached'\nORDER BY time DESC\nLIMIT 1",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  CAST((unixepoch(v.value) - unixepoch('now')) / 60.0 AS INTEGER) AS \"Remaining Time\"\nFROM attribute a\nJOIN attribute_datetime_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/charging/estimated_date_reached'\nORDER BY time DESC\nLIMIT 1",
           "refId": "A",
           "queryType": "table",
           "timeColumns": [
