@@ -1552,8 +1552,8 @@
       "pluginVersion": "8.2.5",
       "targets": [
         {
-          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"chargePower_kW\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/charging/power'\nORDER BY time DESC\nLIMIT 1",
-          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"chargePower_kW\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/charging/power'\nORDER BY time DESC\nLIMIT 1",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Charge Power\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/charging/power' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Charge Power\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/charging/power' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "refId": "A",
           "queryType": "table",
           "timeColumns": [
@@ -1561,8 +1561,8 @@
           ]
         },
         {
-          "rawQueryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
-          "queryText": "-- TODO: Convert this query to EAV schema\n-- Original query not yet converted\nSELECT 0 AS value",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Charge Rate\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/charging/rate' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Charge Rate\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/charging/rate' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "refId": "B",
           "queryType": "table",
           "timeColumns": [
