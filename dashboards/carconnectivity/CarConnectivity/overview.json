@@ -293,6 +293,134 @@
         "type": "frser-sqlite-datasource",
         "uid": "P2EF847825A020B66"
       },
+      "description": "Shows battery temperature over time",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "celsius",
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 6,
+        "y": 8
+      },
+      "id": 30,
+      "interval": "5m",
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "8.2.5",
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "P2EF847825A020B66"
+          },
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value - 273.15 AS \"Battery Temperature\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/battery/temperature' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value - 273.15 AS \"Battery Temperature\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/battery/temperature' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "refId": "A",
+          "queryType": "table",
+          "timeColumns": [
+            "time"
+          ]
+        },
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "P2EF847825A020B66"
+          },
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value - 273.15 AS \"Battery Temp Min\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/battery/temperature_min' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value - 273.15 AS \"Battery Temp Min\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/battery/temperature_min' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "refId": "B",
+          "queryType": "table",
+          "timeColumns": [
+            "time"
+          ]
+        },
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "P2EF847825A020B66"
+          },
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value - 273.15 AS \"Battery Temp Max\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/battery/temperature_max' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value - 273.15 AS \"Battery Temp Max\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/battery/temperature_max' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "refId": "C",
+          "queryType": "table",
+          "timeColumns": [
+            "time"
+          ]
+        }
+      ],
+      "title": "Battery Temperature",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2EF847825A020B66"
+      },
       "description": "Indicates if the car is currently awake (online) or sleeping.",
       "fieldConfig": {
         "defaults": {
@@ -659,7 +787,7 @@
         "h": 8,
         "w": 12,
         "x": 6,
-        "y": 8
+        "y": 16
       },
       "id": 23,
       "interval": "5m",
