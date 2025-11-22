@@ -342,7 +342,8 @@
             ]
           },
           "unit": "celsius",
-          "unitScale": true
+          "unitScale": true,
+          "decimals": 1
         },
         "overrides": []
       },
@@ -391,22 +392,9 @@
             "type": "frser-sqlite-datasource",
             "uid": "P2EF847825A020B66"
           },
-          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value - 273.15 AS \"Battery Temp Min\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/battery/temperature_min' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
-          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value - 273.15 AS \"Battery Temp Min\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/battery/temperature_min' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value - 273.15 AS \"Outside Temperature\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/outside_temperature' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
+          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value - 273.15 AS \"Outside Temperature\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/outside_temperature' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "refId": "B",
-          "queryType": "table",
-          "timeColumns": [
-            "time"
-          ]
-        },
-        {
-          "datasource": {
-            "type": "frser-sqlite-datasource",
-            "uid": "P2EF847825A020B66"
-          },
-          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value - 273.15 AS \"Battery Temp Max\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/battery/temperature_max' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
-          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value - 273.15 AS \"Battery Temp Max\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/battery/temperature_max' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
-          "refId": "C",
           "queryType": "table",
           "timeColumns": [
             "time"
@@ -832,24 +820,6 @@
           "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Total Range\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/total_range' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Total Range\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/total_range' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
           "refId": "3",
-          "queryType": "table",
-          "timeColumns": [
-            "time"
-          ]
-        },
-        {
-          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Battery Temp Min\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/battery/temperature_min' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
-          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Battery Temp Min\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/battery/temperature_min' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
-          "refId": "4",
-          "queryType": "table",
-          "timeColumns": [
-            "time"
-          ]
-        },
-        {
-          "rawQueryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Battery Temp Max\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/battery/temperature_max' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
-          "queryText": "SELECT\n  strftime('%s', v.start_date) AS time,\n  v.value AS \"Battery Temp Max\"\nFROM attribute a\nJOIN attribute_float_value v ON a.id = v.attribute_id\nWHERE\n  a.path = '/garage/${VIN}/drives/primary/battery/temperature_max' AND\n  unixepoch(v.start_date) BETWEEN $__from / 1000 AND $__to / 1000\nORDER BY time",
-          "refId": "5",
           "queryType": "table",
           "timeColumns": [
             "time"
