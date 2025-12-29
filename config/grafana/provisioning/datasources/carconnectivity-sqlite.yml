@@ -8,7 +8,7 @@ deleteDatasources:
 datasources:
   - name: CarConnectivity-SQLite
     orgId: 1
-    uid: P2EF847825A020B66
+    uid: CarConnectivity-SQLite-provisioned
     type: frser-sqlite-datasource
     access: proxy
     jsonData:
