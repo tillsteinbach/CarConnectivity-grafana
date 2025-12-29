@@ -156,7 +156,7 @@
         "rootCSS": "",
         "useGrafanaScrollbar": true
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "cacheDurationSeconds": 30,
@@ -232,7 +232,7 @@
         "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "format": "table",
@@ -320,6 +320,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -390,7 +391,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "Battery SoC",
@@ -564,7 +565,7 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "Car is online",
@@ -650,7 +651,7 @@
         "textMode": "value_and_name",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "Last connection",
@@ -748,7 +749,7 @@
         "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "format": "table",
@@ -849,7 +850,7 @@
         "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "format": "table",
@@ -925,6 +926,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -995,84 +997,19 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.3.1",
       "targets": [
-        {
-          "alias": "Battery SoC",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "previous"
-              ],
-              "type": "fill"
-            }
-          ],
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "queryText": "\n    SELECT CAST(strftime('%s', 'now', '-1 minute') as INTEGER) as time, 4 as value\n    WHERE time >= 1234 and time < 134567\n  ",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawQueryText": "SELECT CAST(strftime('%s', 'now', '-1 minute') as INTEGER) as time, 4 as value \nWHERE time >= $__from / 1000 and time < $__to / 1000",
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"primary_currentSOC_pct\" AS \"Primary Engine SoC\"\nFROM ranges\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1",
-          "refId": "2",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "\"primary_currentSOC_pct\""
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ranges",
-          "tags": [],
-          "timeColumn": "\"carCapturedTimestamp\"",
-          "timeColumnType": "timestamp",
-          "timeColumns": [
-            "time",
-            "ts"
-          ],
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            },
-            {
-              "datatype": "varchar",
-              "name": "",
-              "params": [
-                "vehicle_vin",
-                "=",
-                "'$VIN'"
-              ],
-              "type": "expression"
-            }
-          ]
-        },
         {
           "format": "time_series",
           "group": [],
           "hide": false,
           "metricColumn": "none",
-          "queryText": "\n    SELECT CAST(strftime('%s', 'now', '-1 minute') as INTEGER) as time, 4 as value\n    WHERE time >= 1234 and time < 134567\n  ",
+          "queryText": "SELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', first_date) as time, range as 'Range', drives.drive_id AS label FROM drive_ranges JOIN drives ON drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\"",
           "queryType": "table",
           "rawQuery": true,
-          "rawQueryText": "SELECT CAST(strftime('%s', 'now', '-1 minute') as INTEGER) as time, 4 as value \nWHERE time >= $__from / 1000 and time < $__to / 1000",
+          "rawQueryText": "SELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', first_date) as time, range as 'Range', drives.drive_id AS label FROM drive_ranges JOIN drives ON drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\"",
           "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"totalRange_km\" AS \"Total Range\"\nFROM ranges\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1  ",
-          "refId": "1",
+          "refId": "Range",
           "select": [
             [
               {
@@ -1097,49 +1034,31 @@
           ]
         },
         {
-          "alias": "Projected Range",
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "CarConnectivity-SQLite-provisioned"
+          },
           "format": "time_series",
           "group": [],
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "previous"
-              ],
-              "type": "fill"
-            }
-          ],
           "hide": false,
           "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "queryText": "\n    SELECT CAST(strftime('%s', 'now', '-1 minute') as INTEGER) as time, 4 as value\n    WHERE time >= 1234 and time < 134567\n  ",
+          "queryText": "SELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', first_date) as time, level as 'Level', drives.drive_id AS label FROM drive_levels JOIN drives ON drive_levels.id == drives.id WHERE drives.vin==\"$VIN\"",
           "queryType": "table",
           "rawQuery": true,
-          "rawQueryText": "SELECT CAST(strftime('%s', 'now', '-1 minute') as INTEGER) as time, 4 as value \nWHERE time >= $__from / 1000 and time < $__to / 1000",
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"primary_remainingRange_km\" AS \"Primary Engine Range\"\nFROM ranges\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1",
-          "refId": "3",
-          "resultFormat": "time_series",
+          "rawQueryText": "SELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', first_date) as time, level as 'Level', drives.drive_id AS label FROM drive_levels JOIN drives ON drive_levels.id == drives.id WHERE drives.vin==\"$VIN\"",
+          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"totalRange_km\" AS \"Total Range\"\nFROM ranges\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1  ",
+          "refId": "Level",
           "select": [
             [
               {
                 "params": [
-                  "\"primary_remainingRange_km\""
+                  "value"
                 ],
                 "type": "column"
               }
             ]
           ],
-          "table": "ranges",
-          "tags": [],
-          "timeColumn": "\"carCapturedTimestamp\"",
-          "timeColumnType": "timestamp",
+          "timeColumn": "time",
           "timeColumns": [
             "time",
             "ts"
@@ -1149,153 +1068,19 @@
               "name": "$__timeFilter",
               "params": [],
               "type": "macro"
-            },
-            {
-              "datatype": "varchar",
-              "name": "",
-              "params": [
-                "vehicle_vin",
-                "=",
-                "'$VIN'"
-              ],
-              "type": "expression"
-            }
-          ]
-        },
-        {
-          "alias": "Battery SoC",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "previous"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "queryText": "\n    SELECT CAST(strftime('%s', 'now', '-1 minute') as INTEGER) as time, 4 as value\n    WHERE time >= 1234 and time < 134567\n  ",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawQueryText": "SELECT CAST(strftime('%s', 'now', '-1 minute') as INTEGER) as time, 4 as value \nWHERE time >= $__from / 1000 and time < $__to / 1000",
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"secondary_currentSOC_pct\" AS \"Secondary Engine SoC\"\nFROM ranges\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1",
-          "refId": "4",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "\"primary_currentSOC_pct\""
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ranges",
-          "tags": [],
-          "timeColumn": "\"carCapturedTimestamp\"",
-          "timeColumnType": "timestamp",
-          "timeColumns": [
-            "time",
-            "ts"
-          ],
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            },
-            {
-              "datatype": "varchar",
-              "name": "",
-              "params": [
-                "vehicle_vin",
-                "=",
-                "'$VIN'"
-              ],
-              "type": "expression"
-            }
-          ]
-        },
-        {
-          "alias": "Projected Range",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "previous"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "queryText": "\n    SELECT CAST(strftime('%s', 'now', '-1 minute') as INTEGER) as time, 4 as value\n    WHERE time >= 1234 and time < 134567\n  ",
-          "queryType": "table",
-          "rawQuery": true,
-          "rawQueryText": "SELECT CAST(strftime('%s', 'now', '-1 minute') as INTEGER) as time, 4 as value \nWHERE time >= $__from / 1000 and time < $__to / 1000",
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"secondary_remainingRange_km\" AS \"Secondary Engine Range\"\nFROM ranges\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1",
-          "refId": "5",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "\"primary_remainingRange_km\""
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ranges",
-          "tags": [],
-          "timeColumn": "\"carCapturedTimestamp\"",
-          "timeColumnType": "timestamp",
-          "timeColumns": [
-            "time",
-            "ts"
-          ],
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            },
-            {
-              "datatype": "varchar",
-              "name": "",
-              "params": [
-                "vehicle_vin",
-                "=",
-                "'$VIN'"
-              ],
-              "type": "expression"
             }
           ]
         }
       ],
       "title": "Levels & Range",
+      "transformations": [
+        {
+          "id": "prepareTimeSeries",
+          "options": {
+            "format": "multi"
+          }
+        }
+      ],
       "type": "timeseries"
     },
     {
@@ -1339,7 +1124,7 @@
         "rootCSS": "",
         "useGrafanaScrollbar": true
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
@@ -1479,7 +1264,7 @@
         "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
@@ -1572,7 +1357,7 @@
         "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "format": "table",
@@ -1647,6 +1432,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -1752,7 +1538,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "Extrapolated range at 100% SoC",
@@ -1907,6 +1693,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -2018,7 +1805,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "Efficiency (Compared to WLTP range)",
@@ -2165,7 +1952,7 @@
         "content": "VWsFriend version: [0.0.0dev](https://github.com/tillsteinbach/VWsFriend/)",
         "mode": "markdown"
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.3.1",
       "title": "Version",
       "type": "text"
     },
@@ -2678,17 +2465,13 @@
   ],
   "preload": false,
   "refresh": "1m",
-  "schemaVersion": 41,
+  "schemaVersion": 42,
   "tags": [
     "vwsfriend"
   ],
   "templating": {
     "list": [
       {
-        "current": {
-          "text": "Enyaq (Enyaq - ELECTRIC)",
-          "value": "TMBLJ9NY8SF029310"
-        },
         "datasource": {
           "type": "postgres",
           "uid": "CarConnectivity-SQLite-provisioned"
