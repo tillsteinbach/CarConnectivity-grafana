@@ -200,8 +200,12 @@
                 "value": 0
               },
               {
-                "color": "green",
+                "color": "yellow",
                 "value": 10
+              },
+              {
+                "color": "green",
+                "value": 20
               }
             ]
           },
@@ -243,8 +247,10 @@
           "orderByTime": "ASC",
           "policy": "default",
           "query": "",
+          "queryText": "SELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', first_date) as time, level from drive_levels JOIN drives on drive_levels.id == drives.id WHERE drives.vin==\"$VIN\" AND drives.type = \"ELECTRIC\" ORDER BY first_date DESC LIMIT 1",
           "queryType": "randomWalk",
           "rawQuery": true,
+          "rawQueryText": "SELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', first_date) as time, level from drive_levels JOIN drives on drive_levels.id == drives.id WHERE drives.vin==\"$VIN\" AND drives.type = \"ELECTRIC\" ORDER BY first_date DESC LIMIT 1",
           "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"currentSOC_pct\" AS \"Battery SoC\"\nFROM battery\nWHERE\n  vehicle_vin = '$VIN'\nORDER BY \"time\" DESC\nLIMIT 1",
           "refId": "A",
           "resultFormat": "time_series",
@@ -262,6 +268,10 @@
           "tags": [],
           "timeColumn": "\"carCapturedTimestamp\"",
           "timeColumnType": "timestamp",
+          "timeColumns": [
+            "time",
+            "ts"
+          ],
           "where": [
             {
               "name": "$__timeFilter",
@@ -714,11 +724,11 @@
               },
               {
                 "color": "#EAB839",
-                "value": 5
+                "value": 10
               },
               {
                 "color": "green",
-                "value": 10
+                "value": 20
               }
             ]
           },
@@ -760,8 +770,10 @@
           "orderByTime": "ASC",
           "policy": "default",
           "query": "",
+          "queryText": "SELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', first_date) as time, range from drive_ranges JOIN drives on drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\" AND drives.type = \"ELECTRIC\" ORDER BY first_date DESC LIMIT 1",
           "queryType": "randomWalk",
           "rawQuery": true,
+          "rawQueryText": "SELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', first_date) as time, range from drive_ranges JOIN drives on drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\" AND drives.type = \"ELECTRIC\" ORDER BY first_date DESC LIMIT 1",
           "rawSql": "(SELECT\n  to_timestamp(0) AS \"time\",\n  CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_wltp_range\"::NUMERIC\n  ELSE vehicle_settings.\"secondary_wltp_range\"::NUMERIC END AS \"Electric Range\"\nFROM vehicles\nLEFT JOIN vehicle_settings ON vehicles.vin = vehicle_settings.vehicle_vin\nWHERE\n  vehicles.vin = '$VIN')\nUNION\n(SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"cruisingRangeElectric_km\" AS \"Electric Range\"\nFROM battery\nWHERE\n  battery.vehicle_vin = '$VIN'\nORDER BY \"time\" DESC\nLIMIT 1)",
           "refId": "A",
           "resultFormat": "time_series",
@@ -779,6 +791,10 @@
           "tags": [],
           "timeColumn": "\"carCapturedTimestamp\"",
           "timeColumnType": "timestamp",
+          "timeColumns": [
+            "time",
+            "ts"
+          ],
           "where": [
             {
               "name": "$__timeFilter",
