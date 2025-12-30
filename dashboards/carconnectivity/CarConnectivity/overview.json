@@ -239,6 +239,7 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "groupBy": [],
@@ -251,7 +252,7 @@
           "queryType": "randomWalk",
           "rawQuery": true,
           "rawQueryText": "SELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', first_date) as time, level from drive_levels JOIN drives on drive_levels.id == drives.id WHERE drives.vin==\"$VIN\" AND drives.type = \"ELECTRIC\" ORDER BY first_date DESC LIMIT 1",
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"currentSOC_pct\" AS \"Battery SoC\"\nFROM battery\nWHERE\n  vehicle_vin = '$VIN'\nORDER BY \"time\" DESC\nLIMIT 1",
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"level\" AS \"Battery SoC\"\nFROM drive_levels\nLEFT JOIN drives ON drive_levels.drive_id = drives.id\nWHERE\n  drives.vin = '$VIN'\n  AND drives.type = 'ELECTRIC'\nORDER BY \"time\" DESC\nLIMIT 1",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -264,6 +265,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ranges",
           "tags": [],
           "timeColumn": "\"carCapturedTimestamp\"",
@@ -404,6 +422,7 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
+          "editorMode": "code",
           "format": "time_series",
           "group": [],
           "hide": false,
@@ -412,7 +431,7 @@
           "queryType": "table",
           "rawQuery": true,
           "rawQueryText": "SELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', first_date) as time, range as 'Range', drives.drive_id AS label FROM drive_ranges JOIN drives ON drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\"\nUNION\nSELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', last_date) as time, range as 'Range', drives.drive_id AS label FROM drive_ranges JOIN drives ON drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\"",
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"totalRange_km\" AS \"Total Range\"\nFROM ranges\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1  ",
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"range\" AS \"Range\",\n  drives.drive_id as \"Drive\"\nFROM drive_ranges\nLEFT JOIN drives ON drive_ranges.drive_id = drives.id\nWHERE\n  drives.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"range\" AS \"Range\",\n  drives.drive_id as \"Drive\"\nFROM drive_ranges\nLEFT JOIN drives ON drive_ranges.drive_id = drives.id\nWHERE\n  drives.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" DESC",
           "refId": "Range",
           "select": [
             [
@@ -424,6 +443,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "timeColumn": "time",
           "timeColumns": [
             "time",
@@ -439,18 +475,19 @@
         },
         {
           "datasource": {
-            "type": "frser-sqlite-datasource",
+            "type": "grafana-postgresql-datasource",
             "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
+          "editorMode": "code",
           "format": "time_series",
           "group": [],
           "hide": false,
           "metricColumn": "none",
-          "queryText": "SELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', first_date) as time, level as 'Level', drives.drive_id AS label FROM drive_levels JOIN drives ON drive_levels.id == drives.id WHERE drives.vin==\"$VIN\"\nUNION\nSELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', last_date) as time, level as 'Level', drives.drive_id AS label FROM drive_levels JOIN drives ON drive_levels.id == drives.id WHERE drives.vin==\"$VIN\"",
+          "queryText": "SELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', first_date) as time, range as 'Range', drives.drive_id AS label FROM drive_ranges JOIN drives ON drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\"\nUNION\nSELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', last_date) as time, range as 'Range', drives.drive_id AS label FROM drive_ranges JOIN drives ON drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\"",
           "queryType": "table",
           "rawQuery": true,
-          "rawQueryText": "SELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', first_date) as time, level as 'Level', drives.drive_id AS label FROM drive_levels JOIN drives ON drive_levels.id == drives.id WHERE drives.vin==\"$VIN\"\nUNION\nSELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', last_date) as time, level as 'Level', drives.drive_id AS label FROM drive_levels JOIN drives ON drive_levels.id == drives.id WHERE drives.vin==\"$VIN\"",
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"totalRange_km\" AS \"Total Range\"\nFROM ranges\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1  ",
+          "rawQueryText": "SELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', first_date) as time, range as 'Range', drives.drive_id AS label FROM drive_ranges JOIN drives ON drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\"\nUNION\nSELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', last_date) as time, range as 'Range', drives.drive_id AS label FROM drive_ranges JOIN drives ON drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\"",
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"level\" AS \"Level\",\n  drives.drive_id as \"Drive\"\nFROM drive_levels\nLEFT JOIN drives ON drive_levels.drive_id = drives.id\nWHERE\n  drives.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"level\" AS \"Level\",\n  drives.drive_id as \"Drive\"\nFROM drive_levels\nLEFT JOIN drives ON drive_levels.drive_id = drives.id\nWHERE\n  drives.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" DESC",
           "refId": "Level",
           "select": [
             [
@@ -462,6 +499,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "timeColumn": "time",
           "timeColumns": [
             "time",
@@ -743,6 +797,7 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "groupBy": [],
@@ -755,7 +810,7 @@
           "queryType": "randomWalk",
           "rawQuery": true,
           "rawQueryText": "SELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', first_date) as time, range from drive_ranges JOIN drives on drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\" AND drives.type = \"ELECTRIC\" ORDER BY first_date DESC LIMIT 1",
-          "rawSql": "(SELECT\n  to_timestamp(0) AS \"time\",\n  CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_wltp_range\"::NUMERIC\n  ELSE vehicle_settings.\"secondary_wltp_range\"::NUMERIC END AS \"Electric Range\"\nFROM vehicles\nLEFT JOIN vehicle_settings ON vehicles.vin = vehicle_settings.vehicle_vin\nWHERE\n  vehicles.vin = '$VIN')\nUNION\n(SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"cruisingRangeElectric_km\" AS \"Electric Range\"\nFROM battery\nWHERE\n  battery.vehicle_vin = '$VIN'\nORDER BY \"time\" DESC\nLIMIT 1)",
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"range\" AS \"Electric Range\"\nFROM drive_ranges\nLEFT JOIN drives ON drive_ranges.drive_id = drives.id\nWHERE\n  drives.vin = '$VIN'\n  AND drives.type = 'ELECTRIC'\nORDER BY \"time\" DESC\nLIMIT 1",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -768,6 +823,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ranges",
           "tags": [],
           "timeColumn": "\"carCapturedTimestamp\"",
@@ -1053,6 +1125,7 @@
             "type": "postgres",
             "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "groupBy": [
@@ -1094,6 +1167,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "tags": [],
           "timeColumn": "time",
           "where": [
@@ -2044,86 +2134,108 @@
               "options": {
                 "CHARGE_PURPOSE_REACHED_CONSERVATION": {
                   "color": "blue",
-                  "index": 11,
+                  "index": 15,
                   "text": "conservation charging"
                 },
                 "CHARGE_PURPOSE_REACHED_NOT_CONSERVATION_CHARGING": {
                   "color": "green",
-                  "index": 10,
+                  "index": 14,
                   "text": "charge purpose reached"
                 },
                 "CHARGING": {
                   "color": "blue",
-                  "index": 9,
+                  "index": 13,
                   "text": "charging"
                 },
                 "CONSERVATION": {
                   "color": "blue",
-                  "index": 13,
+                  "index": 17,
                   "text": "conservation"
                 },
                 "COOLING": {
                   "color": "blue",
-                  "index": 5,
+                  "index": 9,
                   "text": "cooling"
                 },
                 "DISCHARGING": {
                   "color": "yellow",
-                  "index": 16,
+                  "index": 20,
                   "text": "discharging"
+                },
+                "DRIVING": {
+                  "color": "green",
+                  "index": 1,
+                  "text": "driving"
                 },
                 "ERROR": {
                   "color": "red",
-                  "index": 8,
+                  "index": 12,
                   "text": "error"
                 },
                 "HEATING": {
                   "color": "red",
-                  "index": 3,
+                  "index": 7,
                   "text": "heating"
+                },
+                "IGNITION_ON": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "ignition_on"
                 },
                 "INVALID": {
                   "color": "red",
-                  "index": 12,
+                  "index": 16,
                   "text": "invalid"
                 },
                 "NOT_READY_FOR_CHARGING": {
                   "color": "#3d3d3d",
-                  "index": 14,
+                  "index": 18,
                   "text": "not ready for charging"
                 },
                 "OFF": {
                   "color": "#3d3d3d",
-                  "index": 2,
+                  "index": 6,
                   "text": "off"
+                },
+                "OFFLINE": {
+                  "color": "#3d3d3d",
+                  "index": 4,
+                  "text": "offline"
                 },
                 "ON": {
                   "color": "green",
-                  "index": 4,
+                  "index": 8,
                   "text": "on"
+                },
+                "ONLINE": {
+                  "color": "green",
+                  "index": 3,
+                  "text": "online"
+                },
+                "PARKED": {
+                  "color": "blue",
+                  "index": 2,
+                  "text": "parked"
+                },
+                "REACHABLE": {
+                  "color": "blue",
+                  "index": 5,
+                  "text": "reachable"
                 },
                 "READY_FOR_CHARGING": {
                   "color": "green",
-                  "index": 7,
+                  "index": 11,
                   "text": "ready for charging"
                 },
                 "UNSUPPORTED": {
                   "color": "#3d3d3d",
-                  "index": 15,
+                  "index": 19,
                   "text": "unsupported"
                 },
                 "VENTILATION": {
                   "color": "purple",
-                  "index": 6,
+                  "index": 10,
                   "text": "ventilation"
-                },
-                "offline": {
-                  "color": "#3d3d3d",
-                  "index": 1
-                },
-                "online": {
-                  "color": "green",
-                  "index": 0
                 }
               },
               "type": "value"
@@ -2166,7 +2278,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "Car state",
@@ -2174,6 +2286,7 @@
             "type": "postgres",
             "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "groupBy": [],
@@ -2184,8 +2297,8 @@
           "query": "",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "(SELECT\n  \"onlineTime\" AS \"time\",\n  'online' AS \"Online\"\nFROM onlinestates\nWHERE\n  (\"onlineTime\" != \"offlineTime\" OR \"offlineTime\" IS NULL) AND\n  $__timeFilter(\"onlineTime\") AND\n  vehicle_vin = '$VIN')\nUNION ALL\n(SELECT\n  \"offlineTime\" AS \"time\",\n  'offline' AS \"state\"\nFROM onlinestates\nWHERE\n  (\"onlineTime\" != \"offlineTime\" OR \"onlineTime\" IS NULL) AND\n  $__timeFilter(\"offlineTime\") AND\n  vehicle_vin = '$VIN')\nORDER BY \"time\"",
-          "refId": "A",
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"state\" AS \"Vehicle State\"\nFROM states\nWHERE\n  states.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"state\" AS \"Vehicle State\"\nFROM states\nWHERE\n  states.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" DESC",
+          "refId": "Vehicle State",
           "resultFormat": "time_series",
           "select": [
             [
@@ -2197,6 +2310,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "tags": [],
           "timeColumn": "time",
           "where": [
@@ -2213,6 +2343,7 @@
             "type": "postgres",
             "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "groupBy": [],
@@ -2224,8 +2355,8 @@
           "query": "",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"climatisationState\" AS \"Climatization\"\nFROM climatization\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1  ",
-          "refId": "B",
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"connection_state\" AS \"Connection\"\nFROM connection_states\nWHERE\n  connection_states.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"connection_state\" AS \"Connection\"\nFROM connection_states\nWHERE\n  connection_states.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" DESC",
+          "refId": "Connection State",
           "resultFormat": "time_series",
           "select": [
             [
@@ -2237,41 +2368,25 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "tags": [],
           "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        },
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "CarConnectivity-PostgreSQL-provisioned"
-          },
-          "format": "table",
-          "group": [],
-          "hide": false,
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"chargingState\" AS \"Charging\"\nFROM charges\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1  ",
-          "refId": "C",
-          "select": [
-            [
-              {
-                "params": [
-                  "position_latitude"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "refuel_sessions",
-          "timeColumn": "date",
-          "timeColumnType": "timestamp",
           "where": [
             {
               "name": "$__timeFilter",
