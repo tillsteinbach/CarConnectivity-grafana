@@ -451,6 +451,25 @@
                 "value": "Range"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*Temperature/"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "celsius"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Temperature"
+              },
+              {
+                "id": "custom.axisSoftMax"
+              }
+            ]
           }
         ]
       },
@@ -550,6 +569,62 @@
           "rawQueryText": "SELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', first_date) as time, range as 'Range', drives.drive_id AS label FROM drive_ranges JOIN drives ON drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\"\nUNION\nSELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', last_date) as time, range as 'Range', drives.drive_id AS label FROM drive_ranges JOIN drives ON drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\"",
           "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"level\" AS \"Level\",\n  drives.drive_id as \"Drive\"\nFROM drive_levels\nLEFT JOIN drives ON drive_levels.drive_id = drives.id\nWHERE\n  drives.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"level\" AS \"Level\",\n  drives.drive_id as \"Drive\"\nFROM drive_levels\nLEFT JOIN drives ON drive_levels.drive_id = drives.id\nWHERE\n  drives.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" ASC",
           "refId": "Level",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "timeColumn": "time",
+          "timeColumns": [
+            "time",
+            "ts"
+          ],
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "queryText": "SELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', first_date) as time, range as 'Range', drives.drive_id AS label FROM drive_ranges JOIN drives ON drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\"\nUNION\nSELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', last_date) as time, range as 'Range', drives.drive_id AS label FROM drive_ranges JOIN drives ON drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\"",
+          "queryType": "table",
+          "rawQuery": true,
+          "rawQueryText": "SELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', first_date) as time, range as 'Range', drives.drive_id AS label FROM drive_ranges JOIN drives ON drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\"\nUNION\nSELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', last_date) as time, range as 'Range', drives.drive_id AS label FROM drive_ranges JOIN drives ON drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\"",
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"outside_temperature\" AS \"Outside Temperature\"\nFROM outside_temperatures \nWHERE\n  vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"outside_temperature\" AS \"Outside Temperature\"\nFROM outside_temperatures \nWHERE\n  vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" ASC",
+          "refId": "Outside Temperature",
           "select": [
             [
               {
@@ -1833,7 +1908,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Battery Temperature"
+              "options": "Outside Temperature"
             },
             "properties": [
               {
@@ -1842,7 +1917,7 @@
               },
               {
                 "id": "custom.axisLabel",
-                "value": "Battery Temperature"
+                "value": "Temperature"
               },
               {
                 "id": "decimals",
@@ -1850,7 +1925,7 @@
               },
               {
                 "id": "custom.axisPlacement",
-                "value": "hidden"
+                "value": "right"
               }
             ]
           }
@@ -1991,6 +2066,81 @@
           "rawQuery": true,
           "rawSql": "SELECT\r\n  \"first_date\" AS \"time\",\r\n  \"rate\" AS \"Charging Rate\"\r\nFROM charging_rates\r\nWHERE\r\n  vin = '$VIN'\r\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\r\nUNION\r\nSELECT\r\n  \"last_date\" AS \"time\",\r\n  \"rate\" AS \"Charging Rate\"\r\nFROM charging_rates \r\nWHERE\r\n  vin = '$VIN'\r\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\r\nORDER BY \"time\" ASC",
           "refId": "Rate",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "Charge Power",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "previous"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  \"first_date\" AS \"time\",\r\n  \"outside_temperature\" AS \"Outside Temperature\"\r\nFROM outside_temperatures \r\nWHERE\r\n  vin = '$VIN'\r\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\r\nUNION\r\nSELECT\r\n  \"last_date\" AS \"time\",\r\n  \"outside_temperature\" AS \"Outside Temperature\"\r\nFROM outside_temperatures \r\nWHERE\r\n  vin = '$VIN'\r\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\r\nORDER BY \"time\" ASC",
+          "refId": "Outside Temperature",
           "resultFormat": "time_series",
           "select": [
             [
