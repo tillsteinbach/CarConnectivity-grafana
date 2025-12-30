@@ -24,7 +24,7 @@
       {
         "datasource": {
           "type": "postgres",
-          "uid": "CarConnectivity-SQLite-provisioned"
+          "uid": "CarConnectivity-PostgreSQL-provisioned"
         },
         "enable": true,
         "hide": false,
@@ -36,7 +36,7 @@
       {
         "datasource": {
           "type": "postgres",
-          "uid": "CarConnectivity-SQLite-provisioned"
+          "uid": "CarConnectivity-PostgreSQL-provisioned"
         },
         "enable": false,
         "hide": false,
@@ -47,7 +47,7 @@
       {
         "datasource": {
           "type": "postgres",
-          "uid": "CarConnectivity-SQLite-provisioned"
+          "uid": "CarConnectivity-PostgreSQL-provisioned"
         },
         "enable": false,
         "hide": false,
@@ -181,7 +181,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "CarConnectivity-SQLite-provisioned"
+        "uid": "CarConnectivity-PostgreSQL-provisioned"
       },
       "description": "Current state of charge in percent",
       "fieldConfig": {
@@ -297,7 +297,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "CarConnectivity-SQLite-provisioned"
+        "uid": "CarConnectivity-PostgreSQL-provisioned"
       },
       "description": "Battery level and projected range plotted over time for primary and secondary engine. This is useful especially for hybrids.\nSome cars only update these values during startup and shutdown.",
       "fieldConfig": {
@@ -440,7 +440,7 @@
         {
           "datasource": {
             "type": "frser-sqlite-datasource",
-            "uid": "CarConnectivity-SQLite-provisioned"
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
           "format": "time_series",
           "group": [],
@@ -490,7 +490,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "CarConnectivity-SQLite-provisioned"
+        "uid": "CarConnectivity-PostgreSQL-provisioned"
       },
       "description": "Indicates if the car is currently awake (online) or sleeping.",
       "fieldConfig": {
@@ -595,7 +595,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "CarConnectivity-SQLite-provisioned"
+        "uid": "CarConnectivity-PostgreSQL-provisioned"
       },
       "description": "Time when the last successful connection to the servers were made and time when the last information from the car was received.",
       "fieldConfig": {
@@ -686,7 +686,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "CarConnectivity-SQLite-provisioned"
+        "uid": "CarConnectivity-PostgreSQL-provisioned"
       },
       "description": "Current range calculated from current consumption",
       "fieldConfig": {
@@ -818,7 +818,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "CarConnectivity-SQLite-provisioned"
+        "uid": "CarConnectivity-PostgreSQL-provisioned"
       },
       "description": "Time remaining until climatization is turned off automatically.",
       "fieldConfig": {
@@ -907,7 +907,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "CarConnectivity-SQLite-provisioned"
+        "uid": "CarConnectivity-PostgreSQL-provisioned"
       },
       "description": "Current consumption and Range if the car would be at 100% SoC. Consumption is calculated as capacity divided by current range. The green area shows the WLTP range.\nSome cars only update these values during startup and shutdown. Value is only useful for electric cars or hybrids running on electricity only.",
       "fieldConfig": {
@@ -1051,7 +1051,7 @@
           "alias": "Extrapolated range at 100% SoC",
           "datasource": {
             "type": "postgres",
-            "uid": "CarConnectivity-SQLite-provisioned"
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
           "format": "table",
           "group": [],
@@ -1108,7 +1108,7 @@
           "alias": "Extrapolated range at 100% SoC",
           "datasource": {
             "type": "postgres",
-            "uid": "CarConnectivity-SQLite-provisioned"
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
           "format": "table",
           "group": [],
@@ -1168,7 +1168,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "CarConnectivity-SQLite-provisioned"
+        "uid": "CarConnectivity-PostgreSQL-provisioned"
       },
       "description": "Shows information for the usage of VWsFriend",
       "fieldConfig": {
@@ -1211,7 +1211,7 @@
         {
           "datasource": {
             "type": "postgres",
-            "uid": "CarConnectivity-SQLite-provisioned"
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
           "format": "table",
           "group": [],
@@ -1237,7 +1237,7 @@
         {
           "datasource": {
             "type": "postgres",
-            "uid": "CarConnectivity-SQLite-provisioned"
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
           "format": "table",
           "group": [],
@@ -1264,7 +1264,7 @@
         {
           "datasource": {
             "type": "postgres",
-            "uid": "CarConnectivity-SQLite-provisioned"
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
           "format": "table",
           "group": [],
@@ -1295,7 +1295,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "CarConnectivity-SQLite-provisioned"
+        "uid": "CarConnectivity-PostgreSQL-provisioned"
       },
       "description": "If the car is charging, current charging power. This value is not available on all cars.",
       "fieldConfig": {
@@ -1351,7 +1351,7 @@
         {
           "datasource": {
             "type": "postgres",
-            "uid": "CarConnectivity-SQLite-provisioned"
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
           "format": "table",
           "group": [],
@@ -1393,7 +1393,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "CarConnectivity-SQLite-provisioned"
+        "uid": "CarConnectivity-PostgreSQL-provisioned"
       },
       "description": "Time remaining until desired state of charge is reached.",
       "fieldConfig": {
@@ -1482,7 +1482,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "CarConnectivity-SQLite-provisioned"
+        "uid": "CarConnectivity-PostgreSQL-provisioned"
       },
       "description": "Current efficiency. 100% means that with the current consumption the WLTP range is reached.\nSome cars only update these values during startup and shutdown. Value is only useful for electric cars or hybrids running on electricity only.",
       "fieldConfig": {
@@ -1632,7 +1632,7 @@
           "alias": "Efficiency (Compared to WLTP range)",
           "datasource": {
             "type": "postgres",
-            "uid": "CarConnectivity-SQLite-provisioned"
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
           "format": "time_series",
           "group": [],
@@ -1688,7 +1688,7 @@
           "alias": "Efficiency (Compared to WLTP range)",
           "datasource": {
             "type": "postgres",
-            "uid": "CarConnectivity-SQLite-provisioned"
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
           "format": "time_series",
           "group": [],
@@ -1748,7 +1748,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "CarConnectivity-SQLite-provisioned"
+        "uid": "CarConnectivity-PostgreSQL-provisioned"
       },
       "description": "Charging power and charging rate in kilometers over time.",
       "fieldConfig": {
@@ -1881,7 +1881,7 @@
           "alias": "Charge Power",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "CarConnectivity-SQLite-provisioned"
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
           "editorMode": "code",
           "format": "table",
@@ -1954,7 +1954,7 @@
         {
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "CarConnectivity-SQLite-provisioned"
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
           "editorMode": "code",
           "format": "table",
@@ -2019,7 +2019,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "CarConnectivity-SQLite-provisioned"
+        "uid": "CarConnectivity-PostgreSQL-provisioned"
       },
       "description": "Highlights the times when the car is online, heating and charging.",
       "fieldConfig": {
@@ -2172,7 +2172,7 @@
           "alias": "Car state",
           "datasource": {
             "type": "postgres",
-            "uid": "CarConnectivity-SQLite-provisioned"
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
           "format": "table",
           "group": [],
@@ -2211,7 +2211,7 @@
           "alias": "Car state",
           "datasource": {
             "type": "postgres",
-            "uid": "CarConnectivity-SQLite-provisioned"
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
           "format": "table",
           "group": [],
@@ -2250,7 +2250,7 @@
         {
           "datasource": {
             "type": "postgres",
-            "uid": "CarConnectivity-SQLite-provisioned"
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
           "format": "table",
           "group": [],
@@ -2296,7 +2296,7 @@
       {
         "datasource": {
           "type": "postgres",
-          "uid": "CarConnectivity-SQLite-provisioned"
+          "uid": "CarConnectivity-PostgreSQL-provisioned"
         },
         "definition": "SELECT \"vin\" || ':' || \"name\" || ' (' || \"model\" || ' - ' || \"type\" || ')' FROM vehicles",
         "description": "Select Car if you have multiple cars in your account",
@@ -2316,7 +2316,7 @@
         },
         "datasource": {
           "type": "postgres",
-          "uid": "CarConnectivity-SQLite-provisioned"
+          "uid": "CarConnectivity-PostgreSQL-provisioned"
         },
         "definition": "SELECT vwsfriend_url FROM settings LIMIT 1",
         "hide": 2,
