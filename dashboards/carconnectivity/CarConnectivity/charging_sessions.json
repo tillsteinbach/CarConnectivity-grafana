@@ -80,7 +80,7 @@
       "includeVars": true,
       "keepTime": false,
       "tags": [
-        "vwsfriend"
+        "carconnectivity"
       ],
       "targetBlank": false,
       "title": "Dashboards",
@@ -770,7 +770,7 @@
   "schemaVersion": 37,
   "style": "dark",
   "tags": [
-    "vwsfriend"
+    "carconnectivity"
   ],
   "templating": {
     "list": [
