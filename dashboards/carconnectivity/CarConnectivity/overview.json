@@ -120,7 +120,22 @@
       },
       "description": "Current status of the car ${VIN:text} with VIN ${VIN:raw}. To receive reasonable results you have to make settings for your car.",
       "fieldConfig": {
-        "defaults": {},
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
         "overrides": []
       },
       "gridPos": {
@@ -179,7 +194,7 @@
         "rootCSS": "",
         "useGrafanaScrollbar": true
       },
-      "pluginVersion": "12.3.1",
+      "pluginVersion": "2.2.3",
       "targets": [
         {
           "cacheDurationSeconds": 30,
@@ -915,24 +930,29 @@
         "type": "postgres",
         "uid": "CarConnectivity-PostgreSQL-provisioned"
       },
-      "description": "Time remaining until climatization is turned off automatically.",
+      "description": "If the car is charging, current charging power. This value is not available on all cars.",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
           },
           "mappings": [],
+          "max": 100,
           "min": 0,
           "thresholds": {
-            "mode": "percentage",
+            "mode": "absolute",
             "steps": [
               {
                 "color": "green",
                 "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 11
               }
             ]
           },
-          "unit": "m"
+          "unit": "kwatt"
         },
         "overrides": []
       },
@@ -942,14 +962,14 @@
         "x": 3,
         "y": 8
       },
-      "id": 19,
+      "id": 9,
       "options": {
         "minVizHeight": 75,
         "minVizWidth": 75,
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "last"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -962,6 +982,11 @@
       "pluginVersion": "12.3.1",
       "targets": [
         {
+          "datasource": {
+            "type": "postgres",
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
+          },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "groupBy": [],
@@ -972,7 +997,7 @@
           "query": "",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "(SELECT\n  to_timestamp(0) AS \"time\",\n  MAX(\"remainingClimatisationTime_min\")\nFROM climatization\nWHERE\n  vehicle_vin = '$VIN')\nUNION\n(SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  CASE WHEN \"climatisationState\" != 'OFF' THEN \"remainingClimatisationTime_min\"\n  ELSE 0 END\nFROM climatization\nWHERE\n  vehicle_vin = '$VIN'\nORDER BY \"time\" DESC\nLIMIT 1)",
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"power\" AS \"Power\"\nFROM charging_powers\nWHERE\n  vin = '$VIN'\nORDER BY \"time\" DESC\nLIMIT 1",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -985,6 +1010,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "tags": [],
           "timeColumn": "time",
           "where": [
@@ -996,7 +1038,7 @@
           ]
         }
       ],
-      "title": "Remaining Climatization Time (now)",
+      "title": "Charging Power (now)",
       "type": "gauge"
     },
     {
@@ -1285,7 +1327,22 @@
       },
       "description": "Shows information for the usage of VWsFriend",
       "fieldConfig": {
-        "defaults": {},
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
         "overrides": []
       },
       "gridPos": {
@@ -1319,7 +1376,7 @@
         "rootCSS": "",
         "useGrafanaScrollbar": true
       },
-      "pluginVersion": "12.3.1",
+      "pluginVersion": "2.2.3",
       "targets": [
         {
           "datasource": {
@@ -1404,211 +1461,6 @@
       ],
       "title": "Information",
       "type": "gapit-htmlgraphics-panel"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "CarConnectivity-PostgreSQL-provisioned"
-      },
-      "description": "If the car is charging, current charging power. This value is not available on all cars.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "max": 100,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "#EAB839",
-                "value": 11
-              }
-            ]
-          },
-          "unit": "kwatt"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 3,
-        "x": 0,
-        "y": 16
-      },
-      "id": 9,
-      "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto",
-        "text": {}
-      },
-      "pluginVersion": "12.3.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "CarConnectivity-PostgreSQL-provisioned"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "group": [],
-          "groupBy": [],
-          "measurement": "",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"power\" AS \"Power\"\nFROM charging_powers\nWHERE\n  vin = '$VIN'\nORDER BY \"time\" DESC\nLIMIT 1",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "Charging Power (now)",
-      "type": "gauge"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "CarConnectivity-PostgreSQL-provisioned"
-      },
-      "description": "Time remaining until desired state of charge is reached.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              }
-            ]
-          },
-          "unit": "m"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 3,
-        "x": 3,
-        "y": 16
-      },
-      "id": 20,
-      "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "last"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto",
-        "text": {}
-      },
-      "pluginVersion": "12.3.1",
-      "targets": [
-        {
-          "format": "table",
-          "group": [],
-          "groupBy": [],
-          "measurement": "",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "(SELECT\n  to_timestamp(0) AS \"time\",\n  MAX(\"remainingChargingTimeToComplete_min\")\nFROM charges\nWHERE\n  vehicle_vin = '$VIN')\nUNION\n(SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"remainingChargingTimeToComplete_min\"\nFROM charges\nWHERE\n  vehicle_vin = '$VIN'\nORDER BY \"time\" DESC\nLIMIT 1)",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "Remaining Charging Time (now)",
-      "type": "gauge"
     },
     {
       "datasource": {
@@ -2524,6 +2376,36 @@
           "rawQuery": true,
           "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"state\" AS \"Charging\"\nFROM charging_states\nWHERE\n  charging_states.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"state\" AS \"Connection\"\nFROM charging_states\nWHERE\n  charging_states.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" ASC",
           "refId": "Charging State",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "dataset": "carconnectivity",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"state\" AS \"Climatizaton\"\nFROM climatization_states\nWHERE\n  climatization_states.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"state\" AS \"Climatizaton\"\nFROM climatization_states\nWHERE\n  climatization_states.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" ASC",
+          "refId": "A",
           "sql": {
             "columns": [
               {
