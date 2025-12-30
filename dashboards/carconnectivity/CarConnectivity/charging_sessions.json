@@ -94,7 +94,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "P2EF847825A020B66"
+        "uid": "CarConnectivity-PostgreSQL-provisioned"
       },
       "description": "List of all charging sessions recorded. Not all attributes can be filled automatically. If you want to make additions or changes use the ⚙ button at the end of each row. If a charging session is missing use the \"Add Charging\" button.",
       "fieldConfig": {
@@ -440,7 +440,7 @@
         {
           "datasource": {
             "type": "postgres",
-            "uid": "P2EF847825A020B66"
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
           "editorMode": "code",
           "format": "table",
@@ -494,7 +494,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "P2EF847825A020B66"
+        "uid": "CarConnectivity-PostgreSQL-provisioned"
       },
       "description": "List of the most often used charging stations. If this list is empty your car probably does not provide a location. You can still set charging stations by using the ⚙ button in the list of charging sessions.",
       "fieldConfig": {
@@ -631,7 +631,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "P2EF847825A020B66"
+        "uid": "CarConnectivity-PostgreSQL-provisioned"
       },
       "description": "List of the most often used charging operators. If this list is empty your car probably does not provide a location. You can still set charging stations by using the ⚙ button in the list of charging sessions.",
       "fieldConfig": {
@@ -713,7 +713,7 @@
         {
           "datasource": {
             "type": "postgres",
-            "uid": "P2EF847825A020B66"
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
           "editorMode": "code",
           "format": "table",
@@ -792,7 +792,7 @@
       {
         "datasource": {
           "type": "postgres",
-          "uid": "P2EF847825A020B66"
+          "uid": "CarConnectivity-PostgreSQL-provisioned"
         },
         "definition": "SELECT vwsfriend_url FROM settings LIMIT 1",
         "hide": 2,
@@ -820,7 +820,7 @@
         },
         "datasource": {
           "type": "postgres",
-          "uid": "P2EF847825A020B66"
+          "uid": "CarConnectivity-PostgreSQL-provisioned"
         },
         "definition": "SELECT tag.name || ': ' || tag.description || '$' || tag.name FROM charging_tag LEFT JOIN tag ON charging_tag.tag_name = tag.name WHERE use_charges = true",
         "hide": 0,
@@ -844,7 +844,7 @@
         },
         "datasource": {
           "type": "postgres",
-          "uid": "P2EF847825A020B66"
+          "uid": "CarConnectivity-PostgreSQL-provisioned"
         },
         "definition": "SELECT CASE WHEN LENGTH($$${tag:raw}$$)>0 AND $$${tag:singlequote}$$ != 'all_values' THEN $$ AND charging_tag.tag_name IN (${tag:singlequote}) $$ ELSE '' END",
         "hide": 2,
