@@ -1443,6 +1443,7 @@
             "type": "postgres",
             "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "groupBy": [],
@@ -1453,7 +1454,7 @@
           "query": "",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"chargePower_kW\"\nFROM charges\nWHERE\n  vehicle_vin = '$VIN'\nORDER BY \"time\" DESC\nLIMIT 1",
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"power\" AS \"Power\"\nFROM charging_powers\nWHERE\n  vin = '$VIN'\nORDER BY \"time\" DESC\nLIMIT 1",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -1466,6 +1467,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "tags": [],
           "timeColumn": "time",
           "where": [
@@ -1997,8 +2015,83 @@
           "query": "",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "(SELECT\r\n  \"carCapturedTimestamp\" AS \"time\",\r\n  \"chargePower_kW\" AS \"Charge Power\",\r\n  \"chargeRate_kmph\" AS \"Charge Rate\"\r\nFROM charges\r\nWHERE\r\n  $__timeFilter(\"carCapturedTimestamp\") AND\r\n  vehicle_vin = '$VIN'\r\nORDER BY \"carCapturedTimestamp\")\r\nUNION ALL\r\n(SELECT\r\n  \"carCapturedTimestamp\" AS \"time\",\r\n  CASE WHEN \"chargingState\" = 'CHARGING' THEN \"delta\"::decimal*( CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_capacity\"::NUMERIC\r\n  ELSE vehicle_settings.\"secondary_capacity\"::NUMERIC END::decimal/100::decimal) / (EXTRACT(epoch FROM \"timedelta\") / 3600)\r\n  ELSE NULL END AS \"Charge Power\",\r\n  CASE WHEN \"chargingState\" = 'CHARGING' THEN \"deltakm\"::decimal / (EXTRACT(epoch FROM \"timedelta\") / 3600)\r\n  ELSE NULL END AS \"Charge Rate\"\r\nFROM\r\n  (SELECT *,\r\n  DATE_TRUNC('minute', \"carCapturedTimestamp\") AS \"batteryTime\",\r\n  (\"carCapturedTimestamp\" - LAG(\"carCapturedTimestamp\") OVER (ORDER BY \"carCapturedTimestamp\")) AS \"timedelta\",\r\n  (\"currentSOC_pct\" - LAG(\"currentSOC_pct\") OVER (ORDER BY \"carCapturedTimestamp\")) AS \"delta\",\r\n  (\"cruisingRangeElectric_km\" - LAG(\"cruisingRangeElectric_km\") OVER (ORDER BY \"carCapturedTimestamp\")) AS \"deltakm\"\r\nFROM\r\n  battery\r\nWHERE\r\n  $__timeFilter(\"carCapturedTimestamp\") AND\r\n  vehicle_vin = '$VIN'\r\nORDER BY \"carCapturedTimestamp\") AS delta\r\nLEFT JOIN\r\n(\r\nSELECT\r\n\"chargingState\",\r\nDATE_TRUNC('minute', charges.\"carCapturedTimestamp\") AS \"chargeTime\"\r\nFROM charges\r\nWHERE\r\n  $__timeFilter(\"carCapturedTimestamp\") AND\r\n  vehicle_vin = '$VIN') as charging ON \"chargeTime\" = \"batteryTime\"\r\nLEFT JOIN vehicles ON delta.vehicle_vin = vehicles.vin\r\nLEFT JOIN vehicle_settings ON delta.vehicle_vin = vehicle_settings.vehicle_vin\r\nWHERE\r\n  \"delta\" > 0 AND\r\n  NOT EXISTS (SELECT 1 FROM charges WHERE \"chargePower_kW\" IS NOT NULL AND \"chargeRate_kmph\" IS NOT NULL AND $__timeFilter(\"carCapturedTimestamp\") AND vehicle_vin = '$VIN' LIMIT 1)\r\nORDER BY \"carCapturedTimestamp\")",
-          "refId": "A",
+          "rawSql": "SELECT\r\n  \"first_date\" AS \"time\",\r\n  \"power\" AS \"Charging Power\"\r\nFROM charging_powers \r\nWHERE\r\n  vin = '$VIN'\r\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\r\nUNION\r\nSELECT\r\n  \"last_date\" AS \"time\",\r\n  \"power\" AS \"Charging Power\"\r\nFROM charging_powers\r\nWHERE\r\n  vin = '$VIN'\r\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\r\nORDER BY \"time\" ASC",
+          "refId": "Power",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "Charge Power",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "previous"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  \"first_date\" AS \"time\",\r\n  \"rate\" AS \"Charging Rate\"\r\nFROM charging_rates\r\nWHERE\r\n  vin = '$VIN'\r\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\r\nUNION\r\nSELECT\r\n  \"last_date\" AS \"time\",\r\n  \"rate\" AS \"Charging Rate\"\r\nFROM charging_rates \r\nWHERE\r\n  vin = '$VIN'\r\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\r\nORDER BY \"time\" ASC",
+          "refId": "Rate",
           "resultFormat": "time_series",
           "select": [
             [
@@ -2048,7 +2141,7 @@
           },
           "editorMode": "code",
           "format": "table",
-          "hide": false,
+          "hide": true,
           "rawQuery": true,
           "rawSql": "SELECT\n    \"carCapturedTimestamp\" AS \"time\",\n    (((\"temperatureHvBatteryMin_K\" + \"temperatureHvBatteryMax_K\")/2) - 273.15) AS \"Battery Temperature\"\nFROM\n    battery_temperature\nWHERE\n    $__timeFilter(\"carCapturedTimestamp\") AND\n    vehicle_vin = '$VIN'\nORDER BY\n    \"carCapturedTimestamp\" DESC",
           "refId": "B",
@@ -2394,6 +2487,36 @@
               "type": "macro"
             }
           ]
+        },
+        {
+          "dataset": "carconnectivity",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"state\" AS \"Charging\"\nFROM charging_states\nWHERE\n  charging_states.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"state\" AS \"Connection\"\nFROM charging_states\nWHERE\n  charging_states.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" ASC",
+          "refId": "Charging State",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
         }
       ],
       "title": "States",
