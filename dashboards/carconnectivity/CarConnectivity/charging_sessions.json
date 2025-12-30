@@ -577,8 +577,7 @@
         {
           "datasource": {
             "type": "postgres",
-            "uid": "
-            "
+            "uid": ""
           },
           "editorMode": "code",
           "format": "table",
