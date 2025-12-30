@@ -1,0 +1,884 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Overview over all charging sessions",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Add Charging",
+      "tooltip": "Add a missing charging session to the database",
+      "type": "link",
+      "url": "${vwsfriend_url:raw}/database/charging-session/edit?vin=${VIN}"
+    },
+    {
+      "asDropdown": false,
+      "icon": "dashboard",
+      "includeVars": true,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Last Year",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/${__dashboard.uid}/?from=now-1y&to=now"
+    },
+    {
+      "asDropdown": false,
+      "icon": "dashboard",
+      "includeVars": true,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Last Month",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/${__dashboard.uid}/?from=now-1M&to=now"
+    },
+    {
+      "asDropdown": false,
+      "icon": "dashboard",
+      "includeVars": true,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Last Week",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/${__dashboard.uid}/?from=now-1w&to=now"
+    },
+    {
+      "asDropdown": true,
+      "icon": "dashboard",
+      "includeVars": true,
+      "keepTime": false,
+      "tags": [
+        "vwsfriend"
+      ],
+      "targetBlank": false,
+      "title": "Dashboards",
+      "tooltip": "",
+      "type": "dashboards",
+      "url": ""
+    }
+  ],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P2EF847825A020B66"
+      },
+      "description": "List of all charging sessions recorded. Not all attributes can be filled automatically. If you want to make additions or changes use the ⚙ button at the end of each row. If a charging session is missing use the \"Add Charging\" button.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "color-text",
+            "filterable": false,
+            "inspect": false
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Location"
+            },
+            "properties": [
+              {
+                "id": "noValue"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Date"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Data Details",
+                    "url": "d/5rkOB0G7z?from=${__data.fields.start_date_ts}&to=${__data.fields.end_date_ts}&var-VIN=${VIN}&var-id=${__data.fields.id}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Max. Power"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "kwatt"
+              },
+              {
+                "id": "custom.width",
+                "value": 95
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/% (Start|End)/"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-RdYlGr"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 65
+              },
+              {
+                "id": "min",
+                "value": 0
+              },
+              {
+                "id": "max",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Odometer"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "km"
+              },
+              {
+                "id": "custom.width",
+                "value": 85
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Duration"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dthms"
+              },
+              {
+                "id": "custom.width",
+                "value": 85
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "AC/DC"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": ""
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.filterable",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/(id|[a-zA-Z0-9]*_date_ts)/"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Amount"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 85
+              },
+              {
+                "id": "unit",
+                "value": "kwatth"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Avg. Power"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "kwatt"
+              },
+              {
+                "id": "custom.width",
+                "value": 95
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "✓"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 50
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.filterable",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cost"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 60
+              },
+              {
+                "id": "unit",
+                "value": "currencyEUR"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Edit"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 20
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "Edit this charging session",
+                    "url": "${vwsfriend_url:raw}/database/charging-session/edit?id=${__data.fields.id}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Consumption"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "kWh/100km"
+              },
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 26,
+        "w": 17,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Add Charging",
+          "url": "${vwsfriend_url:raw}/database/charging-session/edit?vin=${VIN}"
+        }
+      ],
+      "options": {
+        "footer": {
+          "fields": [
+            "Amount",
+            "Cost",
+            "Duration"
+          ],
+          "reducer": [
+            "sum"
+          ],
+          "show": true
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "9.3.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "P2EF847825A020B66"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"start_date\" AS \"Date\",\n  \"Location\",\n  \"Duration\",\n  \"maximumChargePower_kW\" AS \"Max. Power\",\n  \"Avg. Power\",\n  \"AC/DC\",\n  \"% Start\",\n  \"% End\",\n  \"Amount\",\n  \"✓\",\n  \"Cost\",\n  \"Odometer\",\n  (\"Amount\"\n    - (\"endSOC_pct\" - lag(\"endSOC_pct\") over (order by start_date)) * (\"vehicle_capacity\" / 100::NUMERIC)) / NULLIF(((\"Odometer\" - lag(\"Odometer\") over (order by start_date)) / 100::NUMERIC), 0) AS \"Consumption\",\n  \"Edit\",\n  \"id\",\n  (round(extract(epoch FROM start_date) - 10) * 1000) AS start_date_ts,\n  COALESCE((round(extract(epoch FROM end_date) - 10) * 1000)::TEXT,'now') AS end_date_ts\nFROM\n  (SELECT DISTINCT\n    COALESCE (started, COALESCE (locked, connected)) AS start_date,\n    COALESCE (ended, COALESCE (unlocked, disconnected)) AS end_date,\n    (ended - started) AS duration,\n    COALESCE(locations.\"display_name\", CONCAT_WS(', ', COALESCE(CONCAT_WS(', ', locations.name, locations.amenity), nullif(CONCAT_WS(' ', locations.road, locations.house_number), '')), locations.neighbourhood, locations.city, locations.postcode, locations.country)) AS \"Location\",\n    EXTRACT('epoch' FROM (COALESCE (ended, COALESCE (unlocked, disconnected)) - COALESCE (started, COALESCE (locked, connected)))) AS \"Duration\",\n    \"maximumChargePower_kW\",\n    (COALESCE(\"realCharged_kWh\", COALESCE((\"meterEnd_kWh\" - \"meterStart_kWh\"), (\"endSOC_pct\" - \"startSOC_pct\") * (\n      CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_capacity\"::NUMERIC\n           ELSE vehicle_settings.\"secondary_capacity\"::NUMERIC\n      END\n      / 100::NUMERIC)))) / (EXTRACT(epoch FROM (COALESCE(ended, COALESCE(unlocked, disconnected)) - COALESCE(started, COALESCE (locked, connected))))::NUMERIC / 3600::NUMERIC) AS \"Avg. Power\",\n    acdc AS \"AC/DC\",\n    \"startSOC_pct\" AS \"% Start\",\n    \"endSOC_pct\" AS \"% End\",\n    COALESCE(\"realCharged_kWh\", COALESCE((\"meterEnd_kWh\" - \"meterStart_kWh\"),\n    (\"endSOC_pct\" - \"startSOC_pct\") * (\n      CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_capacity\"::NUMERIC\n           ELSE vehicle_settings.\"secondary_capacity\"::NUMERIC\n      END\n      / 100::NUMERIC))) AS \"Amount\",\n    CASE WHEN \"realCharged_kWh\" IS NOT NULL THEN '✓'\n         WHEN (\"meterEnd_kWh\" - \"meterStart_kWh\") IS NOT NULL THEN '✓'\n         ELSE NULL\n    END AS \"✓\",\n    \"realCost_ct\"::NUMERIC/ 100 AS \"Cost\",\n    \"mileage_km\" AS \"Odometer\",\n    '⚙' AS \"Edit\",\n    id,\n    \"endSOC_pct\",\n    (CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_capacity\"::NUMERIC\n         ELSE vehicle_settings.\"secondary_capacity\"::NUMERIC\n    END) AS \"vehicle_capacity\"\n  FROM charging_sessions\n  LEFT JOIN locations ON charging_sessions.location_id = locations.osm_id\n  LEFT JOIN vehicles ON charging_sessions.vehicle_vin = vehicles.vin\n  LEFT JOIN vehicle_settings ON charging_sessions.vehicle_vin = vehicle_settings.vehicle_vin\n  LEFT JOIN charging_tag ON charging_sessions.id = charging_tag.charging_sessions_id\n  WHERE\n    ($__timeFilter(started) OR $__timeFilter(connected) OR $__timeFilter(locked)) AND\n    charging_sessions.vehicle_vin = '$VIN' ${tag_sql:raw}\n ) AS result\nORDER BY 1 DESC",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "position_latitude"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "charging_sessions",
+          "timeColumn": "connected",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Charging Sessions",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P2EF847825A020B66"
+      },
+      "description": "List of the most often used charging stations. If this list is empty your car probably does not provide a location. You can still set charging stations by using the ⚙ button in the list of charging sessions.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto",
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Sessions"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 90
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Amount"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 90
+              },
+              {
+                "id": "unit",
+                "value": "kwatth"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 5,
+        "x": 17,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "footer": {
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "frameIndex": 1,
+        "showHeader": true
+      },
+      "pluginVersion": "9.3.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "
+            "
+          },
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"Charger\",\n  COUNT(\"Session\") AS \"Sessions\",\n  SUM(\"Amount\") AS \"Amount\"\nFROM\n  (SELECT DISTINCT\n    chargers.name AS \"Charger\",\n    charging_sessions.id AS \"Session\",\n    COALESCE(\"realCharged_kWh\", COALESCE((\"meterEnd_kWh\" - \"meterStart_kWh\"), \n    (\"endSOC_pct\" - \"startSOC_pct\") * (\n      CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_capacity\"::NUMERIC\n           ELSE vehicle_settings.\"secondary_capacity\"::NUMERIC\n      END) / 100::NUMERIC)) AS \"Amount\"\n  FROM charging_sessions\n  LEFT JOIN chargers ON charging_sessions.charger_id = chargers.id\n  LEFT JOIN vehicles ON charging_sessions.vehicle_vin = vehicles.vin\n  LEFT JOIN vehicle_settings ON charging_sessions.vehicle_vin = vehicle_settings.vehicle_vin\n  LEFT JOIN charging_tag ON charging_sessions.id = charging_tag.charging_sessions_id\n  WHERE\n    ($__timeFilter(started) OR $__timeFilter(connected) OR $__timeFilter(locked)) AND\n    chargers.name IS NOT NULL AND\n    charging_sessions.vehicle_vin = '$VIN' ${tag_sql:raw}) AS result\nGROUP BY result.\"Charger\"\nORDER BY \"Sessions\" DESC, \"Amount\" DESC\nLIMIT 10",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "position_latitude"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "charging_sessions",
+          "timeColumn": "connected",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Top 10 Chargers",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P2EF847825A020B66"
+      },
+      "description": "List of the most often used charging operators. If this list is empty your car probably does not provide a location. You can still set charging stations by using the ⚙ button in the list of charging sessions.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto",
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Sessions"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 90
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Amount"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 90
+              },
+              {
+                "id": "unit",
+                "value": "kwatth"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 5,
+        "x": 17,
+        "y": 13
+      },
+      "id": 5,
+      "options": {
+        "footer": {
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "9.3.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "P2EF847825A020B66"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"Operator\",\n  COUNT(\"Session\") AS \"Sessions\",\n  SUM(\"Amount\") AS \"Amount\"\nFROM\n  (SELECT DISTINCT\n    operators.name AS \"Operator\",\n    charging_sessions.id AS \"Session\",\n    COALESCE(\"realCharged_kWh\", COALESCE((\"meterEnd_kWh\" - \"meterStart_kWh\"), \n    (\"endSOC_pct\" - \"startSOC_pct\") * (\n      CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_capacity\"::NUMERIC\n           ELSE vehicle_settings.\"secondary_capacity\"::NUMERIC\n      END) / 100::NUMERIC)) AS \"Amount\"\n  FROM charging_sessions\n  LEFT JOIN chargers ON charging_sessions.charger_id = chargers.id\n  LEFT JOIN operators ON chargers.operator_id = operators.id\n  LEFT JOIN vehicles ON charging_sessions.vehicle_vin = vehicles.vin\n  LEFT JOIN vehicle_settings ON charging_sessions.vehicle_vin = vehicle_settings.vehicle_vin\n  LEFT JOIN charging_tag ON charging_sessions.id = charging_tag.charging_sessions_id\n  WHERE\n    ($__timeFilter(started) OR $__timeFilter(connected) OR $__timeFilter(locked)) AND\n    chargers.name IS NOT NULL AND\n    charging_sessions.vehicle_vin = '$VIN' ${tag_sql:raw}) AS result\nGROUP BY result.\"Operator\"\nORDER BY \"Sessions\" DESC, \"Amount\" DESC\nLIMIT 10",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "position_latitude"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "charging_sessions",
+          "timeColumn": "connected",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Top 10 Operators",
+      "type": "table"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 37,
+  "style": "dark",
+  "tags": [
+    "vwsfriend"
+  ],
+  "templating": {
+    "list": [
+      {
+        "datasource": {
+          "type": "postgres",
+          "uid": "P2EF847825A020B66"
+        },
+        "definition": "SELECT \"vin\" || ':' || \"nickname\" || ' (' || \"model\" || ' - ' || \"carType\" || ')' FROM vehicles LEFT JOIN vehicle_settings ON vehicles.VIN = vehicle_settings.vehicle_vin WHERE vehicle_settings.hide IS NOT True ORDER BY vehicle_settings.sorting_order ASC",
+        "description": "Select Car if you have multiple cars in your account",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Car",
+        "multi": false,
+        "name": "VIN",
+        "options": [],
+        "query": "SELECT \"vin\" || ':' || \"nickname\" || ' (' || \"model\" || ' - ' || \"carType\" || ')' FROM vehicles LEFT JOIN vehicle_settings ON vehicles.VIN = vehicle_settings.vehicle_vin WHERE vehicle_settings.hide IS NOT True ORDER BY vehicle_settings.sorting_order ASC",
+        "refresh": 1,
+        "regex": "/(?<value>[A-Z0-9]+):(?<text>.*)/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "datasource": {
+          "type": "postgres",
+          "uid": "P2EF847825A020B66"
+        },
+        "definition": "SELECT vwsfriend_url FROM settings LIMIT 1",
+        "hide": 2,
+        "includeAll": false,
+        "multi": false,
+        "name": "vwsfriend_url",
+        "options": [],
+        "query": "SELECT vwsfriend_url FROM settings LIMIT 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "allValue": "all_values",
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "postgres",
+          "uid": "P2EF847825A020B66"
+        },
+        "definition": "SELECT tag.name || ': ' || tag.description || '$' || tag.name FROM charging_tag LEFT JOIN tag ON charging_tag.tag_name = tag.name WHERE use_charges = true",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Show",
+        "multi": true,
+        "name": "tag",
+        "options": [],
+        "query": "SELECT tag.name || ': ' || tag.description || '$' || tag.name FROM charging_tag LEFT JOIN tag ON charging_tag.tag_name = tag.name WHERE use_charges = true",
+        "refresh": 2,
+        "regex": "/(?<text>.+)\\$(?<value>.+)/",
+        "skipUrlSync": false,
+        "sort": 5,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "",
+          "value": ""
+        },
+        "datasource": {
+          "type": "postgres",
+          "uid": "P2EF847825A020B66"
+        },
+        "definition": "SELECT CASE WHEN LENGTH($$${tag:raw}$$)>0 AND $$${tag:singlequote}$$ != 'all_values' THEN $$ AND charging_tag.tag_name IN (${tag:singlequote}) $$ ELSE '' END",
+        "hide": 2,
+        "includeAll": false,
+        "multi": false,
+        "name": "tag_sql",
+        "options": [],
+        "query": "SELECT CASE WHEN LENGTH($$${tag:raw}$$)>0 AND $$${tag:singlequote}$$ != 'all_values' THEN $$ AND charging_tag.tag_name IN (${tag:singlequote}) $$ ELSE '' END",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "1970-01-01T00:00:00.000Z",
+    "to": "now"
+  },
+  "timepicker": {
+    "hidden": false
+  },
+  "timezone": "",
+  "title": "Charging Sessions",
+  "uid": "WHZz0AGnz",
+  "version": 1,
+  "weekStart": ""
+}
