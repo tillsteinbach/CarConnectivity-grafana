@@ -2216,7 +2216,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "CarConnectivity Grafana version: [0.0.0dev](https://github.com/tillsteinbach/CarConnectivity/)",
+        "content": "CarConnectivity Grafana version: [0.0.0dev](https://github.com/tillsteinbach/CarConnectivity-grafana/)",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.1",
