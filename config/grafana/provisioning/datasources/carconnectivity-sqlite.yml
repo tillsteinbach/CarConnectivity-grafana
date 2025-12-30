@@ -14,5 +14,5 @@ datasources:
     jsonData:
       path: /home/grafana/.carconnectivity/carconnectivity.db
     url: $DB_HOSTNAME:$DB_PORT
-    isDefault: true
+    isDefault: false
     editable: false
