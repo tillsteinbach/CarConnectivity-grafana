@@ -324,7 +324,7 @@
             "mode": "palette-classic"
           },
           "custom": {
-            "axisBorderShow": false,
+            "axisBorderShow": true,
             "axisCenteredZero": false,
             "axisColorMode": "series",
             "axisLabel": "Level",
@@ -1865,10 +1865,10 @@
             "mode": "palette-classic"
           },
           "custom": {
-            "axisBorderShow": false,
+            "axisBorderShow": true,
             "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "Charge Power",
+            "axisColorMode": "series",
+            "axisLabel": "Charging Power",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "barWidthFactor": 0.6,
@@ -1898,6 +1898,7 @@
               "mode": "off"
             }
           },
+          "fieldMinMax": false,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -1918,7 +1919,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Charge Rate"
+              "options": "Charging Rate"
             },
             "properties": [
               {
@@ -1927,7 +1928,7 @@
               },
               {
                 "id": "custom.axisLabel",
-                "value": "Charge Rate"
+                "value": "Charging Rate"
               }
             ]
           },
