@@ -1,0 +1,314 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "iteration": 1654775026789,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "dashboard",
+      "includeVars": true,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Last Year",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/${__dashboard.uid}/?from=now-1y&to=now"
+    },
+    {
+      "asDropdown": false,
+      "icon": "dashboard",
+      "includeVars": true,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Last Month",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/${__dashboard.uid}/?from=now-1M&to=now"
+    },
+    {
+      "asDropdown": false,
+      "icon": "dashboard",
+      "includeVars": true,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Last Week",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/${__dashboard.uid}/?from=now-1w&to=now"
+    },
+    {
+      "asDropdown": true,
+      "icon": "dashboard",
+      "includeVars": true,
+      "keepTime": false,
+      "tags": [
+        "vwsfriend"
+      ],
+      "targetBlank": false,
+      "title": "Dashboards",
+      "tooltip": "",
+      "type": "dashboards",
+      "url": ""
+    }
+  ],
+  "liveNow": true,
+  "panels": [
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "P2EF847825A020B66"
+      },
+      "description": "Milage over time. The dashed line shows the projected milage based on the data from the past. If you do not see any data your car does not provide the odometer data. You can still use this graph if you manually add odometer data to the trips.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "km"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mileage"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 25
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Milage Prognose"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    10
+                  ],
+                  "fill": "dash"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 29,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "maxDataPoints": 500,
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max",
+            "delta"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  $__timeGroup(\"endDate\", $__interval),\n  MAX(trips.end_mileage_km) AS \"Mileage\"\nFROM trips\nWHERE\n  $__timeFilter(\"startDate\") AND\n  trips.vehicle_vin = '$VIN' AND\n  trips.\"endDate\" IS NOT NULL AND\n  trips.end_mileage_km IS NOT NULL\nGROUP BY time\nORDER BY time ASC",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "position_latitude"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "refuel_sessions",
+          "timeColumn": "date",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  make_timestamp(${__to:date:Y,M,D,h,m,s}) AS time,\n  MIN(\"end_mileage_km\")+(MAX(\"end_mileage_km\") - MIN(\"end_mileage_km\")) / (DATE_PART('day', NULLIF(MAX(\"endDate\") - MIN(\"endDate\"),INTERVAL '0 days')))*DATE_PART('day', NULLIF(make_timestamp(${__to:date:Y,M,D,h,m,s}) - MIN(\"endDate\"), INTERVAL '0 days')) AS \"Milage Prognose\"\nFROM trips\n  WHERE\n    $__timeFilter(\"startDate\") AND\n    trips.vehicle_vin = '$VIN' AND\n    trips.\"endDate\" IS NOT NULL AND\n    trips.end_mileage_km IS NOT NULL\nunion\nSELECT\n  MIN(\"endDate\") AS time,\n  MIN(\"end_mileage_km\") AS \"Milage Prognose\"\nFROM trips\n  WHERE\n    $__timeFilter(\"startDate\") AND\n    trips.vehicle_vin = '$VIN' AND\n    trips.\"endDate\" IS NOT NULL AND\n    trips.end_mileage_km IS NOT NULL",
+          "refId": "B",
+          "select": [
+            [
+              {
+                "params": [
+                  "position_latitude"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "refuel_sessions",
+          "timeColumn": "date",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Mileage",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": [
+    "vwsfriend"
+  ],
+  "templating": {
+    "list": [
+      {
+        "datasource": {
+          "type": "postgres",
+          "uid": "P2EF847825A020B66"
+        },
+        "definition": "SELECT \"vin\" || ':' || \"nickname\" || ' (' || \"model\" || ' - ' || \"carType\" || ')' FROM vehicles LEFT JOIN vehicle_settings ON vehicles.VIN = vehicle_settings.vehicle_vin WHERE vehicle_settings.hide IS NOT True ORDER BY vehicle_settings.sorting_order ASC",
+        "description": "Select Car if you have multiple cars in your account",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Car",
+        "multi": false,
+        "name": "VIN",
+        "options": [],
+        "query": "SELECT \"vin\" || ':' || \"nickname\" || ' (' || \"model\" || ' - ' || \"carType\" || ')' FROM vehicles LEFT JOIN vehicle_settings ON vehicles.VIN = vehicle_settings.vehicle_vin WHERE vehicle_settings.hide IS NOT True ORDER BY vehicle_settings.sorting_order ASC",
+        "refresh": 1,
+        "regex": "/(?<value>[A-Z0-9]+):(?<text>.*)/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now/y",
+    "to": "now/y"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Mileage",
+  "uid": "a8cyhdS7z",
+  "version": 1,
+  "weekStart": ""
+}
