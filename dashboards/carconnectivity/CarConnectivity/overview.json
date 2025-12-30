@@ -431,7 +431,7 @@
           "queryType": "table",
           "rawQuery": true,
           "rawQueryText": "SELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', first_date) as time, range as 'Range', drives.drive_id AS label FROM drive_ranges JOIN drives ON drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\"\nUNION\nSELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', last_date) as time, range as 'Range', drives.drive_id AS label FROM drive_ranges JOIN drives ON drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\"",
-          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"range\" AS \"Range\",\n  drives.drive_id as \"Drive\"\nFROM drive_ranges\nLEFT JOIN drives ON drive_ranges.drive_id = drives.id\nWHERE\n  drives.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"range\" AS \"Range\",\n  drives.drive_id as \"Drive\"\nFROM drive_ranges\nLEFT JOIN drives ON drive_ranges.drive_id = drives.id\nWHERE\n  drives.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" DESC",
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"range\" AS \"Range\",\n  drives.drive_id as \"Drive\"\nFROM drive_ranges\nLEFT JOIN drives ON drive_ranges.drive_id = drives.id\nWHERE\n  drives.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"range\" AS \"Range\",\n  drives.drive_id as \"Drive\"\nFROM drive_ranges\nLEFT JOIN drives ON drive_ranges.drive_id = drives.id\nWHERE\n  drives.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" ASC",
           "refId": "Range",
           "select": [
             [
@@ -487,7 +487,7 @@
           "queryType": "table",
           "rawQuery": true,
           "rawQueryText": "SELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', first_date) as time, range as 'Range', drives.drive_id AS label FROM drive_ranges JOIN drives ON drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\"\nUNION\nSELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', last_date) as time, range as 'Range', drives.drive_id AS label FROM drive_ranges JOIN drives ON drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\"",
-          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"level\" AS \"Level\",\n  drives.drive_id as \"Drive\"\nFROM drive_levels\nLEFT JOIN drives ON drive_levels.drive_id = drives.id\nWHERE\n  drives.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"level\" AS \"Level\",\n  drives.drive_id as \"Drive\"\nFROM drive_levels\nLEFT JOIN drives ON drive_levels.drive_id = drives.id\nWHERE\n  drives.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" DESC",
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"level\" AS \"Level\",\n  drives.drive_id as \"Drive\"\nFROM drive_levels\nLEFT JOIN drives ON drive_levels.drive_id = drives.id\nWHERE\n  drives.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"level\" AS \"Level\",\n  drives.drive_id as \"Drive\"\nFROM drive_levels\nLEFT JOIN drives ON drive_levels.drive_id = drives.id\nWHERE\n  drives.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" ASC",
           "refId": "Level",
           "select": [
             [
@@ -2297,7 +2297,7 @@
           "query": "",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"state\" AS \"Vehicle State\"\nFROM states\nWHERE\n  states.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"state\" AS \"Vehicle State\"\nFROM states\nWHERE\n  states.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" DESC",
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"state\" AS \"Vehicle State\"\nFROM states\nWHERE\n  states.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"state\" AS \"Vehicle State\"\nFROM states\nWHERE\n  states.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" ASC",
           "refId": "Vehicle State",
           "resultFormat": "time_series",
           "select": [
@@ -2355,7 +2355,7 @@
           "query": "",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"connection_state\" AS \"Connection\"\nFROM connection_states\nWHERE\n  connection_states.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"connection_state\" AS \"Connection\"\nFROM connection_states\nWHERE\n  connection_states.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" DESC",
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"connection_state\" AS \"Connection\"\nFROM connection_states\nWHERE\n  connection_states.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"connection_state\" AS \"Connection\"\nFROM connection_states\nWHERE\n  connection_states.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" ASC",
           "refId": "Connection State",
           "resultFormat": "time_series",
           "select": [
