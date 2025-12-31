@@ -106,6 +106,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
+  "id": 2,
   "links": [
     {
       "asDropdown": false,
@@ -691,11 +692,30 @@
           "mappings": [
             {
               "options": {
-                "0": {
+                "INVALID": {
+                  "color": "text",
+                  "index": 3,
+                  "text": "Car connection status invalid"
+                },
+                "OFFLINE": {
+                  "color": "red",
+                  "index": 2,
                   "text": "Car is offline"
                 },
-                "1": {
+                "ONLINE": {
+                  "color": "green",
+                  "index": 0,
                   "text": "Car is online"
+                },
+                "REACHABLE": {
+                  "color": "orange",
+                  "index": 1,
+                  "text": "Car is reachable"
+                },
+                "UNKNOWN": {
+                  "color": "text",
+                  "index": 4,
+                  "text": "Car connection status unknown"
                 }
               },
               "type": "value"
@@ -707,10 +727,6 @@
               {
                 "color": "red",
                 "value": 0
-              },
-              {
-                "color": "green",
-                "value": 1
               }
             ]
           },
@@ -735,7 +751,7 @@
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "/^online$/",
+          "fields": "/^connection_state$/",
           "values": true
         },
         "showPercentChange": false,
@@ -750,6 +766,7 @@
       "targets": [
         {
           "alias": "Car is online",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "groupBy": [],
@@ -760,12 +777,29 @@
           "query": "",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  \"lastUpdate\" AS \"time\",\n  CASE WHEN \"online\"=True THEN 1\n       WHEN \"online\"=False THEN 0\n  END as \"online\"\nFROM vehicles\nWHERE\n  vin = '$VIN'",
+          "rawSql": "SELECT \"last_date\" AS \"time\", connection_state FROM connection_states WHERE vin = '$VIN' ORDER BY first_date DESC",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
             []
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "vehicles",
           "tags": [],
           "timeColumn": "\"lastUpdate\"",
@@ -836,6 +870,7 @@
       "targets": [
         {
           "alias": "Last connection",
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "groupBy": [],
@@ -846,7 +881,7 @@
           "query": "",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  \"lastUpdate\" AS \"Last update from Server\",\n  \"lastChange\" AS \"Last update from Car\"\nFROM vehicles\nWHERE\n  vin = '$VIN'",
+          "rawSql": "SELECT \"last_date\" AS \"Last update\" FROM charging_powers WHERE vin = '$VIN'\nUNION\nSELECT \"last_date\" AS \"Last update\" FROM charging_rates WHERE vin = '$VIN'\nUNION\nSELECT \"last_date\" AS \"Last update\" FROM charging_states WHERE vin = '$VIN'\nUNION\nSELECT \"last_date\" AS \"Last update\" FROM climatization_states WHERE vin = '$VIN'\nUNION\nSELECT \"last_date\" AS \"Last update\" FROM connection_states WHERE vin = '$VIN'\nUNION\nSELECT \"last_date\" AS \"Last update\" FROM drive_levels LEFT JOIN drives ON drive_levels.drive_id = drives.id WHERE vin = '$VIN'\nUNION\nSELECT \"last_date\" AS \"Last update\" FROM drive_ranges LEFT JOIN drives ON drive_ranges.drive_id = drives.id WHERE vin = '$VIN'\nUNION\nSELECT \"last_date\" AS \"Last update\" FROM outside_temperatures WHERE vin = '$VIN'\nUNION\nSELECT \"last_date\" AS \"Last update\" FROM states WHERE vin = '$VIN'\nORDER BY \"Last update\" DESC LIMIT 1",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -859,6 +894,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "tags": [],
           "timeColumn": "time",
           "where": [
