@@ -106,7 +106,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 2,
+  "id": 4,
   "links": [
     {
       "asDropdown": false,
@@ -777,7 +777,7 @@
           "query": "",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT \"last_date\" AS \"time\", connection_state FROM connection_states WHERE vin = '$VIN' ORDER BY first_date DESC",
+          "rawSql": "SELECT \"last_date\" AS \"time\", connection_state FROM connection_states WHERE vin = '$VIN' ORDER BY first_date DESC LIMIT 1",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
