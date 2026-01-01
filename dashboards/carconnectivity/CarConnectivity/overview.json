@@ -1209,7 +1209,7 @@
           "custom": {
             "axisBorderShow": false,
             "axisCenteredZero": false,
-            "axisColorMode": "text",
+            "axisColorMode": "series",
             "axisLabel": "Extrapolated range at 100% SoC",
             "axisPlacement": "auto",
             "barAlignment": 0,
