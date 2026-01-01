@@ -151,7 +151,7 @@
                 "value": [
                   {
                     "title": "Data Details",
-                    "url": "d/5rkOB0G7z?from=${__data.fields.start_date_ts}&to=${__data.fields.end_date_ts}&var-VIN=${VIN}&var-id=${__data.fields.id}"
+                    "url": "d/chargingsession?from=${__data.fields.start_date_ts}&to=${__data.fields.end_date_ts}&var-VIN=${VIN}&var-id=${__data.fields.id}"
                   }
                 ]
               }

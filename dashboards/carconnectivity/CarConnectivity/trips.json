@@ -172,7 +172,7 @@
                 "value": [
                   {
                     "title": "Trip Details",
-                    "url": "d/6JFDUrG7z?from=${__data.fields.start_date_ts}&to=${__data.fields.end_date_ts}&var-VIN=${VIN}&var-id=${__data.fields.id}"
+                    "url": "d/tripdetails?from=${__data.fields.start_date_ts}&to=${__data.fields.end_date_ts}&var-VIN=${VIN}&var-id=${__data.fields.id}"
                   }
                 ]
               }
@@ -430,7 +430,7 @@
                 "value": [
                   {
                     "title": "",
-                    "url": "d/vNxU6Xl7k?var-VIN=${VIN}&var-start_location=${__data.fields.start_location_id}&var-destination_location=${__data.fields.destination_location_id}"
+                    "url": "d/aggregatedtripdetails?var-VIN=${VIN}&var-start_location=${__data.fields.start_location_id}&var-destination_location=${__data.fields.destination_location_id}"
                   }
                 ]
               }
@@ -571,7 +571,7 @@
                 "value": [
                   {
                     "title": "Trip Details",
-                    "url": "d/6JFDUrG7z?from=${__data.fields.start_date_ts}&to=${__data.fields.end_date_ts}&var-VIN=${VIN}&var-id=${__data.fields.id}"
+                    "url": "d/tripdetails?from=${__data.fields.start_date_ts}&to=${__data.fields.end_date_ts}&var-VIN=${VIN}&var-id=${__data.fields.id}"
                   }
                 ]
               }
