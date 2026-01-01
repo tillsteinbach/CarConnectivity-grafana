@@ -25,6 +25,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
+  "id": 2,
   "links": [
     {
       "asDropdown": false,
@@ -89,7 +90,6 @@
       "url": ""
     }
   ],
-  "liveNow": false,
   "panels": [
     {
       "datasource": {
@@ -104,8 +104,13 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "color-text",
+            "cellOptions": {
+              "type": "color-text"
+            },
             "filterable": false,
+            "footer": {
+              "reducers": []
+            },
             "inspect": false
           },
           "decimals": 0,
@@ -115,7 +120,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           }
@@ -256,7 +261,7 @@
                   "steps": [
                     {
                       "color": "green",
-                      "value": null
+                      "value": 0
                     },
                     {
                       "color": "red",
@@ -278,7 +283,7 @@
             },
             "properties": [
               {
-                "id": "custom.hidden",
+                "id": "custom.hideFrom.viz",
                 "value": true
               }
             ]
@@ -403,6 +408,27 @@
                 "value": 120
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "include",
+                "names": [
+                  "Amount",
+                  "Cost",
+                  "Duration"
+                ]
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.footer.reducers",
+                "value": [
+                  "sum"
+                ]
+              }
+            ]
           }
         ]
       },
@@ -421,21 +447,11 @@
         }
       ],
       "options": {
-        "footer": {
-          "fields": [
-            "Amount",
-            "Cost",
-            "Duration"
-          ],
-          "reducer": [
-            "sum"
-          ],
-          "show": true
-        },
+        "cellHeight": "sm",
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
@@ -504,8 +520,13 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
             "filterable": true,
+            "footer": {
+              "reducers": []
+            },
             "inspect": false
           },
           "mappings": [],
@@ -514,7 +535,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -562,17 +583,11 @@
       },
       "id": 4,
       "options": {
-        "footer": {
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
+        "cellHeight": "sm",
         "frameIndex": 1,
         "showHeader": true
       },
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
@@ -641,8 +656,13 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
             "filterable": true,
+            "footer": {
+              "reducers": []
+            },
             "inspect": false
           },
           "mappings": [],
@@ -651,7 +671,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -699,16 +719,10 @@
       },
       "id": 5,
       "options": {
-        "footer": {
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
+        "cellHeight": "sm",
         "showHeader": true
       },
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
@@ -765,9 +779,9 @@
       "type": "table"
     }
   ],
+  "preload": false,
   "refresh": "",
-  "schemaVersion": 37,
-  "style": "dark",
+  "schemaVersion": 42,
   "tags": [
     "carconnectivity"
   ],
@@ -790,55 +804,7 @@
         "type": "query"
       },
       {
-        "datasource": {
-          "type": "postgres",
-          "uid": "CarConnectivity-PostgreSQL-provisioned"
-        },
-        "definition": "SELECT vwsfriend_url FROM settings LIMIT 1",
-        "hide": 2,
-        "includeAll": false,
-        "multi": false,
-        "name": "vwsfriend_url",
-        "options": [],
-        "query": "SELECT vwsfriend_url FROM settings LIMIT 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
-      },
-      {
-        "allValue": "all_values",
         "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
-        },
-        "datasource": {
-          "type": "postgres",
-          "uid": "CarConnectivity-PostgreSQL-provisioned"
-        },
-        "definition": "SELECT tag.name || ': ' || tag.description || '$' || tag.name FROM charging_tag LEFT JOIN tag ON charging_tag.tag_name = tag.name WHERE use_charges = true",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Show",
-        "multi": true,
-        "name": "tag",
-        "options": [],
-        "query": "SELECT tag.name || ': ' || tag.description || '$' || tag.name FROM charging_tag LEFT JOIN tag ON charging_tag.tag_name = tag.name WHERE use_charges = true",
-        "refresh": 2,
-        "regex": "/(?<text>.+)\\$(?<value>.+)/",
-        "skipUrlSync": false,
-        "sort": 5,
-        "type": "query"
-      },
-      {
-        "current": {
-          "selected": false,
           "text": "",
           "value": ""
         },
@@ -846,17 +812,55 @@
           "type": "postgres",
           "uid": "CarConnectivity-PostgreSQL-provisioned"
         },
-        "definition": "SELECT CASE WHEN LENGTH($$${tag:raw}$$)>0 AND $$${tag:singlequote}$$ != 'all_values' THEN $$ AND charging_tag.tag_name IN (${tag:singlequote}) $$ ELSE '' END",
+        "definition": "SELECT vwsfriend_url FROM settings LIMIT 1",
         "hide": 2,
         "includeAll": false,
-        "multi": false,
-        "name": "tag_sql",
+        "name": "vwsfriend_url",
         "options": [],
-        "query": "SELECT CASE WHEN LENGTH($$${tag:raw}$$)>0 AND $$${tag:singlequote}$$ != 'all_values' THEN $$ AND charging_tag.tag_name IN (${tag:singlequote}) $$ ELSE '' END",
+        "query": "SELECT vwsfriend_url FROM settings LIMIT 1",
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
+        "type": "query"
+      },
+      {
+        "allValue": "all_values",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "postgres",
+          "uid": "CarConnectivity-PostgreSQL-provisioned"
+        },
+        "definition": "SELECT tags.name || ': ' || tags.description || '$' || tags.name FROM charging_sessions_tags LEFT JOIN tags ON charging_sessions_tags.tags_name = tags.name",
+        "includeAll": true,
+        "label": "Show",
+        "multi": true,
+        "name": "tag",
+        "options": [],
+        "query": "SELECT tags.name || ': ' || tags.description || '$' || tags.name FROM charging_sessions_tags LEFT JOIN tags ON charging_sessions_tags.tags_name = tags.name",
+        "refresh": 2,
+        "regex": "/(?<text>.+)\\$(?<value>.+)/",
+        "sort": 5,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "datasource": {
+          "type": "postgres",
+          "uid": "CarConnectivity-PostgreSQL-provisioned"
+        },
+        "definition": "SELECT CASE WHEN LENGTH($$${tag:raw}$$)>0 AND $$${tag:singlequote}$$ != 'all_values' THEN $$ AND charging_sessions_tags.tags_name IN (${tag:singlequote}) $$ ELSE '' END",
+        "hide": 2,
+        "includeAll": false,
+        "name": "tag_sql",
+        "options": [],
+        "query": "SELECT CASE WHEN LENGTH($$${tag:raw}$$)>0 AND $$${tag:singlequote}$$ != 'all_values' THEN $$ AND charging_sessions_tags.tags_name IN (${tag:singlequote}) $$ ELSE '' END",
+        "refresh": 1,
+        "regex": "",
         "type": "query"
       }
     ]
@@ -865,12 +869,9 @@
     "from": "1970-01-01T00:00:00.000Z",
     "to": "now"
   },
-  "timepicker": {
-    "hidden": false
-  },
+  "timepicker": {},
   "timezone": "",
   "title": "Charging Sessions",
   "uid": "chargingsessions",
-  "version": 1,
-  "weekStart": ""
+  "version": 1
 }

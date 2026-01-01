@@ -24,7 +24,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 2,
+  "id": 5,
   "links": [
     {
       "asDropdown": false,
@@ -706,12 +706,8 @@
       {
         "allValue": "all_values",
         "current": {
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": {
           "type": "postgres",
@@ -731,19 +727,19 @@
       },
       {
         "current": {
-          "text": " AND trips_tags.tags_name IN (all_values) ",
-          "value": " AND trips_tags.tags_name IN (all_values) "
+          "text": "",
+          "value": ""
         },
         "datasource": {
           "type": "postgres",
           "uid": "CarConnectivity-PostgreSQL-provisioned"
         },
-        "definition": "SELECT CASE WHEN LENGTH($$${tags:raw}$$)>0 AND $$${tags:singlequote}$$ != 'all_values' THEN $$ AND trips_tags.tags_name IN (${tag:singlequote}) $$ ELSE '' END",
+        "definition": "SELECT CASE WHEN LENGTH($$${tag:raw}$$)>0 AND $$${tag:singlequote}$$ != 'all_values' THEN $$ AND trips_tags.tags_name IN (${tag:singlequote}) $$ ELSE '' END",
         "hide": 2,
         "includeAll": false,
         "name": "tag_sql",
         "options": [],
-        "query": "SELECT CASE WHEN LENGTH($$${tags:raw}$$)>0 AND $$${tags:singlequote}$$ != 'all_values' THEN $$ AND trips_tags.tags_name IN (${tag:singlequote}) $$ ELSE '' END",
+        "query": "SELECT CASE WHEN LENGTH($$${tag:raw}$$)>0 AND $$${tag:singlequote}$$ != 'all_values' THEN $$ AND trips_tags.tags_name IN (${tag:singlequote}) $$ ELSE '' END",
         "refresh": 1,
         "regex": "",
         "type": "query"
@@ -751,7 +747,7 @@
     ]
   },
   "time": {
-    "from": "1970-01-01T00:00:00.000Z",
+    "from": "now-1w",
     "to": "now"
   },
   "timepicker": {},
