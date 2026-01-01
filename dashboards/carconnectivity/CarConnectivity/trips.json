@@ -21,11 +21,10 @@
       }
     ]
   },
-  "description": "",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "iteration": 1654775323442,
+  "id": 2,
   "links": [
     {
       "asDropdown": false,
@@ -90,7 +89,6 @@
       "url": ""
     }
   ],
-  "liveNow": false,
   "panels": [
     {
       "datasource": {
@@ -105,8 +103,13 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "color-text",
+            "cellOptions": {
+              "type": "color-text"
+            },
             "filterable": false,
+            "footer": {
+              "reducers": []
+            },
             "inspect": false
           },
           "decimals": 0,
@@ -116,7 +119,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           }
@@ -145,7 +148,7 @@
             },
             "properties": [
               {
-                "id": "custom.hidden",
+                "id": "custom.hideFrom.viz",
                 "value": true
               }
             ]
@@ -236,6 +239,26 @@
                 "value": true
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "include",
+                "names": [
+                  "Length",
+                  "Duration"
+                ]
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.footer.reducers",
+                "value": [
+                  "sum"
+                ]
+              }
+            ]
           }
         ]
       },
@@ -254,31 +277,23 @@
         }
       ],
       "options": {
-        "footer": {
-          "fields": [
-            "Length",
-            "Duration"
-          ],
-          "reducer": [
-            "sum"
-          ],
-          "show": true
-        },
+        "cellHeight": "sm",
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "8.5.5",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
             "type": "postgres",
             "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  \"startDate\" AS \"Start Date\",\n  COALESCE(start_locations.\"display_name\", CONCAT_WS(', ', COALESCE(CONCAT_WS(', ', start_locations.name, start_locations.amenity), nullif(CONCAT_WS(' ', start_locations.road, start_locations.house_number), '')), start_locations.neighbourhood, start_locations.city, start_locations.postcode, start_locations.country)) AS \"Start Location\",\n  COALESCE(destination_location.\"display_name\", CONCAT_WS(', ', COALESCE(CONCAT_WS(', ', destination_location.name, destination_location.amenity), nullif(CONCAT_WS(' ', destination_location.road, destination_location.house_number), '')), destination_location.neighbourhood, destination_location.city, destination_location.postcode, destination_location.country)) AS \"Destination Location\",\n  EXTRACT('epoch' FROM(\"endDate\"-\"startDate\")) AS \"Duration\",\n  (\"end_mileage_km\"-\"start_mileage_km\") AS \"Length\",\n  \"end_mileage_km\" AS \"Odometer\",\n  '⚙' AS \"Edit\",\n  id,\n  COALESCE((round(extract(epoch FROM \"startDate\") - 300) * 1000)::TEXT,'now-1d') AS start_date_ts,\n  COALESCE((round(extract(epoch FROM \"endDate\") + 300) * 1000)::TEXT,'now') AS end_date_ts\nFROM trips\nLEFT JOIN locations start_locations ON trips.\"start_location_id\" = start_locations.osm_id\nLEFT JOIN locations destination_location ON trips.\"destination_location_id\" = destination_location.osm_id\nLEFT JOIN trip_tag ON trips.id = trip_tag.trips_id\nWHERE\n  ($__timeFilter(\"startDate\") OR $__timeFilter(\"endDate\")) AND\n  trips.vehicle_vin = '$VIN' ${tag_sql:raw}\nGROUP BY 1,2,3,4,5,6,7,8,9,10\nORDER BY 1 DESC\n",
+          "rawSql": "SELECT\n  \"start_date\" AS \"Start Date\",\n  COALESCE(start_locations.\"display_name\", CONCAT_WS(', ', COALESCE(CONCAT_WS(', ', start_locations.name, start_locations.amenity), nullif(CONCAT_WS(' ', start_locations.road, start_locations.house_number), '')), start_locations.neighbourhood, start_locations.city, start_locations.postcode, start_locations.country)) AS \"Start Location\",\n  COALESCE(destination_location.\"display_name\", CONCAT_WS(', ', COALESCE(CONCAT_WS(', ', destination_location.name, destination_location.amenity), nullif(CONCAT_WS(' ', destination_location.road, destination_location.house_number), '')), destination_location.neighbourhood, destination_location.city, destination_location.postcode, destination_location.country)) AS \"Destination Location\",\n  EXTRACT('epoch' FROM(\"destination_date\"-\"start_date\")) AS \"Duration\",\n  (\"destination_odometer\"-\"start_odometer\") AS \"Length\",\n  \"destination_odometer\" AS \"Odometer\",\n  '⚙' AS \"Edit\",\n  id,\n  COALESCE((round(extract(epoch FROM \"start_date\") - 300) * 1000)::TEXT,'now-1d') AS start_date_ts,\n  COALESCE((round(extract(epoch FROM \"destination_date\") + 300) * 1000)::TEXT,'now') AS destination_date_ts\nFROM trips\nLEFT JOIN locations start_locations ON trips.\"start_location_uid\" = start_locations.uid\nLEFT JOIN locations destination_location ON trips.\"destination_location_uid\" = destination_location.uid\nLEFT JOIN trips_tags ON trips.id = trips_tags.trips_id\nWHERE\n  ($__timeFilter(\"start_date\") OR $__timeFilter(\"destination_date\")) AND\n  trips.vin = '$VIN' ${tag_sql:raw}\nGROUP BY 1,2,3,4,5,6,7,8,9,10\nORDER BY 1 DESC\n",
           "refId": "A",
           "select": [
             [
@@ -290,6 +305,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "charging_sessions",
           "timeColumn": "connected",
           "timeColumnType": "timestamp",
@@ -318,8 +350,13 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
             "filterable": false,
+            "footer": {
+              "reducers": []
+            },
             "inspect": false
           },
           "mappings": [],
@@ -328,7 +365,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -377,7 +414,7 @@
             },
             "properties": [
               {
-                "id": "custom.hidden",
+                "id": "custom.hideFrom.viz",
                 "value": true
               }
             ]
@@ -409,28 +446,23 @@
       },
       "id": 4,
       "options": {
-        "footer": {
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
+        "cellHeight": "sm",
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "8.5.5",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
             "type": "postgres",
             "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  COALESCE(start_locations.\"display_name\", CONCAT_WS(', ', COALESCE(CONCAT_WS(', ', start_locations.name, start_locations.amenity), nullif(CONCAT_WS(' ', start_locations.road, start_locations.house_number), '')), start_locations.neighbourhood, start_locations.city, start_locations.postcode, start_locations.country)) AS \"Start\",\n  COALESCE(destination_location.\"display_name\", CONCAT_WS(', ', COALESCE(CONCAT_WS(', ', destination_location.name, destination_location.amenity), nullif(CONCAT_WS(' ', destination_location.road, destination_location.house_number), '')), destination_location.neighbourhood, destination_location.city, destination_location.postcode, destination_location.country)) AS \"Destination\",\n  count(DISTINCT id) AS \"# Drives\",\n  percentile_cont(0.5) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM \"endDate\"-\"startDate\")) AS \"Med. Duration\",\n  \"start_location_id\",\n  \"destination_location_id\"\nFROM trips\nLEFT JOIN locations start_locations ON trips.\"start_location_id\" = start_locations.osm_id\nLEFT JOIN locations destination_location ON trips.\"destination_location_id\" = destination_location.osm_id\nLEFT JOIN trip_tag ON trips.id = trip_tag.trips_id\nWHERE\n  ($__timeFilter(\"startDate\") OR $__timeFilter(\"endDate\")) AND\n  trips.vehicle_vin = '$VIN' ${tag_sql:raw} AND\n  trips.\"start_location_id\" IS NOT NULL AND\n  trips.\"destination_location_id\" IS NOT NULL\nGROUP BY start_locations.display_name, start_locations.name, start_locations.amenity, start_locations.road, start_locations.house_number, start_locations.neighbourhood, start_locations.city, start_locations.postcode, start_locations.country, destination_location.display_name, destination_location.name, destination_location.amenity, destination_location.road, destination_location.house_number, destination_location.neighbourhood, destination_location.city, destination_location.postcode, destination_location.country, \"start_location_id\", \"destination_location_id\"\nORDER BY \"# Drives\" DESC, \"Start\" ASC\nLIMIT 10",
+          "rawSql": "SELECT\n  COALESCE(start_locations.\"display_name\", CONCAT_WS(', ', COALESCE(CONCAT_WS(', ', start_locations.name, start_locations.amenity), nullif(CONCAT_WS(' ', start_locations.road, start_locations.house_number), '')), start_locations.neighbourhood, start_locations.city, start_locations.postcode, start_locations.country)) AS \"Start\",\n  COALESCE(destination_location.\"display_name\", CONCAT_WS(', ', COALESCE(CONCAT_WS(', ', destination_location.name, destination_location.amenity), nullif(CONCAT_WS(' ', destination_location.road, destination_location.house_number), '')), destination_location.neighbourhood, destination_location.city, destination_location.postcode, destination_location.country)) AS \"Destination\",\n  count(DISTINCT id) AS \"# Drives\",\n  percentile_cont(0.5) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM \"destination_date\"-\"start_date\")) AS \"Med. Duration\",\n  \"start_location_uid\",\n  \"destination_location_uid\"\nFROM trips\nLEFT JOIN locations start_locations ON trips.\"start_location_uid\" = start_locations.uid\nLEFT JOIN locations destination_location ON trips.\"destination_location_uid\" = destination_location.uid\nLEFT JOIN trips_tags ON trips.id = trips_tags.trips_id\nWHERE\n  ($__timeFilter(\"start_date\") OR $__timeFilter(\"destination_date\")) AND\n  trips.vin = '$VIN' ${tag_sql:raw} AND\n  trips.\"start_location_uid\" IS NOT NULL AND\n  trips.\"destination_location_uid\" IS NOT NULL\nGROUP BY start_locations.display_name, start_locations.name, start_locations.amenity, start_locations.road, start_locations.house_number, start_locations.neighbourhood, start_locations.city, start_locations.postcode, start_locations.country, destination_location.display_name, destination_location.name, destination_location.amenity, destination_location.road, destination_location.house_number, destination_location.neighbourhood, destination_location.city, destination_location.postcode, destination_location.country, \"start_location_uid\", \"destination_location_uid\"\nORDER BY \"# Drives\" DESC, \"Start\" ASC\nLIMIT 10",
           "refId": "A",
           "select": [
             [
@@ -442,6 +474,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "charging_sessions",
           "timeColumn": "connected",
           "timeColumnType": "timestamp",
@@ -470,8 +519,13 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
             "filterable": false,
+            "footer": {
+              "reducers": []
+            },
             "inspect": false
           },
           "mappings": [],
@@ -480,7 +534,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -497,7 +551,7 @@
             },
             "properties": [
               {
-                "id": "custom.hidden",
+                "id": "custom.hideFrom.viz",
                 "value": true
               }
             ]
@@ -545,28 +599,23 @@
       },
       "id": 5,
       "options": {
-        "footer": {
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
+        "cellHeight": "sm",
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "8.5.5",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
             "type": "postgres",
             "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  \"endDate\" AS \"Date\",\n  COALESCE(destination_location.\"display_name\", CONCAT_WS(', ', COALESCE(CONCAT_WS(', ', destination_location.name, destination_location.amenity), nullif(CONCAT_WS(' ', destination_location.road, destination_location.house_number), '')), destination_location.neighbourhood, destination_location.city, destination_location.postcode, destination_location.country)) AS \"Destination\",\n  (\"endDate\"-\"startDate\") AS \"Duration\",\n  id,\n  COALESCE((round(extract(epoch FROM \"endDate\") - 10) * 1000)::TEXT,'now-1d') AS start_date_ts,\n  COALESCE((round(extract(epoch FROM \"endDate\") - 10) * 1000)::TEXT,'now') AS end_date_ts\nFROM trips\nLEFT JOIN locations start_locations ON trips.\"start_location_id\" = start_locations.osm_id\nLEFT JOIN locations destination_location ON trips.\"destination_location_id\" = destination_location.osm_id\nLEFT JOIN trip_tag ON trips.id = trip_tag.trips_id\nWHERE\n  ($__timeFilter(\"startDate\") OR $__timeFilter(\"endDate\")) AND\n  (\"endDate\"-\"startDate\") IS NOT NULL AND\n  trips.vehicle_vin = '$VIN' ${tag_sql:raw}\nGROUP BY 1,2,3,4,5,6\nORDER BY \"Duration\" DESC\nLIMIT 10",
+          "rawSql": "SELECT\n  \"destination_date\" AS \"Date\",\n  COALESCE(destination_location.\"display_name\", CONCAT_WS(', ', COALESCE(CONCAT_WS(', ', destination_location.name, destination_location.amenity), nullif(CONCAT_WS(' ', destination_location.road, destination_location.house_number), '')), destination_location.neighbourhood, destination_location.city, destination_location.postcode, destination_location.country)) AS \"Destination\",\n  (\"destination_date\"-\"start_date\") AS \"Duration\",\n  id,\n  COALESCE((round(extract(epoch FROM \"destination_date\") - 10) * 1000)::TEXT,'now-1d') AS start_date_ts,\n  COALESCE((round(extract(epoch FROM \"destination_date\") - 10) * 1000)::TEXT,'now') AS end_date_ts\nFROM trips\nLEFT JOIN locations start_locations ON trips.\"start_location_uid\" = start_locations.uid\nLEFT JOIN locations destination_location ON trips.\"destination_location_uid\" = destination_location.uid\nLEFT JOIN trips_tags ON trips.id = trips_tags.trips_id\nWHERE\n  ($__timeFilter(\"start_date\") OR $__timeFilter(\"destination_date\")) AND\n  (\"destination_date\"-\"start_date\") IS NOT NULL AND\n  trips.vin = '$VIN' ${tag_sql:raw}\nGROUP BY 1,2,3,4,5,6\nORDER BY \"Duration\" DESC\nLIMIT 10",
           "refId": "A",
           "select": [
             [
@@ -578,6 +627,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "charging_sessions",
           "timeColumn": "connected",
           "timeColumnType": "timestamp",
@@ -594,9 +660,9 @@
       "type": "table"
     }
   ],
+  "preload": false,
   "refresh": "",
-  "schemaVersion": 36,
-  "style": "dark",
+  "schemaVersion": 42,
   "tags": [
     "carconnectivity"
   ],
@@ -619,6 +685,10 @@
         "type": "query"
       },
       {
+        "current": {
+          "text": "",
+          "value": ""
+        },
         "datasource": {
           "type": "postgres",
           "uid": "CarConnectivity-PostgreSQL-provisioned"
@@ -626,20 +696,16 @@
         "definition": "SELECT vwsfriend_url FROM settings LIMIT 1",
         "hide": 2,
         "includeAll": false,
-        "multi": false,
         "name": "vwsfriend_url",
         "options": [],
         "query": "SELECT vwsfriend_url FROM settings LIMIT 1",
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       },
       {
         "allValue": "all_values",
         "current": {
-          "selected": true,
           "text": [
             "All"
           ],
@@ -651,41 +717,35 @@
           "type": "postgres",
           "uid": "CarConnectivity-PostgreSQL-provisioned"
         },
-        "definition": "SELECT tag.name || ': ' || tag.description || '$' || tag.name FROM trip_tag LEFT JOIN tag ON trip_tag.tag_name = tag.name WHERE use_trips = true",
-        "hide": 0,
+        "definition": "SELECT tags.name || ': ' || tags.description || '$' || tags.name FROM trips_tags LEFT JOIN tags ON trips_tags.tags_name = tags.name",
         "includeAll": true,
         "label": "Show",
         "multi": true,
         "name": "tag",
         "options": [],
-        "query": "SELECT tag.name || ': ' || tag.description || '$' || tag.name FROM trip_tag LEFT JOIN tag ON trip_tag.tag_name = tag.name WHERE use_trips = true",
+        "query": "SELECT tags.name || ': ' || tags.description || '$' || tags.name FROM trips_tags LEFT JOIN tags ON trips_tags.tags_name = tags.name",
         "refresh": 2,
         "regex": "/(?<text>.+)\\$(?<value>.+)/",
-        "skipUrlSync": false,
         "sort": 5,
         "type": "query"
       },
       {
         "current": {
-          "selected": false,
-          "text": "",
-          "value": ""
+          "text": " AND trips_tags.tags_name IN (all_values) ",
+          "value": " AND trips_tags.tags_name IN (all_values) "
         },
         "datasource": {
           "type": "postgres",
           "uid": "CarConnectivity-PostgreSQL-provisioned"
         },
-        "definition": "SELECT CASE WHEN LENGTH($$${tag:raw}$$)>0 AND $$${tag:singlequote}$$ != 'all_values' THEN $$ AND trip_tag.tag_name IN (${tag:singlequote}) $$ ELSE '' END",
+        "definition": "SELECT CASE WHEN LENGTH($$${tags:raw}$$)>0 AND $$${tags:singlequote}$$ != 'all_values' THEN $$ AND trips_tags.tags_name IN (${tag:singlequote}) $$ ELSE '' END",
         "hide": 2,
         "includeAll": false,
-        "multi": false,
         "name": "tag_sql",
         "options": [],
-        "query": "SELECT CASE WHEN LENGTH($$${tag:raw}$$)>0 AND $$${tag:singlequote}$$ != 'all_values' THEN $$ AND trip_tag.tag_name IN (${tag:singlequote}) $$ ELSE '' END",
+        "query": "SELECT CASE WHEN LENGTH($$${tags:raw}$$)>0 AND $$${tags:singlequote}$$ != 'all_values' THEN $$ AND trips_tags.tags_name IN (${tag:singlequote}) $$ ELSE '' END",
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       }
     ]
@@ -694,12 +754,9 @@
     "from": "1970-01-01T00:00:00.000Z",
     "to": "now"
   },
-  "timepicker": {
-    "hidden": false
-  },
+  "timepicker": {},
   "timezone": "",
   "title": "Trips",
-  "uid": "2wMSY9Mnk",
-  "version": 1,
-  "weekStart": ""
+  "uid": "trips",
+  "version": 1
 }
