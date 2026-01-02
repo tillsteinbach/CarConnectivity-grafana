@@ -599,7 +599,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  \"Charger\",\n  COUNT(\"Session\") AS \"Sessions\",\n  SUM(\"Amount\") AS \"Amount\"\nFROM\n  (SELECT DISTINCT\n    chargers.name AS \"Charger\",\n    charging_sessions.id AS \"Session\",\n    COALESCE(\"realCharged_kWh\", COALESCE((\"meterEnd_kWh\" - \"meterStart_kWh\"), \n    (\"endSOC_pct\" - \"startSOC_pct\") * (\n      CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_capacity\"::NUMERIC\n           ELSE vehicle_settings.\"secondary_capacity\"::NUMERIC\n      END) / 100::NUMERIC)) AS \"Amount\"\n  FROM charging_sessions\n  LEFT JOIN chargers ON charging_sessions.charger_id = chargers.id\n  LEFT JOIN vehicles ON charging_sessions.vehicle_vin = vehicles.vin\n  LEFT JOIN vehicle_settings ON charging_sessions.vehicle_vin = vehicle_settings.vehicle_vin\n  LEFT JOIN charging_tag ON charging_sessions.id = charging_tag.charging_sessions_id\n  WHERE\n    ($__timeFilter(started) OR $__timeFilter(connected) OR $__timeFilter(locked)) AND\n    chargers.name IS NOT NULL AND\n    charging_sessions.vehicle_vin = '$VIN' ${tag_sql:raw}) AS result\nGROUP BY result.\"Charger\"\nORDER BY \"Sessions\" DESC, \"Amount\" DESC\nLIMIT 10",
+          "rawSql": "SELECT\n  \"Charging Station\",\n  COUNT(\"Session\") AS \"Sessions\",\n  SUM(\"Amount\") AS \"Amount\"\nFROM\n  (SELECT DISTINCT\n    charging_stations.name AS \"Charging Station\",\n    charging_sessions.id AS \"Session\",\n    COALESCE(\"real_charged\", COALESCE((\"meter_end_kwh\" - \"meter_start_kwh\"),\n    (\"end_level\" - \"start_level\") * (\n      capacity) / 100::NUMERIC)) AS \"Amount\"\n  FROM charging_sessions\n  LEFT JOIN charging_stations ON charging_sessions.charging_station_uid = charging_stations.uid\n  LEFT JOIN vehicles ON charging_sessions.vin = vehicles.vin\n  LEFT JOIN drives ON vehicles.vin = drives.vin\n  LEFT JOIN charging_sessions_tags ON charging_sessions.id = charging_sessions_tags.charging_sessions_id\n  WHERE\n    drives.type = 'ELECTRIC' AND\n    ($__timeFilter(session_start_date) OR $__timeFilter(plug_connected_date) OR $__timeFilter(plug_locked_date)) AND\n    charging_stations.name IS NOT NULL AND\n    charging_sessions.vin = '$VIN' ${tag_sql:raw}) AS result\nGROUP BY result.\"Charging Station\"\nORDER BY \"Sessions\" DESC, \"Amount\" DESC\nLIMIT 10",
           "refId": "A",
           "select": [
             [
@@ -805,10 +805,6 @@
       },
       {
         "allowCustomValue": false,
-        "current": {
-          "text": "",
-          "value": ""
-        },
         "datasource": {
           "type": "marcusolsson-json-datasource",
           "uid": "CarConnectivity-Env-json-provisioned"
