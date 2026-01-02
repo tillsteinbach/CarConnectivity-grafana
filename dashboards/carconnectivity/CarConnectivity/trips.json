@@ -24,7 +24,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 5,
+  "id": 9,
   "links": [
     {
       "asDropdown": false,
@@ -410,7 +410,7 @@
           {
             "matcher": {
               "id": "byRegexp",
-              "options": "/.*_location_id/"
+              "options": "/.*_location_uid/"
             },
             "properties": [
               {
@@ -429,8 +429,8 @@
                 "id": "links",
                 "value": [
                   {
-                    "title": "",
-                    "url": "d/aggregatedtripdetails?var-VIN=${VIN}&var-start_location=${__data.fields.start_location_id}&var-destination_location=${__data.fields.destination_location_id}"
+                    "title": "Show aggregated trip details",
+                    "url": "d/aggregatedtripdetails?var-VIN=${VIN}&var-start_location=${__data.fields.start_location_uid}&var-destination_location=${__data.fields.destination_location_uid}"
                   }
                 ]
               }
@@ -686,10 +686,6 @@
       },
       {
         "allowCustomValue": false,
-        "current": {
-          "text": "",
-          "value": ""
-        },
         "datasource": {
           "type": "marcusolsson-json-datasource",
           "uid": "CarConnectivity-Env-json-provisioned"
