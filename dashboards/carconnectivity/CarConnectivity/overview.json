@@ -30,8 +30,31 @@
         "hide": false,
         "iconColor": "#73BF69",
         "name": "Online",
-        "rawQuery": "SELECT\n  \"onlineTime\" as \"time\",\n  \"offlineTime\" as \"timeend\",\n  CASE WHEN \"onlineTime\"=\"offlineTime\" THEN 'Car sent update'\n            ELSE 'Car went online (' || (\"offlineTime\"-\"onlineTime\") || ')'\n  END AS \"text\"\nFROM\n  onlinestates\nWHERE\n  vehicle_vin = '$VIN' and\n  ($__timeFilter(\"onlineTime\") OR $__timeFilter(\"offlineTime\"))",
-        "showIn": 0
+        "showIn": 0,
+        "target": {
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \"time\",\n       \"timeend\",\n       'Online' AS \"title\",\n       'Online ('\n              || (\"timeend\"-\"time\")\n              || ')' AS \"text\",\n       \"id\"\nFROM   (\n                SELECT   *,\n                         \"first_date\"                                           AS \"time\",\n                         Lag(\"connection_state\") OVER (ORDER BY \"first_date\") AS \"before_connection_state\",\n                         (\n                                  SELECT   \"first_date\" AS \"timeend\"\n                                  FROM     connection_states          AS connection_states2\n                                  WHERE    connection_states2.\"connection_state\" != 'ONLINE'\n                                  AND      connection_states.vin = connection_states2.vin\n                                  AND      connection_states.\"first_date\" < connection_states2.\"first_date\"\n                                  ORDER BY \"first_date\" limit 1) \"timeend\"\n                FROM     connection_states\n                WHERE    vin = '$VIN') AS data\nWHERE  \"connection_state\" = 'ONLINE'\nAND (\"timeend\"-\"time\") < INTERVAL '1 hour'\nAND    \"before_connection_state\" != 'ONLINE'\nAND ($__timeFilter(\"time\") OR $__timeFilter(\"timeend\"))",
+          "refId": "Annotation",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
       },
       {
         "datasource": {
@@ -80,7 +103,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \"time\",\n       \"timeend\",\n       'Charging' AS \"title\",\n       'Charging ('\n              || (\"timeend\"-\"time\")\n              || ')' AS \"text\",\n       \"id\"\nFROM   (\n                SELECT   *,\n                         \"first_date\"                                           AS \"time\",\n                         Lag(\"state\") OVER (ORDER BY \"first_date\") AS \"before_charging_state\",\n                         (\n                                  SELECT   \"first_date\" AS \"timeend\"\n                                  FROM     charging_states        AS charging_states2\n                                  WHERE    charging_states2.\"state\" NOT IN ('CHARGING', 'CONSERVATION')\n                                  AND      charging_states.vin = charging_states2.vin\n                                  AND      charging_states.\"first_date\" < charging_states2.\"first_date\"\n                                  ORDER BY \"first_date\" limit 1) \"timeend\"\n                FROM     charging_states \n                WHERE    vin = '${VIN}'\n                ) AS data\nWHERE  \"state\" IN ('CHARGING', 'CONSERVATION')\nAND (\"timeend\"-\"time\") < INTERVAL '1 day'\nAND    \"before_charging_state\" != 'CHARGING'\nAND ($__timeFilter(\"time\") OR $__timeFilter(\"timeend\"))",
+          "rawSql": "SELECT \"time\",\n       \"timeend\",\n       'Charging' AS \"title\",\n       'Charging ('\n              || (\"timeend\"-\"time\")\n              || ')' AS \"text\",\n       \"id\"\nFROM   (\n                SELECT   *,\n                         \"first_date\"                                           AS \"time\",\n                         Lag(\"state\") OVER (ORDER BY \"first_date\") AS \"before_charging_state\",\n                         (\n                                  SELECT   \"first_date\" AS \"timeend\"\n                                  FROM     charging_states        AS charging_states2\n                                  WHERE    charging_states2.\"state\" NOT IN ('CHARGING', 'CONSERVATION')\n                                  AND      charging_states.vin = charging_states2.vin\n                                  AND      charging_states.\"first_date\" < charging_states2.\"first_date\"\n                                  ORDER BY \"first_date\" limit 1) \"timeend\"\n                FROM     charging_states \n                WHERE    vin = '${VIN}'\n                ) AS data\nWHERE  \"state\" IN ('CHARGING', 'CONSERVATION')\nAND (\"timeend\"-\"time\") < INTERVAL '1 day'\nAND    \"before_charging_state\" NOT IN ('CHARGING', 'CONSERVATION')\nAND ($__timeFilter(\"time\") OR $__timeFilter(\"timeend\"))",
           "refId": "Annotation",
           "sql": {
             "columns": [
@@ -106,7 +129,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 3,
+  "id": 6,
   "links": [
     {
       "asDropdown": false,
