@@ -172,7 +172,7 @@
                 "value": [
                   {
                     "title": "Trip Details",
-                    "url": "d/tripdetails?from=${__data.fields.start_date_ts}&to=${__data.fields.end_date_ts}&var-VIN=${VIN}&var-id=${__data.fields.id}"
+                    "url": "d/tripdetails?from=${__data.fields.start_date_ts}&to=${__data.fields.destination_date_ts}&var-VIN=${VIN}&var-id=${__data.fields.id}"
                   }
                 ]
               }
@@ -571,7 +571,7 @@
                 "value": [
                   {
                     "title": "Trip Details",
-                    "url": "d/tripdetails?from=${__data.fields.start_date_ts}&to=${__data.fields.end_date_ts}&var-VIN=${VIN}&var-id=${__data.fields.id}"
+                    "url": "d/tripdetails?from=${__data.fields.start_date_ts}&to=${__data.fields.destination_date_ts}&var-VIN=${VIN}&var-id=${__data.fields.id}"
                   }
                 ]
               }
