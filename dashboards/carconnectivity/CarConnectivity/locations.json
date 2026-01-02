@@ -1031,20 +1031,29 @@
         "type": "query"
       },
       {
+        "allowCustomValue": false,
         "current": {
           "text": "",
           "value": ""
         },
         "datasource": {
-          "type": "postgres",
-          "uid": "CarConnectivity-PostgreSQL-provisioned"
+          "type": "marcusolsson-json-datasource",
+          "uid": "CarConnectivity-Env-json-provisioned"
         },
-        "definition": "SELECT vwsfriend_url FROM settings LIMIT 1",
-        "hide": 2,
-        "includeAll": false,
-        "name": "vwsfriend_url",
+        "definition": "",
+        "name": "carconnectivity_url",
         "options": [],
-        "query": "SELECT vwsfriend_url FROM settings LIMIT 1",
+        "query": {
+          "cacheDurationSeconds": 86400,
+          "fields": [
+            {
+              "jsonPath": "$.carconnectivity_ui_url"
+            }
+          ],
+          "method": "GET",
+          "queryParams": "",
+          "urlPath": ""
+        },
         "refresh": 1,
         "regex": "",
         "type": "query"
