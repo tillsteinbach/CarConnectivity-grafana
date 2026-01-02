@@ -17,8 +17,6 @@ ENV GF_PLUGINS_PLUGIN_ADMIN_ENABLED=false
 ENV GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH="/var/lib/grafana-static/dashboards/carconnectivity/CarConnectivity/overview.json"
 ENV CARCONNECTIVITY_UI_URL=""
 
-RUN apk add --no-cache busybox-extras
-
 COPY ./config/grafana/provisioning/ /etc/grafana/provisioning/
 COPY ./dashboards/ /var/lib/grafana-static/dashboards/
 COPY ./public/img/ /usr/share/grafana/public/img/
