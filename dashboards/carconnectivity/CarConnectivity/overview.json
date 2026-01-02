@@ -129,7 +129,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 5,
+  "id": 3,
   "links": [
     {
       "asDropdown": false,
@@ -840,7 +840,7 @@
           ]
         }
       ],
-      "title": "Car Online State ${query0}",
+      "title": "Car Online State",
       "type": "stat"
     },
     {
@@ -2931,35 +2931,32 @@
         "type": "query"
       },
       {
+        "allowCustomValue": false,
         "current": {
           "text": "",
           "value": ""
         },
         "datasource": {
-          "type": "postgres",
-          "uid": "CarConnectivity-PostgreSQL-provisioned"
+          "type": "marcusolsson-json-datasource",
+          "uid": "CarConnectivity-Env-json-provisioned"
         },
-        "definition": "SELECT vwsfriend_url FROM settings LIMIT 1",
-        "hide": 2,
-        "includeAll": false,
-        "name": "vwsfriend_url",
+        "definition": "",
+        "name": "carconnectivity_url",
         "options": [],
-        "query": "SELECT vwsfriend_url FROM settings LIMIT 1",
+        "query": {
+          "cacheDurationSeconds": 86400,
+          "fields": [
+            {
+              "jsonPath": "$.carconnectivity_ui_url"
+            }
+          ],
+          "method": "GET",
+          "queryParams": "",
+          "urlPath": ""
+        },
         "refresh": 1,
         "regex": "",
         "type": "query"
-      },
-      {
-        "current": {
-          "text": "${GF_LOG_LEVEL}",
-          "value": "${GF_LOG_LEVEL}"
-        },
-        "description": "",
-        "hide": 2,
-        "name": "query0",
-        "query": "${GF_LOG_LEVEL}",
-        "skipUrlSync": true,
-        "type": "constant"
       }
     ]
   },
