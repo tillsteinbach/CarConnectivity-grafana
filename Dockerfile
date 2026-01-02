@@ -23,6 +23,7 @@ COPY ./public/img/ /usr/share/grafana/public/img/
 
 COPY entrypoint.sh /entrypoint.sh
 USER root
+RUN apk add --no-cache busybox-extras
 RUN chmod +x /entrypoint.sh
 USER grafana
 
