@@ -79,7 +79,7 @@
       "keepTime": false,
       "tags": [],
       "targetBlank": false,
-      "title": "Charges",
+      "title": "Charging Sessions",
       "tooltip": "",
       "type": "link",
       "url": "/d/chargingsessions"
