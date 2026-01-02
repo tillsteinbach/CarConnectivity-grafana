@@ -29,3 +29,5 @@ RUN chmod +x /start.sh
 EXPOSE 3000
 
 ENTRYPOINT ["/entrypoint.sh"]
+
+HEALTHCHECK --interval=1m CMD (wget -qO- http://localhost:${GF_SERVER_HTTP_PORT}/api/health | grep '\"database\": \"ok\"' -q) || exit 1
