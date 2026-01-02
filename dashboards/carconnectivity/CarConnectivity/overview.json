@@ -129,7 +129,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 9,
+  "id": 5,
   "links": [
     {
       "asDropdown": false,
@@ -840,7 +840,7 @@
           ]
         }
       ],
-      "title": "Car Online State",
+      "title": "Car Online State ${query0}",
       "type": "stat"
     },
     {
@@ -2948,6 +2948,18 @@
         "refresh": 1,
         "regex": "",
         "type": "query"
+      },
+      {
+        "current": {
+          "text": "${GF_LOG_LEVEL}",
+          "value": "${GF_LOG_LEVEL}"
+        },
+        "description": "",
+        "hide": 2,
+        "name": "query0",
+        "query": "${GF_LOG_LEVEL}",
+        "skipUrlSync": true,
+        "type": "constant"
       }
     ]
   },
