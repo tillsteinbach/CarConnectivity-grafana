@@ -24,7 +24,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 4,
+  "id": 2,
   "links": [
     {
       "asDropdown": false,
@@ -533,17 +533,120 @@
           "showAttribution": true,
           "showDebug": false,
           "showMeasure": false,
-          "showScale": false,
+          "showScale": true,
           "showZoom": true
         },
         "layers": [
           {
             "config": {
+              "arrow": 1,
               "style": {
                 "color": {
                   "fixed": "#F2495C"
                 },
                 "lineWidth": 3,
+                "opacity": 0.8,
+                "rotation": {
+                  "fixed": 0,
+                  "max": 360,
+                  "min": -360,
+                  "mode": "mod"
+                },
+                "size": {
+                  "fixed": 5,
+                  "max": 15,
+                  "min": 2
+                },
+                "symbol": {
+                  "fixed": "img/icons/marker/circle.svg",
+                  "mode": "fixed"
+                },
+                "text": {
+                  "field": "latitude",
+                  "fixed": "",
+                  "mode": "fixed"
+                },
+                "textConfig": {
+                  "fontSize": 12,
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "textAlign": "center",
+                  "textBaseline": "middle"
+                }
+              }
+            },
+            "filterData": {
+              "id": "byRefId",
+              "options": "Route"
+            },
+            "layer-tooltip": true,
+            "location": {
+              "latitude": "latitude",
+              "longitude": "longitude",
+              "mode": "coords"
+            },
+            "name": "Route",
+            "opacity": 0.8,
+            "tooltip": true,
+            "type": "route"
+          },
+          {
+            "config": {
+              "showLegend": true,
+              "style": {
+                "color": {
+                  "fixed": "dark-green"
+                },
+                "opacity": 0.8,
+                "rotation": {
+                  "fixed": 0,
+                  "max": 360,
+                  "min": -360,
+                  "mode": "mod"
+                },
+                "size": {
+                  "fixed": 5,
+                  "max": 15,
+                  "min": 2
+                },
+                "symbol": {
+                  "fixed": "img/icons/marker/star.svg",
+                  "mode": "fixed"
+                },
+                "text": {
+                  "fixed": "",
+                  "mode": "field"
+                },
+                "textConfig": {
+                  "fontSize": 12,
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "textAlign": "center",
+                  "textBaseline": "middle"
+                }
+              }
+            },
+            "filterData": {
+              "id": "byRefId",
+              "options": "Destination Position"
+            },
+            "layer-tooltip": true,
+            "location": {
+              "latitude": "latitude",
+              "longitude": "longitude",
+              "mode": "coords"
+            },
+            "name": "Destination",
+            "tooltip": true,
+            "type": "markers"
+          },
+          {
+            "config": {
+              "showLegend": true,
+              "style": {
+                "color": {
+                  "fixed": "orange"
+                },
                 "opacity": 1,
                 "rotation": {
                   "fixed": 0,
@@ -557,13 +660,17 @@
                   "min": 2
                 },
                 "symbol": {
-                  "fixed": "img/icons/marker/circle.svg",
+                  "fixed": "img/icons/marker/star.svg",
                   "mode": "fixed"
                 },
+                "text": {
+                  "fixed": "",
+                  "mode": "field"
+                },
                 "textConfig": {
-                  "fontSize": 12,
-                  "offsetX": 0,
-                  "offsetY": 0,
+                  "fontSize": 16,
+                  "offsetX": 20,
+                  "offsetY": 5,
                   "textAlign": "center",
                   "textBaseline": "middle"
                 }
@@ -571,94 +678,9 @@
             },
             "filterData": {
               "id": "byRefId",
-              "options": "A"
+              "options": "Start Position"
             },
-            "location": {
-              "mode": "auto"
-            },
-            "name": "Route",
-            "tooltip": true,
-            "type": "route"
-          },
-          {
-            "config": {
-              "showLegend": false,
-              "style": {
-                "color": {
-                  "fixed": "dark-green"
-                },
-                "opacity": 0.4,
-                "rotation": {
-                  "fixed": 0,
-                  "max": 360,
-                  "min": -360,
-                  "mode": "mod"
-                },
-                "size": {
-                  "fixed": 5,
-                  "max": 15,
-                  "min": 2
-                },
-                "symbol": {
-                  "fixed": "img/icons/marker/circle.svg",
-                  "mode": "fixed"
-                },
-                "textConfig": {
-                  "fontSize": 12,
-                  "offsetX": 0,
-                  "offsetY": 0,
-                  "textAlign": "center",
-                  "textBaseline": "middle"
-                }
-              }
-            },
-            "filterData": {
-              "id": "byRefId",
-              "options": "C"
-            },
-            "location": {
-              "mode": "auto"
-            },
-            "name": "Destination",
-            "tooltip": true,
-            "type": "markers"
-          },
-          {
-            "config": {
-              "showLegend": false,
-              "style": {
-                "color": {
-                  "fixed": "orange"
-                },
-                "opacity": 0.4,
-                "rotation": {
-                  "fixed": 0,
-                  "max": 360,
-                  "min": -360,
-                  "mode": "mod"
-                },
-                "size": {
-                  "fixed": 5,
-                  "max": 15,
-                  "min": 2
-                },
-                "symbol": {
-                  "fixed": "img/icons/marker/circle.svg",
-                  "mode": "fixed"
-                },
-                "textConfig": {
-                  "fontSize": 12,
-                  "offsetX": 0,
-                  "offsetY": 0,
-                  "textAlign": "center",
-                  "textBaseline": "middle"
-                }
-              }
-            },
-            "filterData": {
-              "id": "byRefId",
-              "options": "B"
-            },
+            "layer-tooltip": true,
             "location": {
               "latitude": "latitude",
               "longitude": "longitude",
@@ -744,8 +766,8 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "DO $$ \nBEGIN\nIF ${id:singlequote} = 'none' THEN\n  RAISE EXCEPTION 'No id was given, you have to navigate to this dashboard using a link from Trips dashboard';\nEND IF;\nEND $$;\n\nSELECT\n  $__time(\"destination_date\"),\n  trips.destination_position_latitude AS latitude,\n  trips.destination_position_longitude AS longitude \nFROM trips\nWHERE\n  trips.id = $id",
-          "refId": "Start Position",
+          "rawSql": "DO $$ \nBEGIN\nIF ${id:singlequote} = 'none' THEN\n  RAISE EXCEPTION 'No id was given, you have to navigate to this dashboard using a link from Trips dashboard';\nEND IF;\nEND $$;\n\nSELECT\n  $__time(\"destination_date\"),\n  trips.destination_position_latitude AS latitude,\n  trips.destination_position_longitude AS longitude,\n  locations.display_name AS \"Location\"\nFROM trips\nLEFT JOIN locations on trips.destination_location_uid = locations.uid\nWHERE\n  trips.id = $id",
+          "refId": "Destination Position",
           "select": [
             [
               {
@@ -795,8 +817,8 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "DO $$ \nBEGIN\nIF ${id:singlequote} = 'none' THEN\n  RAISE EXCEPTION 'No id was given, you have to navigate to this dashboard using a link from Trips dashboard';\nEND IF;\nEND $$;\n\nSELECT\n  $__time(\"destination_date\"),\n  trips.start_position_latitude AS latitude,\n  trips.start_position_longitude AS longitude \nFROM trips\nWHERE\n  trips.id = $id",
-          "refId": "Destination Position",
+          "rawSql": "DO $$ \nBEGIN\nIF ${id:singlequote} = 'none' THEN\n  RAISE EXCEPTION 'No id was given, you have to navigate to this dashboard using a link from Trips dashboard';\nEND IF;\nEND $$;\n\nSELECT\n  $__time(\"start_date\"),\n  trips.start_position_latitude AS latitude,\n  trips.start_position_longitude AS longitude,\n  locations.display_name AS \"Location\"\nFROM trips\nLEFT JOIN locations on trips.start_location_uid = locations.uid\nWHERE\n  trips.id = $id",
+          "refId": "Start Position",
           "select": [
             [
               {
@@ -1126,10 +1148,6 @@
         "type": "query"
       }
     ]
-  },
-  "time": {
-    "from": "2026-01-01T11:14:33.000Z",
-    "to": "now"
   },
   "timepicker": {
     "hidden": true
