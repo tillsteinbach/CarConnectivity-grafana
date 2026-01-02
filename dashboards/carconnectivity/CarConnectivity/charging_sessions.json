@@ -814,6 +814,7 @@
           "uid": "CarConnectivity-Env-json-provisioned"
         },
         "definition": "",
+        "hide": 2,
         "name": "carconnectivity_url",
         "options": [],
         "query": {
