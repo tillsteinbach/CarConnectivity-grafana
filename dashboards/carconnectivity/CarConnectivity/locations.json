@@ -26,7 +26,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "iteration": 1654774867650,
+  "id": 3,
   "links": [
     {
       "asDropdown": false,
@@ -79,7 +79,6 @@
       "url": ""
     }
   ],
-  "liveNow": false,
   "panels": [
     {
       "datasource": {
@@ -98,7 +97,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -109,12 +108,19 @@
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 3,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
       "id": 2,
       "options": {
         "colorMode": "none",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -122,17 +128,20 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "8.5.5",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT COUNT(*) FROM\n(\nSELECT DISTINCT\n  UNNEST(ARRAY[\"start_location_id\",\"destination_location_id\"]) AS \"location\"\nFROM trips\nWHERE\n  ($__timeFilter(\"startDate\") OR $__timeFilter(\"endDate\")) AND\n  trips.vehicle_vin = '$VIN'\n) AS locations\nWHERE \"location\" IS NOT NULL",
+          "rawSql": "SELECT COUNT(*) FROM\n(\nSELECT DISTINCT\n  UNNEST(ARRAY[\"start_location_uid\",\"destination_location_uid\"]) AS \"location\"\nFROM trips\nWHERE\n  ($__timeFilter(\"start_date\") OR $__timeFilter(\"destination_date\")) AND\n  trips.vin = '$VIN'\n) AS locations\nWHERE \"location\" IS NOT NULL",
           "refId": "A",
           "select": [
             [
@@ -144,6 +153,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "refuel_sessions",
           "timeColumn": "date",
           "timeColumnType": "timestamp",
@@ -176,7 +202,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -199,6 +225,7 @@
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -206,17 +233,20 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "8.5.5",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT COUNT(*) FROM\n(\nSELECT DISTINCT\n  UNNEST(ARRAY[\"start_locations\".city,\"destination_locations\".city]) AS \"city\"\nFROM trips\nLEFT JOIN locations start_locations ON trips.start_location_id = start_locations.osm_id\nLEFT JOIN locations destination_locations ON trips.destination_location_id = destination_locations.osm_id\nWHERE\n  ($__timeFilter(\"startDate\") OR $__timeFilter(\"endDate\")) AND\n  trips.vehicle_vin = '$VIN'\n) AS locations\nWHERE \"city\" IS NOT NULL",
+          "rawSql": "SELECT COUNT(*) FROM\n(\nSELECT DISTINCT\n  UNNEST(ARRAY[\"start_locations\".city,\"destination_locations\".city]) AS \"city\"\nFROM trips\nLEFT JOIN locations start_locations ON trips.start_location_uid = start_locations.uid\nLEFT JOIN locations destination_locations ON trips.destination_location_uid = destination_locations.uid\nWHERE\n  ($__timeFilter(\"start_date\") OR $__timeFilter(\"destination_date\")) AND\n  trips.vin = '$VIN'\n) AS locations\nWHERE \"city\" IS NOT NULL",
           "refId": "A",
           "select": [
             [
@@ -228,6 +258,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "refuel_sessions",
           "timeColumn": "date",
           "timeColumnType": "timestamp",
@@ -260,7 +307,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -283,6 +330,7 @@
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -290,17 +338,20 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "8.5.5",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT COUNT(*) FROM\n(\nSELECT DISTINCT\n  UNNEST(ARRAY[\"start_locations\".state,\"destination_locations\".state]) AS \"state\"\nFROM trips\nLEFT JOIN locations start_locations ON trips.start_location_id = start_locations.osm_id\nLEFT JOIN locations destination_locations ON trips.destination_location_id = destination_locations.osm_id\nWHERE\n  ($__timeFilter(\"startDate\") OR $__timeFilter(\"endDate\")) AND\n  trips.vehicle_vin = '$VIN'\n) AS locations\nWHERE \"state\" IS NOT NULL",
+          "rawSql": "SELECT COUNT(*) FROM\n(\nSELECT DISTINCT\n  UNNEST(ARRAY[\"start_locations\".state,\"destination_locations\".state]) AS \"state\"\nFROM trips\nLEFT JOIN locations start_locations ON trips.start_location_uid = start_locations.uid\nLEFT JOIN locations destination_locations ON trips.destination_location_uid = destination_locations.uid\nWHERE\n  ($__timeFilter(\"destination_date\") OR $__timeFilter(\"destination_date\")) AND\n  trips.vin = '$VIN'\n) AS locations\nWHERE \"state\" IS NOT NULL",
           "refId": "A",
           "select": [
             [
@@ -312,6 +363,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "refuel_sessions",
           "timeColumn": "date",
           "timeColumnType": "timestamp",
@@ -344,7 +412,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -367,6 +435,7 @@
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -374,17 +443,20 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "8.5.5",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT COUNT(*) FROM\n(\nSELECT DISTINCT\n  UNNEST(ARRAY[\"start_locations\".country,\"destination_locations\".country]) AS \"country\"\nFROM trips\nLEFT JOIN locations start_locations ON trips.start_location_id = start_locations.osm_id\nLEFT JOIN locations destination_locations ON trips.destination_location_id = destination_locations.osm_id\nWHERE\n  ($__timeFilter(\"startDate\") OR $__timeFilter(\"endDate\")) AND\n  trips.vehicle_vin = '$VIN'\n) AS locations\nWHERE \"country\" IS NOT NULL",
+          "rawSql": "SELECT COUNT(*) FROM\n(\nSELECT DISTINCT\n  UNNEST(ARRAY[\"start_locations\".country,\"destination_locations\".country]) AS \"country\"\nFROM trips\nLEFT JOIN locations start_locations ON trips.start_location_uid = start_locations.uid\nLEFT JOIN locations destination_locations ON trips.destination_location_uid = destination_locations.uid\nWHERE\n  ($__timeFilter(\"start_date\") OR $__timeFilter(\"destination_date\")) AND\n  trips.vin = '$VIN'\n) AS locations\nWHERE \"country\" IS NOT NULL",
           "refId": "A",
           "select": [
             [
@@ -396,6 +468,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "refuel_sessions",
           "timeColumn": "date",
           "timeColumnType": "timestamp",
@@ -424,7 +513,12 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
             "inspect": false
           },
           "decimals": 0,
@@ -435,7 +529,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -456,8 +550,11 @@
                 "id": "max"
               },
               {
-                "id": "custom.displayMode",
-                "value": "gradient-gauge"
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "gauge"
+                }
               },
               {
                 "id": "color",
@@ -477,23 +574,18 @@
       },
       "id": 9,
       "options": {
-        "footer": {
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
+        "cellHeight": "sm",
         "showHeader": true
       },
-      "pluginVersion": "8.5.5",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  \"start_locations\".neighbourhood as \"Neighbourhood\",\n  COUNT(*) as \"Visits\"\nFROM trips\nLEFT JOIN locations start_locations ON trips.start_location_id = start_locations.osm_id\nWHERE\n \"start_locations\".neighbourhood IS NOT NULL AND\n  ($__timeFilter(\"startDate\") OR $__timeFilter(\"endDate\")) AND\n  trips.vehicle_vin = '$VIN'\nGROUP BY \"Neighbourhood\"\nORDER BY \"Visits\" DESC\nLIMIT 10;",
+          "rawSql": "SELECT\n  \"start_locations\".neighbourhood as \"Neighbourhood\",\n  COUNT(*) as \"Visits\"\nFROM trips\nLEFT JOIN locations start_locations ON trips.start_location_uid = start_locations.uid\nWHERE\n \"start_locations\".neighbourhood IS NOT NULL AND\n  ($__timeFilter(\"start_date\") OR $__timeFilter(\"destination_date\")) AND\n  trips.vin = '$VIN'\nGROUP BY \"Neighbourhood\"\nORDER BY \"Visits\" DESC\nLIMIT 10;",
           "refId": "A",
           "select": [
             [
@@ -505,6 +597,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "refuel_sessions",
           "timeColumn": "date",
           "timeColumnType": "timestamp",
@@ -533,7 +642,12 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
             "inspect": false
           },
           "decimals": 0,
@@ -544,7 +658,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -565,8 +679,11 @@
                 "id": "max"
               },
               {
-                "id": "custom.displayMode",
-                "value": "gradient-gauge"
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "gauge"
+                }
               },
               {
                 "id": "color",
@@ -586,23 +703,18 @@
       },
       "id": 7,
       "options": {
-        "footer": {
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
+        "cellHeight": "sm",
         "showHeader": true
       },
-      "pluginVersion": "8.5.5",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  \"start_locations\".city as \"City\",\n  COUNT(*) as \"Visits\"\nFROM trips\nLEFT JOIN locations start_locations ON trips.start_location_id = start_locations.osm_id\nWHERE\n \"start_locations\".city IS NOT NULL AND\n ($__timeFilter(\"startDate\") OR $__timeFilter(\"endDate\")) AND\n  trips.vehicle_vin = '$VIN'\nGROUP BY \"City\"\nORDER BY \"Visits\" DESC\nLIMIT 10;",
+          "rawSql": "SELECT\n  \"start_locations\".city as \"City\",\n  COUNT(*) as \"Visits\"\nFROM trips\nLEFT JOIN locations start_locations ON trips.start_location_uid = start_locations.uid\nWHERE\n \"start_locations\".city IS NOT NULL AND\n ($__timeFilter(\"start_date\") OR $__timeFilter(\"destination_date\")) AND\n  trips.vin = '$VIN'\nGROUP BY \"City\"\nORDER BY \"Visits\" DESC\nLIMIT 10;",
           "refId": "A",
           "select": [
             [
@@ -614,6 +726,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "refuel_sessions",
           "timeColumn": "date",
           "timeColumnType": "timestamp",
@@ -642,7 +771,12 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
             "inspect": false
           },
           "decimals": 0,
@@ -653,7 +787,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           },
@@ -674,8 +808,11 @@
                 "id": "max"
               },
               {
-                "id": "custom.displayMode",
-                "value": "gradient-gauge"
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "gauge"
+                }
               },
               {
                 "id": "color",
@@ -695,23 +832,18 @@
       },
       "id": 8,
       "options": {
-        "footer": {
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
+        "cellHeight": "sm",
         "showHeader": true
       },
-      "pluginVersion": "8.5.5",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  \"start_locations\".state as \"State\",\n  COUNT(*) as \"Visits\"\nFROM trips\nLEFT JOIN locations start_locations ON trips.start_location_id = start_locations.osm_id\nWHERE\n \"start_locations\".state IS NOT NULL AND\n ($__timeFilter(\"startDate\") OR $__timeFilter(\"endDate\")) AND\n  trips.vehicle_vin = '$VIN'\nGROUP BY \"State\"\nORDER BY \"Visits\" DESC\nLIMIT 10;",
+          "rawSql": "SELECT\n  \"start_locations\".state as \"State\",\n  COUNT(*) as \"Visits\"\nFROM trips\nLEFT JOIN locations start_locations ON trips.start_location_uid = start_locations.uid\nWHERE\n \"start_locations\".state IS NOT NULL AND\n ($__timeFilter(\"start_date\") OR $__timeFilter(\"destination_date\")) AND\n  trips.vin = '$VIN'\nGROUP BY \"State\"\nORDER BY \"Visits\" DESC\nLIMIT 10;",
           "refId": "A",
           "select": [
             [
@@ -723,6 +855,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "refuel_sessions",
           "timeColumn": "date",
           "timeColumnType": "timestamp",
@@ -751,7 +900,12 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
             "inspect": false
           },
           "mappings": [],
@@ -760,7 +914,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -786,33 +940,28 @@
       },
       "gridPos": {
         "h": 13,
-        "w": 20,
+        "w": 24,
         "x": 0,
         "y": 15
       },
       "id": 11,
       "options": {
-        "footer": {
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
+        "cellHeight": "sm",
         "showHeader": true
       },
-      "pluginVersion": "8.5.5",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
             "type": "postgres",
             "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  max(\"endDate\") AS \"Date\",\n  COALESCE(\"display_name\", CONCAT_WS(', ', COALESCE(CONCAT_WS(', ', name, amenity), nullif(CONCAT_WS(' ', road, house_number), '')), neighbourhood, city, postcode, country)) AS \"Location\"\nFROM trips\nRIGHT JOIN locations ON trips.destination_location_id = locations.osm_id\nWHERE\n  $__timeFilter(\"endDate\") AND\n  trips.vehicle_vin = '$VIN'\nGROUP BY \"display_name\", \"destination_location_id\", name, amenity, road, house_number, neighbourhood, city, postcode, country\nORDER BY \"Date\" DESC\nLIMIT 20",
+          "rawSql": "SELECT\n  max(\"destination_date\") AS \"Date\",\n  COALESCE(\"display_name\", CONCAT_WS(', ', COALESCE(CONCAT_WS(', ', name, amenity), nullif(CONCAT_WS(' ', road, house_number), '')), neighbourhood, city, postcode, country)) AS \"Location\"\nFROM trips\nRIGHT JOIN locations ON trips.destination_location_uid = locations.uid\nWHERE\n  $__timeFilter(\"destination_date\") AND\n  trips.vin = '$VIN'\nGROUP BY \"display_name\", \"destination_location_uid\", name, amenity, road, house_number, neighbourhood, city, postcode, country\nORDER BY \"Date\" DESC\nLIMIT 20",
           "refId": "A",
           "select": [
             [
@@ -824,6 +973,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "refuel_sessions",
           "timeColumn": "date",
           "timeColumnType": "timestamp",
@@ -838,141 +1004,11 @@
       ],
       "title": "Last visited",
       "type": "table"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "CarConnectivity-PostgreSQL-provisioned"
-      },
-      "description": "You can add geofences to ensure that a certain area is always resolved to a specific address or charger.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "displayMode": "auto",
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Edit"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 40
-              },
-              {
-                "id": "links",
-                "value": [
-                  {
-                    "targetBlank": true,
-                    "title": "Edit the Geofence",
-                    "url": "${vwsfriend_url:raw}/database/geofence/edit?id=${__data.fields.id}"
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "id"
-            },
-            "properties": [
-              {
-                "id": "custom.hidden",
-                "value": true
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 13,
-        "w": 4,
-        "x": 20,
-        "y": 15
-      },
-      "id": 13,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Add new geofence",
-          "url": "${vwsfriend_url:raw}/database/geofence/edit"
-        }
-      ],
-      "options": {
-        "footer": {
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
-        "showHeader": true
-      },
-      "pluginVersion": "8.5.5",
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "CarConnectivity-PostgreSQL-provisioned"
-          },
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  geofences.name as \"Geofence\",\n  '⚙' AS \"Edit\",\n  id\nFROM geofences\nORDER BY geofences.id ASC",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "\"maximumChargePower_kW\""
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "charging_sessions",
-          "timeColumn": "connected",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "Geofences",
-      "type": "table"
     }
   ],
+  "preload": false,
   "refresh": "",
-  "schemaVersion": 36,
-  "style": "dark",
+  "schemaVersion": 42,
   "tags": [
     "carconnectivity"
   ],
@@ -995,6 +1031,10 @@
         "type": "query"
       },
       {
+        "current": {
+          "text": "",
+          "value": ""
+        },
         "datasource": {
           "type": "postgres",
           "uid": "CarConnectivity-PostgreSQL-provisioned"
@@ -1002,14 +1042,11 @@
         "definition": "SELECT vwsfriend_url FROM settings LIMIT 1",
         "hide": 2,
         "includeAll": false,
-        "multi": false,
         "name": "vwsfriend_url",
         "options": [],
         "query": "SELECT vwsfriend_url FROM settings LIMIT 1",
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       }
     ]
@@ -1022,6 +1059,5 @@
   "timezone": "",
   "title": "Locations",
   "uid": "locations",
-  "version": 1,
-  "weekStart": ""
+  "version": 1
 }

@@ -21,10 +21,10 @@
       }
     ]
   },
-  "description": "",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
+  "id": 7,
   "links": [
     {
       "asDropdown": false,
@@ -77,7 +77,6 @@
       "url": ""
     }
   ],
-  "liveNow": false,
   "panels": [
     {
       "datasource": {
@@ -103,7 +102,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -127,16 +126,42 @@
         "basemap": {
           "config": {},
           "name": "Layer 0",
+          "noRepeat": false,
           "type": "osm-standard"
         },
         "controls": {
           "mouseWheelZoom": true,
           "showAttribution": true,
           "showDebug": false,
-          "showScale": false,
+          "showMeasure": true,
+          "showScale": true,
           "showZoom": true
         },
         "layers": [
+          {
+            "config": {
+              "blur": 15,
+              "radius": 5,
+              "weight": {
+                "fixed": 1,
+                "max": 1,
+                "min": 0
+              }
+            },
+            "filterData": {
+              "id": "byRefId",
+              "options": "A"
+            },
+            "location": {
+              "latitude": "latitude",
+              "longitude": "longitude",
+              "mode": "coords"
+            },
+            "name": "Heatmap",
+            "opacity": 0.4,
+            "tooltip": true,
+            "type": "heatmap"
+          },
           {
             "config": {
               "style": {
@@ -214,6 +239,7 @@
               "id": "byRefId",
               "options": "A"
             },
+            "layer-tooltip": true,
             "location": {
               "latitude": "latitude",
               "longitude": "longitude",
@@ -228,24 +254,27 @@
           "mode": "details"
         },
         "view": {
+          "allLayers": true,
           "id": "fit",
           "lat": 0,
           "lon": 0,
+          "noRepeat": false,
           "zoom": 18
         }
       },
-      "pluginVersion": "9.1.0",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
             "type": "postgres",
             "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "(SELECT\n  $__time(\"startDate\"),\n  trips.start_position_latitude AS latitude,\n  trips.start_position_longitude AS longitude,\n  'Start' AS event\nFROM trips\nWHERE\n  $__timeFilter(\"startDate\") AND\n  trips.start_position_latitude IS NOT NULL AND\n  trips.start_position_longitude IS NOT NULL AND\n  trips.vehicle_vin = '$VIN'\nUNION\nSELECT\n  $__time(\"endDate\"),\n  trips.destination_position_latitude AS latitude,\n  trips.destination_position_longitude AS longitude,\n  'Destination' AS event\nFROM trips\nWHERE\n  $__timeFilter(\"endDate\") AND\n  trips.destination_position_latitude IS NOT NULL AND\n  trips.destination_position_longitude IS NOT NULL AND\n  trips.vehicle_vin = '$VIN'\n)\nORDER BY 1",
+          "rawSql": "(SELECT\n  $__time(\"start_date\"),\n  trips.start_position_latitude AS latitude,\n  trips.start_position_longitude AS longitude,\n  'Start' AS event,\n  locations.display_name AS \"Location\"\nFROM trips\nLEFT JOIN locations on trips.start_location_uid = locations.uid\nWHERE\n  $__timeFilter(\"start_date\") AND\n  trips.start_position_latitude IS NOT NULL AND\n  trips.start_position_longitude IS NOT NULL AND\n  trips.vin = '$VIN'\nUNION\nSELECT\n  $__time(\"destination_date\"),\n  trips.destination_position_latitude AS latitude,\n  trips.destination_position_longitude AS longitude,\n  'Destination' AS event,\n  locations.display_name AS \"Location\"\nFROM trips\nLEFT JOIN locations on trips.destination_location_uid = locations.uid\nWHERE\n  $__timeFilter(\"destination_date\") AND\n  trips.destination_position_latitude IS NOT NULL AND\n  trips.destination_position_longitude IS NOT NULL AND\n  trips.vin = '$VIN'\n)\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -257,6 +286,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "refuel_sessions",
           "timeColumn": "date",
           "timeColumnType": "timestamp",
@@ -273,9 +319,9 @@
       "type": "geomap"
     }
   ],
+  "preload": false,
   "refresh": "",
-  "schemaVersion": 37,
-  "style": "dark",
+  "schemaVersion": 42,
   "tags": [
     "carconnectivity"
   ],
@@ -307,6 +353,5 @@
   "timezone": "",
   "title": "Visited",
   "uid": "visited",
-  "version": 1,
-  "weekStart": ""
+  "version": 1
 }
