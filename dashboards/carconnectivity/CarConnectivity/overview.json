@@ -2019,7 +2019,8 @@
             "type": "postgres",
             "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
-          "format": "time_series",
+          "editorMode": "code",
+          "format": "table",
           "group": [],
           "groupBy": [
             {
@@ -2042,8 +2043,8 @@
           "query": "",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  $__time(\"carCapturedTimestamp\"),\n  CASE WHEN \"currentSOC_pct\"::NUMERIC > 0 THEN\n    (\"cruisingRangeElectric_km\"::NUMERIC / \"currentSOC_pct\"::NUMERIC * 100::NUMERIC) / \n      CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_wltp_range\"::NUMERIC\n           ELSE vehicle_settings.\"secondary_wltp_range\"::NUMERIC END * 100::NUMERIC\n  ELSE NULL END AS \"Efficiency\"\nFROM\n  battery\nLEFT JOIN vehicles ON battery.vehicle_vin = vehicles.vin\nLEFT JOIN vehicle_settings ON battery.vehicle_vin = vehicle_settings.vehicle_vin\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  battery.vehicle_vin = '$VIN'\nORDER BY 1",
-          "refId": "A",
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"range_estimated_full\"/\"wltp_range\"*100 AS \"Efficiency\",\n  drives.drive_id as \"Drive\"\nFROM drive_ranges_estimated_full\nLEFT JOIN drives ON drive_ranges_estimated_full.drive_id = drives.id\nWHERE\n  drives.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\n  AND wltp_range IS NOT NULL\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"range_estimated_full\"/\"wltp_range\"*100 AS \"Efficiency\",\n  drives.drive_id as \"Drive\"\nFROM drive_ranges_estimated_full\nLEFT JOIN drives ON drive_ranges_estimated_full.drive_id = drives.id\nWHERE\n  drives.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\n  AND wltp_range IS NOT NULL\nORDER BY \"time\" ASC",
+          "refId": "Efficiency",
           "resultFormat": "time_series",
           "select": [
             [
@@ -2059,6 +2060,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "tags": [],
           "timeColumn": "time",
           "where": [
@@ -2075,6 +2093,7 @@
             "type": "postgres",
             "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
+          "editorMode": "code",
           "format": "time_series",
           "group": [],
           "groupBy": [
@@ -2099,8 +2118,8 @@
           "query": "",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  unnest(ARRAY[to_timestamp(${__from}/1000), to_timestamp(${__to}/1000)]) AS time,\n  100 AS \"100% = WLTP Range\"\nFROM\n  vehicles\nLEFT JOIN vehicle_settings ON vehicles.vin = vehicle_settings.vehicle_vin\nWHERE\n  vehicles.vin = '$VIN'\nORDER BY 1",
-          "refId": "B",
+          "rawSql": "SELECT\n  unnest(ARRAY[to_timestamp(${__from}/1000), to_timestamp(${__to}/1000)]) AS time,\n  100 AS \"100% = WLTP Range\"\nFROM\n  drives\nWHERE\n  drives.vin = '$VIN'\n  AND wltp_range IS NOT NULL\nORDER BY 1",
+          "refId": "WLTP",
           "resultFormat": "time_series",
           "select": [
             [
@@ -2116,6 +2135,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "tags": [],
           "timeColumn": "time",
           "where": [
@@ -2128,6 +2164,14 @@
         }
       ],
       "title": "Efficiency",
+      "transformations": [
+        {
+          "id": "prepareTimeSeries",
+          "options": {
+            "format": "multi"
+          }
+        }
+      ],
       "type": "timeseries"
     },
     {
