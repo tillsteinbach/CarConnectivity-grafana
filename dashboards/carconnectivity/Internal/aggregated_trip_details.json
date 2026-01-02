@@ -693,7 +693,7 @@
                   {
                     "targetBlank": true,
                     "title": "Edit this Trip",
-                    "url": "${vwsfriend_url:raw}/database/trips/edit?id=${__data.fields.id}"
+                    "url": "${carconnectivity_url:raw}/database/trips/edit?id=${__data.fields.id}"
                   }
                 ]
               }
