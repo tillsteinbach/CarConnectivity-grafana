@@ -25,15 +25,40 @@
           "uid": "CarConnectivity-PostgreSQL-provisioned"
         },
         "enable": false,
+        "hide": false,
         "iconColor": "blue",
         "name": "Charging",
-        "rawQuery": "SELECT \"time\",\n       \"timeend\",\n       'Charging ('\n              || (\"timeend\"-\"time\")\n              || ')' AS \"text\"\nFROM   (\n                SELECT   *,\n                         \"carCapturedTimestamp\"                                           AS \"time\",\n                         Lag(\"chargingState\") OVER (ORDER BY \"carCapturedTimestamp\") AS \"beforeChargingState\",\n                         (\n                                  SELECT   \"carCapturedTimestamp\" AS \"timeend\"\n                                  FROM     charges          AS charges2\n                                  WHERE    charges2.\"chargingState\" != 'CHARGING'\n                                  AND      charges.vehicle_vin = charges2.vehicle_vin\n                                  AND      charges.\"carCapturedTimestamp\" < charges2.\"carCapturedTimestamp\"\n                                  ORDER BY \"carCapturedTimestamp\" limit 1) \"timeend\"\n                FROM     charges\n                WHERE    vehicle_vin = '${VIN}'\n                ) AS data\nWHERE  \"chargingState\" = 'CHARGING'\nAND (\"timeend\"-\"time\") < INTERVAL '1 day'\nAND    \"beforeChargingState\" != 'CHARGING'\nAND ($__timeFilter(\"time\") OR $__timeFilter(\"timeend\"))"
+        "target": {
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \"time\",\n       \"timeend\",\n       'Charging' AS \"title\",\n       'Charging ('\n              || (\"timeend\"-\"time\")\n              || ')' AS \"text\",\n       \"id\"\nFROM   (\n                SELECT   *,\n                         \"first_date\"                                           AS \"time\",\n                         Lag(\"state\") OVER (ORDER BY \"first_date\") AS \"before_charging_state\",\n                         (\n                                  SELECT   \"first_date\" AS \"timeend\"\n                                  FROM     charging_states        AS charging_states2\n                                  WHERE    charging_states2.\"state\" NOT IN ('CHARGING', 'CONSERVATION')\n                                  AND      charging_states.vin = charging_states2.vin\n                                  AND      charging_states.\"first_date\" < charging_states2.\"first_date\"\n                                  ORDER BY \"first_date\" limit 1) \"timeend\"\n                FROM     charging_states \n                WHERE    vin = '${VIN}'\n                ) AS data\nWHERE  \"state\" IN ('CHARGING', 'CONSERVATION')\nAND (\"timeend\"-\"time\") < INTERVAL '1 day'\nAND    \"before_charging_state\" NOT IN ('CHARGING', 'CONSERVATION')\nAND ($__timeFilter(\"time\") OR $__timeFilter(\"timeend\"))",
+          "refId": "Annotation",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
       }
     ]
   },
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
+  "id": 7,
   "links": [
     {
       "asDropdown": false,
@@ -96,6 +121,7 @@
             "axisSoftMax": 100,
             "axisSoftMin": 0,
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
@@ -112,6 +138,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -127,7 +154,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -135,8 +162,7 @@
               }
             ]
           },
-          "unit": "percent",
-          "unitScale": true
+          "unit": "percent"
         },
         "overrides": [
           {
@@ -183,20 +209,22 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "8.2.5",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
+          "editorMode": "code",
           "format": "time_series",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"cruisingRangeElectric_km\" AS \"Electric Range\"\nFROM battery\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1  ",
-          "refId": "1",
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"range\" AS \"Electric Range\",\n  drives.drive_id as \"Drive\"\nFROM drive_ranges\nLEFT JOIN drives ON drive_ranges.drive_id = drives.id\nWHERE\n  drives.vin = '$VIN'\n  AND drives.type = 'ELECTRIC'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"range\" AS \"Electric Range\",\n  drives.drive_id as \"Drive\"\nFROM drive_ranges\nLEFT JOIN drives ON drive_ranges.drive_id = drives.id\nWHERE\n  drives.vin = '$VIN'\n  AND drives.type = 'ELECTRIC'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" ASC",
+          "refId": "Range",
           "select": [
             [
               {
@@ -207,6 +235,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "timeColumn": "time",
           "where": [
             {
@@ -218,6 +263,7 @@
         },
         {
           "alias": "Battery SoC",
+          "editorMode": "code",
           "format": "time_series",
           "group": [],
           "groupBy": [
@@ -240,8 +286,8 @@
           "query": "",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"currentSOC_pct\" AS \"Battery SoC\"\nFROM battery\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1",
-          "refId": "2",
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"level\" AS \"Level\",\n  drives.drive_id as \"Drive\"\nFROM drive_levels\nLEFT JOIN drives ON drive_levels.drive_id = drives.id\nWHERE\n  drives.vin = '$VIN'\n  AND drives.type = 'ELECTRIC'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"level\" AS \"Level\",\n  drives.drive_id as \"Drive\"\nFROM drive_levels\nLEFT JOIN drives ON drive_levels.drive_id = drives.id\nWHERE\n  drives.vin = '$VIN'\n  AND drives.type = 'ELECTRIC'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" ASC",
+          "refId": "Level",
           "resultFormat": "time_series",
           "select": [
             [
@@ -253,6 +299,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "ranges",
           "tags": [],
           "timeColumn": "\"carCapturedTimestamp\"",
@@ -277,6 +340,14 @@
         }
       ],
       "title": "Battery Level",
+      "transformations": [
+        {
+          "id": "prepareTimeSeries",
+          "options": {
+            "format": "multi"
+          }
+        }
+      ],
       "type": "timeseries"
     },
     {
@@ -297,7 +368,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -305,8 +376,7 @@
               }
             ]
           },
-          "unit": "dateTimeAsIso",
-          "unitScale": true
+          "unit": "dateTimeAsIso"
         },
         "overrides": []
       },
@@ -322,6 +392,7 @@
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "last"
@@ -337,18 +408,19 @@
         "textMode": "value_and_name",
         "wideLayout": true
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
             "type": "postgres",
             "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "DO $$ \nBEGIN\nIF ${id:singlequote} = 'none' THEN\n  RAISE EXCEPTION 'No id was given, you have to navigate to this dashboard using a link from Charges dashboard';\nEND IF;\nEND $$;\nSELECT\n  connected AS \"Connected\",\n  locked AS \"Locked\",\n  started AS \"Started\",\n  ended AS \"Ended\",\n  unlocked AS \"Unlocked\",\n  disconnected AS \"Disconnected\"\nFROM charging_sessions\nWHERE\n  id = $id",
+          "rawSql": "DO $$ \nBEGIN\nIF ${id:singlequote} = 'none' THEN\n  RAISE EXCEPTION 'No id was given, you have to navigate to this dashboard using a link from Charging Sessions dashboard';\nEND IF;\nEND $$;\nSELECT\n  plug_connected_date AS \"Connected\",\n  plug_locked_date AS \"Locked\",\n  session_start_date AS \"Started\",\n  session_end_date AS \"Ended\",\n  plug_unlocked_date AS \"Unlocked\",\n  plug_disconnected_date AS \"Disconnected\"\nFROM charging_sessions\nWHERE\n  id = $id",
           "refId": "A",
           "select": [
             [
@@ -360,6 +432,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "charging_sessions",
           "timeColumn": "connected",
           "timeColumnType": "timestamp",
@@ -393,6 +482,7 @@
             "axisLabel": "Charge Power",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
@@ -409,6 +499,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -424,7 +515,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -432,8 +523,7 @@
               }
             ]
           },
-          "unit": "kwatt",
-          "unitScale": true
+          "unit": "kwatt"
         },
         "overrides": [
           {
@@ -474,14 +564,16 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "8.2.5",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "Charge Power",
+          "editorMode": "code",
           "format": "time_series",
           "group": [],
           "groupBy": [
@@ -505,8 +597,8 @@
           "query": "",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "(SELECT\n \"carCapturedTimestamp\" AS \"time\",\n \"chargePower_kW\" AS \"Charge Power\",\n \"chargeRate_kmph\" AS \"Charge Rate\"\nFROM charges\nWHERE\n $__timeFilter(\"carCapturedTimestamp\") AND\n vehicle_vin = '$VIN'\nORDER BY \"carCapturedTimestamp\")\nUNION ALL\n(SELECT\n \"carCapturedTimestamp\" AS \"time\",\n CASE WHEN \"chargingState\" = 'CHARGING' THEN \"delta\"::decimal*( CASE WHEN\nvehicles.\"carType\" = 'ELECTRIC' THEN\nvehicle_settings.\"primary_capacity\"::NUMERIC\n ELSE vehicle_settings.\"secondary_capacity\"::NUMERIC\nEND::decimal/100::decimal) / (EXTRACT(epoch FROM \"timedelta\") / 3600)\n ELSE NULL END AS \"Charge Power\",\n CASE WHEN \"chargingState\" = 'CHARGING' THEN \"deltakm\"::decimal /\n(EXTRACT(epoch FROM \"timedelta\") / 3600)\n ELSE NULL END AS \"Charge Rate\"\nFROM\n (SELECT *,\n \"carCapturedTimestamp\" AS \"batteryTime\",\n (\"carCapturedTimestamp\" - LAG(\"carCapturedTimestamp\") OVER (ORDER BY\n\"carCapturedTimestamp\")) AS \"timedelta\",\n (\"currentSOC_pct\" - LAG(\"currentSOC_pct\") OVER (ORDER BY\n\"carCapturedTimestamp\")) AS \"delta\",\n (\"cruisingRangeElectric_km\" - LAG(\"cruisingRangeElectric_km\") OVER (ORDER\nBY \"carCapturedTimestamp\")) AS \"deltakm\"\nFROM\n battery\nWHERE\n $__timeFilter(\"carCapturedTimestamp\") AND\n vehicle_vin = '$VIN'\nORDER BY \"carCapturedTimestamp\") AS delta\nLEFT JOIN\n(\nSELECT\n\"chargingState\",\ncharges.\"carCapturedTimestamp\" AS \"chargeTime\"\nFROM charges\nWHERE\n $__timeFilter(\"carCapturedTimestamp\") AND\n vehicle_vin = '$VIN') as charging ON \"chargeTime\" = (SELECT\ncharges.\"carCapturedTimestamp\" FROM charges WHERE\ncharges.\"carCapturedTimestamp\" > charges.\"carCapturedTimestamp\" - interval\n'120 SECONDS' AND charges.\"carCapturedTimestamp\" < \"batteryTime\" + interval\n'120 SECONDS' ORDER BY ABS(EXTRACT(epoch FROM\n(charges.\"carCapturedTimestamp\" - \"batteryTime\"))) ASC LIMIT 1)\nLEFT JOIN vehicles ON delta.vehicle_vin = vehicles.vin\nLEFT JOIN vehicle_settings ON delta.vehicle_vin =\nvehicle_settings.vehicle_vin\nWHERE\n \"delta\" > 0 AND\n NOT EXISTS (SELECT 1 FROM charges WHERE \"chargePower_kW\" IS NOT NULL AND\n\"chargeRate_kmph\" IS NOT NULL AND $__timeFilter(\"carCapturedTimestamp\") AND\nvehicle_vin = '$VIN' LIMIT 1)\nORDER BY \"carCapturedTimestamp\")",
-          "refId": "A",
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"power\" AS \"Charging Power\"\nFROM charging_powers \nWHERE\n  vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"power\" AS \"Charging Power\"\nFROM charging_powers\nWHERE\n  vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" ASC",
+          "refId": "Power",
           "resultFormat": "time_series",
           "select": [
             [
@@ -522,6 +614,98 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "Charge Power",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "previous"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"rate\" AS \"Charging Rate\"\nFROM charging_rates\nWHERE\n  vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"rate\" AS \"Charging Rate\"\nFROM charging_rates \nWHERE\n  vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" ASC",
+          "refId": "Rate",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "tags": [],
           "timeColumn": "time",
           "where": [
@@ -554,15 +738,14 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
                 "value": 80
               }
             ]
-          },
-          "unitScale": true
+          }
         },
         "overrides": [
           {
@@ -688,6 +871,7 @@
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "last"
@@ -703,7 +887,7 @@
         "textMode": "value_and_name",
         "wideLayout": true
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
@@ -715,7 +899,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "DO $$ \nbegin\nIF ${id:singlequote} = 'none' THEN\n  RAISE EXCEPTION 'No id was given, you have to navigate to this dashboard using a link from Charges dashboard';\nEND IF;\nEND $$;\nSELECT\n  EXTRACT('epoch' FROM (COALESCE (ended, COALESCE (unlocked, disconnected)) - COALESCE (started, COALESCE (locked, connected)))) AS \"Duration\",\n  \"maxChargeCurrentACSetting\" AS \"Maximum AC Power Setting\",\n  \"targetSOCSetting_pct\" AS \"Target SoC Setting\",\n  \"maximumChargePower_kW\" AS \"Maximum Charge Power\",\n  (COALESCE(\"realCharged_kWh\", COALESCE((\"meterEnd_kWh\" - \"meterStart_kWh\"), (\"endSOC_pct\" - \"startSOC_pct\") * (\n    CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_capacity\"::NUMERIC\n         ELSE vehicle_settings.\"secondary_capacity\"::NUMERIC\n    END\n    / 100::NUMERIC)))) / (EXTRACT(epoch FROM (COALESCE(ended, COALESCE(unlocked, disconnected)) - COALESCE(started, COALESCE (locked, connected))))::NUMERIC / 3600::NUMERIC) AS \"Average Charge Power\",\n  \"acdc\" AS \"AC/DC\",\n  \"startSOC_pct\" AS \"% Start\",\n  \"endSOC_pct\" AS \"% End\",\n  (\"endSOC_pct\" - \"startSOC_pct\") * (\n    CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_capacity\"::NUMERIC\n         ELSE vehicle_settings.\"secondary_capacity\"::NUMERIC\n    END\n    / 100::NUMERIC) AS \"Amount (estimated)\",\n  COALESCE(\"realCharged_kWh\", (\"meterEnd_kWh\" - \"meterStart_kWh\")) AS \"Amount (real)\",\n  \"realCost_ct\"::NUMERIC/100::NUMERIC AS \"Cost (real)\",\n  \"mileage_km\" AS \"Odometer\",\n  string_agg(charging_sessions_tags.tags_name, ', ') AS \"Tags\"\nFROM charging_sessions\nLEFT JOIN vehicles ON charging_sessions.vehicle_vin = vehicles.vin\nLEFT JOIN vehicle_settings ON charging_sessions.vehicle_vin = vehicle_settings.vehicle_vin\nLEFT JOIN charging_tag on charging_sessions.id = charging_tag.charging_sessions_id\nWHERE\nid = $id\nGROUP BY ended, unlocked, disconnected, started, locked, connected, \"maxChargeCurrentACSetting\", \"targetSOCSetting_pct\", \"maximumChargePower_kW\", \"endSOC_pct\", \"startSOC_pct\", \"carType\", \"primary_capacity\", \"secondary_capacity\", acdc, \"realCharged_kWh\", \"meterEnd_kWh\", \"meterStart_kWh\", \"realCost_ct\", \"mileage_km\"",
+          "rawSql": "DO $$ \nbegin\nIF ${id:singlequote} = 'none' THEN\n  RAISE EXCEPTION 'No id was given, you have to navigate to this dashboard using a link from Charging Sessions dashboard';\nEND IF;\nEND $$;\nSELECT\n  EXTRACT('epoch' FROM (COALESCE (session_end_date, COALESCE (plug_unlocked_date, plug_disconnected_date)) - COALESCE (session_start_date, COALESCE (plug_locked_date, plug_connected_date)))) AS \"Duration\",\n  (COALESCE(\"real_charged\", COALESCE((\"meter_end_kwh\" - \"meter_start_kwh\"), (\"end_level\" - \"start_level\") * (\n    capacity / 100::NUMERIC)))) / (EXTRACT(epoch FROM (COALESCE(session_end_date, COALESCE(plug_unlocked_date, plug_disconnected_date)) - COALESCE(session_start_date, COALESCE (plug_locked_date, plug_connected_date))))::NUMERIC / 3600::NUMERIC) AS \"Average Charge Power\",\n  charging_type AS \"AC/DC\",\n  \"start_level\" AS \"% Start\",\n  \"end_level\" AS \"% End\",\n  (\"end_level\" - \"start_level\") * (capacity / 100::NUMERIC) AS \"Amount (estimated)\",\n  COALESCE(\"real_charged\", (\"meter_end_kwh\" - \"meter_start_kwh\")) AS \"Amount (real)\",\n  \"real_cost\"::NUMERIC/100::NUMERIC AS \"Cost (real)\",\n  \"session_odometer\" AS \"Odometer\",\n  string_agg(charging_sessions_tags.tags_name, ', ') AS \"Tags\"\nFROM charging_sessions\nLEFT JOIN vehicles ON charging_sessions.vin = vehicles.vin\nLEFT JOIN drives ON vehicles.vin = drives.vin\nLEFT JOIN charging_sessions_tags on charging_sessions.id = charging_sessions_tags.charging_sessions_id\nWHERE\ncharging_sessions.id = ${id}\nGROUP BY session_end_date, plug_unlocked_date, plug_disconnected_date, session_start_date, plug_locked_date, plug_connected_date, \"end_level\", \"start_level\", \"capacity\", charging_type, \"real_charged\", \"meter_end_kwh\", \"meter_start_kwh\", \"real_cost\", \"session_odometer\"",
           "refId": "A",
           "select": [
             [
@@ -777,6 +961,7 @@
             "axisLabel": "Battery Temperature",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
@@ -793,6 +978,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -808,7 +994,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -816,8 +1002,7 @@
               }
             ]
           },
-          "unit": "celsius",
-          "unitScale": true
+          "unit": "celsius"
         },
         "overrides": []
       },
@@ -841,11 +1026,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "8.2.5",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "alias": "Charge Power",
@@ -870,6 +1056,7 @@
               "type": "fill"
             }
           ],
+          "hide": false,
           "measurement": "",
           "metricColumn": "none",
           "orderByTime": "ASC",
@@ -879,6 +1066,81 @@
           "rawQuery": true,
           "rawSql": "SELECT\n    \"carCapturedTimestamp\" AS \"time\",\n    (\"temperatureHvBatteryMin_K\" - 273.15) AS \"Minimum\",\n    (\"temperatureHvBatteryMax_K\" - 273.15) AS \"Maximum\"\nFROM\n    battery_temperature\nWHERE\n    $__timeFilter(\"carCapturedTimestamp\") AND\n    vehicle_vin = '$VIN'\nORDER BY\n    \"carCapturedTimestamp\" DESC",
           "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "Charge Power",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "previous"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"outside_temperature\" AS \"Outside Temperature\"\nFROM outside_temperatures \nWHERE\n  vin = '$VIN'\n  AND (\"first_date\" BETWEEN DATE($__timeFrom()) - INTERVAL '2 hours' AND DATE($__timeTo()) + INTERVAL '2 hours' OR \"last_date\" BETWEEN DATE($__timeFrom()) - INTERVAL '2 hours' AND DATE($__timeTo()) + INTERVAL '2 hours')\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"outside_temperature\" AS \"Outside Temperature\"\nFROM outside_temperatures \nWHERE\n  vin = '$VIN'\n  AND (\"first_date\" BETWEEN DATE($__timeFrom()) - INTERVAL '2 hours' AND DATE($__timeTo()) + INTERVAL '2 hours' OR \"last_date\" BETWEEN DATE($__timeFrom()) - INTERVAL '2 hours' AND DATE($__timeTo()) + INTERVAL '2 hours')\nORDER BY \"time\" ASC",
+          "refId": "Outside Temperature",
           "resultFormat": "time_series",
           "select": [
             [
@@ -937,6 +1199,7 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisPlacement": "auto",
             "fillOpacity": 70,
             "hideFrom": {
               "legend": false,
@@ -1019,12 +1282,11 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           },
-          "unit": "none",
-          "unitScale": true
+          "unit": "none"
         },
         "overrides": []
       },
@@ -1047,23 +1309,25 @@
         "rowHeight": 0.9,
         "showValue": "auto",
         "tooltip": {
+          "hideZeros": false,
           "mode": "multi",
           "sort": "none"
         }
       },
-      "pluginVersion": "7.5.2",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
             "type": "postgres",
             "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  \"carCapturedTimestamp\" AS \"time\",\n  \"chargingState\" AS \"Charging\"\nFROM charges\nWHERE\n  $__timeFilter(\"carCapturedTimestamp\") AND\n  vehicle_vin = '$VIN'\nORDER BY 1  ",
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"state\" AS \"Charging\"\nFROM charging_states\nWHERE\n  charging_states.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"state\" AS \"Connection\"\nFROM charging_states\nWHERE\n  charging_states.vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" ASC",
           "refId": "A",
           "select": [
             [
@@ -1075,6 +1339,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "refuel_sessions",
           "timeColumn": "date",
           "timeColumnType": "timestamp",
@@ -1108,7 +1389,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -1116,8 +1397,7 @@
               }
             ]
           },
-          "unit": "none",
-          "unitScale": true
+          "unit": "none"
         },
         "overrides": [
           {
@@ -1153,6 +1433,7 @@
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "last"
@@ -1168,18 +1449,19 @@
         "textMode": "value_and_name",
         "wideLayout": true
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
             "type": "postgres",
             "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "DO $$ \nbegin\nIF ${id:singlequote} = 'none' THEN\n  RAISE EXCEPTION 'No id was given, you have to navigate to this dashboard using a link from Charges dashboard';\nEND IF;\nEND $$;\nSELECT\n  chargers.name AS \"Name\",\n  chargers.address AS \"Address\",\n  chargers.max_power AS \"Max Power\",\n  chargers.num_spots AS \"Spots\",\n  operators.name AS \"Operator\"\nFROM charging_sessions\nLEFT JOIN chargers ON charger_id = chargers.id\nLEFT JOIN operators ON operator_id = operators.id\nWHERE\n  charging_sessions.id = $id",
+          "rawSql": "DO $$ \nbegin\nIF ${id:singlequote} = 'none' THEN\n  RAISE EXCEPTION 'No id was given, you have to navigate to this dashboard using a link from Charges dashboard';\nEND IF;\nEND $$;\nSELECT\n  charging_stations.name AS \"Name\",\n  charging_stations.address AS \"Address\",\n  charging_stations.max_power AS \"Max Power\",\n  charging_stations.num_spots AS \"Spots\",\n  operator_name AS \"Operator\"\nFROM charging_sessions\nLEFT JOIN charging_stations ON charging_station_uid = charging_stations.uid\nWHERE\n  charging_sessions.id = ${id}",
           "refId": "A",
           "select": [
             [
@@ -1191,6 +1473,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "charging_sessions",
           "timeColumn": "connected",
           "timeColumnType": "timestamp",
@@ -1231,7 +1530,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -1239,8 +1538,7 @@
               }
             ]
           },
-          "unit": "degree",
-          "unitScale": true
+          "unit": "degree"
         },
         "overrides": [
           {
@@ -1381,21 +1679,23 @@
           "id": "fit",
           "lat": 0,
           "lon": 0,
+          "noRepeat": false,
           "zoom": 18
         }
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
             "type": "postgres",
             "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  COALESCE(chargers.latitude, 'NaN') AS \"Latitude Charger\",\n  COALESCE(chargers.longitude, 'NaN') AS \"Longitude Charger\",\n  COALESCE(position_latitude, 'NaN') AS \"Latitude Parking\",\n  COALESCE(position_longitude, 'NaN') AS \"Longitude Parking\",\n  COALESCE(\"realCharged_kWh\",\n    (\"endSOC_pct\" - \"startSOC_pct\") * (\n      CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_capacity\"::NUMERIC\n           ELSE vehicle_settings.\"secondary_capacity\"::NUMERIC\n      END\n      / 100::NUMERIC)) AS \"Amount Charged\"\nFROM charging_sessions\nLEFT JOIN chargers ON charging_sessions.charger_id = chargers.id\nLEFT JOIN vehicles ON charging_sessions.vehicle_vin = vehicles.vin\n  LEFT JOIN vehicle_settings ON charging_sessions.vehicle_vin = vehicle_settings.vehicle_vin\nWHERE\n  charging_sessions.id = $id",
+          "rawSql": "SELECT\n  COALESCE(charging_stations.latitude, 'NaN') AS \"Latitude Charger\",\n  COALESCE(charging_stations.longitude, 'NaN') AS \"Longitude Charger\",\n  COALESCE(session_position_latitude, 'NaN') AS \"Latitude Parking\",\n  COALESCE(session_position_longitude, 'NaN') AS \"Longitude Parking\",\n  COALESCE(\"real_charged\", (\"end_level\" - \"start_level\") * capacity / 100::NUMERIC) AS \"Amount Charged\"\nFROM charging_sessions\nLEFT JOIN charging_stations ON charging_sessions.charging_station_uid = charging_stations.uid\nLEFT JOIN vehicles ON charging_sessions.vin = vehicles.vin\nLEFT JOIN drives ON vehicles.vin = drives.vin\nWHERE\n  charging_sessions.id = $id\n  AND drives.type = 'ELECTRIC'",
           "refId": "A",
           "select": [
             [
@@ -1407,6 +1707,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "charging_sessions",
           "timeColumn": "connected",
           "timeColumnType": "timestamp",
@@ -1440,7 +1757,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -1448,8 +1765,7 @@
               }
             ]
           },
-          "unit": "none",
-          "unitScale": true
+          "unit": "none"
         },
         "overrides": []
       },
@@ -1465,6 +1781,7 @@
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "last"
@@ -1480,18 +1797,19 @@
         "textMode": "value_and_name",
         "wideLayout": true
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
             "type": "postgres",
             "uid": "CarConnectivity-PostgreSQL-provisioned"
           },
+          "editorMode": "code",
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "DO $$ \nbegin\nIF ${id:singlequote} = 'none' THEN\n  RAISE EXCEPTION 'No id was given, you have to navigate to this dashboard using a link from Charges dashboard';\nEND IF;\nEND $$;\nSELECT\n  locations.name AS \"Name\",\n  locations.amenity AS \"Amenity\",\n  (locations.road || COALESCE(' '||locations.house_number, '')) AS \"Street\",\n  locations.neighbourhood AS \"Neighbourhood\",\n  locations.postcode AS \"Postcode\",\n  locations.city AS \"City\",\n  locations.state AS \"State\",\n  locations.country AS \"Country\"\nFROM charging_sessions\nLEFT JOIN locations on charging_sessions.location_id = locations.osm_id\nWHERE\n  id = $id",
+          "rawSql": "DO $$ \nbegin\nIF ${id:singlequote} = 'none' THEN\n  RAISE EXCEPTION 'No id was given, you have to navigate to this dashboard using a link from Charges dashboard';\nEND IF;\nEND $$;\nSELECT\n  locations.name AS \"Name\",\n  locations.amenity AS \"Amenity\",\n  (locations.road || COALESCE(' '||locations.house_number, '')) AS \"Street\",\n  locations.neighbourhood AS \"Neighbourhood\",\n  locations.postcode AS \"Postcode\",\n  locations.city AS \"City\",\n  locations.state AS \"State\",\n  locations.country AS \"Country\",\n  locations.source AS \"Source\"\nFROM charging_sessions\nLEFT JOIN locations on charging_sessions.location_uid = locations.uid\nWHERE\n  id = $id",
           "refId": "A",
           "select": [
             [
@@ -1503,6 +1821,23 @@
               }
             ]
           ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "table": "charging_sessions",
           "timeColumn": "connected",
           "timeColumnType": "timestamp",
@@ -1519,57 +1854,42 @@
       "type": "stat"
     }
   ],
-  "refresh": false,
-  "schemaVersion": 39,
+  "preload": false,
+  "refresh": "",
+  "schemaVersion": 42,
   "tags": [
     "internal"
   ],
   "templating": {
     "list": [
       {
-        "current": {
-          "selected": false,
-          "text": "none",
-          "value": "none"
-        },
         "hide": 2,
         "name": "id",
         "options": [
           {
-            "selected": false,
-            "text": "none",
-            "value": "none"
+            "selected": true,
+            "text": "1",
+            "value": "1"
           }
         ],
-        "query": "none",
-        "skipUrlSync": false,
+        "query": "1",
         "type": "textbox"
       },
       {
-        "current": {
-          "selected": false,
-          "text": "none",
-          "value": "none"
-        },
         "hide": 2,
         "name": "VIN",
         "options": [
           {
-            "selected": false,
-            "text": "none",
-            "value": "none"
+            "selected": true,
+            "text": "",
+            "value": ""
           }
         ],
-        "query": "none",
-        "skipUrlSync": false,
+        "query": "",
         "type": "textbox"
       },
       {
         "allowCustomValue": false,
-        "current": {
-          "text": "",
-          "value": ""
-        },
         "datasource": {
           "type": "marcusolsson-json-datasource",
           "uid": "CarConnectivity-Env-json-provisioned"
@@ -1594,34 +1914,22 @@
         "type": "query"
       },
       {
-        "current": {
-          "selected": false,
-          "text": "",
-          "value": ""
-        },
         "datasource": {
           "type": "postgres",
           "uid": "CarConnectivity-PostgreSQL-provisioned"
         },
-        "definition": "SELECT charger_id FROM charging_sessions WHERE charging_sessions.id = $id",
+        "definition": "SELECT charging_station_uid FROM charging_sessions WHERE charging_sessions.id = $id",
         "description": "ID of the sessions charger",
         "hide": 2,
         "includeAll": false,
-        "multi": false,
-        "name": "charger_id",
+        "name": "charging_station_id",
         "options": [],
-        "query": "SELECT charger_id FROM charging_sessions WHERE charging_sessions.id = $id",
+        "query": "SELECT charging_station_uid FROM charging_sessions WHERE charging_sessions.id = $id",
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       }
     ]
-  },
-  "time": {
-    "from": "now",
-    "to": "now"
   },
   "timepicker": {
     "hidden": true
@@ -1629,6 +1937,5 @@
   "timezone": "",
   "title": "Charging Session",
   "uid": "chargingsession",
-  "version": 1,
-  "weekStart": ""
+  "version": 1
 }
