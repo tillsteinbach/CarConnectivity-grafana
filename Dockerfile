@@ -23,7 +23,7 @@ COPY ./config/grafana/provisioning/ /etc/grafana/provisioning/
 COPY ./dashboards/ /var/lib/grafana-static/dashboards/
 COPY ./public/img/ /usr/share/grafana/public/img/
 
-COPY start.sh /entrypoint.sh
+COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 EXPOSE 3000
