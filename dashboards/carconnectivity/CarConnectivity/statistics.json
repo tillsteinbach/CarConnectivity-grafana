@@ -1,0 +1,552 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [
+    {
+      "asDropdown": true,
+      "icon": "dashboard",
+      "includeVars": true,
+      "keepTime": false,
+      "tags": [
+        "carconnectivity"
+      ],
+      "targetBlank": false,
+      "title": "Dashboards",
+      "tooltip": "",
+      "type": "dashboards",
+      "url": ""
+    }
+  ],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "CarConnectivity-PostgreSQL-provisioned"
+      },
+      "description": "Statistics for the car. You can change the granularity of the statistics using the period selection in the top. Not all data can be provided for every car type. Missing information can be manually added in the respective sections, e.g. trips or charging.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "text",
+            "mode": "fixed"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "color-text",
+            "filterable": false,
+            "inspect": false,
+            "minWidth": 75
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fuel Added"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "litre"
+              },
+              {
+                "id": "custom.width",
+                "value": 90
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*Distance"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "km"
+              },
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*Charged"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "kwatth"
+              },
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "(Time.*|Avg\\. charging)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Avg. Added"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "litre"
+              },
+              {
+                "id": "custom.width",
+                "value": 90
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "date_.*"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "# Drives"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "Trips",
+                    "url": "d/trips?from=${__data.fields.date_from}&to=${__data.fields.date_to}&var-VIN=${VIN}"
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 70
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "# Charges"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "Charging Details",
+                    "url": "d/chargingsessions?from=${__data.fields.date_from}&to=${__data.fields.date_to}&var-VIN=${VIN}"
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 85
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "# Refuels"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "Refuel Details",
+                    "url": "d/refueling?from=${__data.fields.date_from}&to=${__data.fields.date_to}&var-VIN=${VIN}"
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "Cost"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyEUR"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.width",
+                "value": 60
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "F. Cost"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 60
+              },
+              {
+                "id": "unit",
+                "value": "currencyEUR"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 29,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "footer": {
+          "fields": [
+            "Time driven",
+            "Distance",
+            "# Charges",
+            "Time charging",
+            "Energy Charged",
+            "Cost",
+            "Fuel Added",
+            "F. Cost",
+            "# Refuels"
+          ],
+          "reducer": [
+            "sum"
+          ],
+          "show": true
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "9.3.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  EXTRACT(EPOCH FROM date_trunc('$period', \"startDate\"))*1000 AS date_from,\n  EXTRACT(EPOCH FROM date_trunc('$period', \"startDate\" + ('1 ' || '$period')::INTERVAL))*1000 AS date_to,\n  CASE '$period'\n    WHEN 'month' THEN to_char(date_trunc('month', \"startDate\" AT TIME ZONE '${__to:date:Z}'), 'YYYY Month')\n    WHEN 'year' THEN to_char(date_trunc('year', \"startDate\" AT TIME ZONE '${__to:date:Z}'), 'YYYY')\n    WHEN 'week' THEN 'week ' || to_char(date_trunc('week', \"startDate\" AT TIME ZONE '${__to:date:Z}'), 'WW') || ' starting ' || to_char(date_trunc('week', \"startDate\" AT TIME ZONE '${__to:date:Z}'), 'YYYY-MM-DD')\n    ELSE to_char(\"startDate\" AT TIME ZONE '${__to:date:Z}', 'YYYY-MM-DD')\n  END AS \"Period\",\n  COUNT(*) AS \"# Drives\",\n  EXTRACT(EPOCH FROM SUM(\"endDate\"-\"startDate\")) AS \"Time driven\",\n  SUM(\"end_mileage_km\"-\"start_mileage_km\") AS \"Distance\",\n  percentile_cont(0.5) WITHIN GROUP (ORDER BY (\"end_mileage_km\"-\"start_mileage_km\")) AS \"Median Distance\"\nFROM \n  trips\nWHERE\n  $__timeFilter(\"startDate\") AND\n  trips.vehicle_vin = '$VIN'\nGROUP BY \"Period\", date_from, date_to\nORDER BY \"date_from\" DESC",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "position_latitude"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "refuel_sessions",
+          "timeColumn": "date",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  EXTRACT(EPOCH FROM date_trunc('$period', \"started\"))*1000 AS date_from,\n  EXTRACT(EPOCH FROM date_trunc('$period', \"started\" + ('1 ' || '$period')::INTERVAL))*1000 AS date_to,\n  CASE '$period'\n    WHEN 'month' THEN to_char(date_trunc('month', \"started\" AT TIME ZONE '${__to:date:Z}'), 'YYYY Month')\n    WHEN 'year' THEN to_char(date_trunc('year', \"started\" AT TIME ZONE '${__to:date:Z}'), 'YYYY')\n    WHEN 'week' THEN 'week ' || to_char(date_trunc('week', \"started\" AT TIME ZONE '${__to:date:Z}'), 'WW') || ' starting ' || to_char(date_trunc('week', \"started\" AT TIME ZONE '${__to:date:Z}'), 'YYYY-MM-DD')\n    ELSE to_char(\"started\" AT TIME ZONE '${__to:date:Z}', 'YYYY-MM-DD')\n  END AS \"Period\",\n  COUNT(*) AS \"# Charges\",\n  EXTRACT(EPOCH FROM SUM(\"ended\"-\"started\")) AS \"Time charging\",\n  EXTRACT(EPOCH FROM AVG(\"ended\"-\"started\")) AS \"Avg. charging\",\n  SUM(COALESCE(\"realCharged_kWh\", COALESCE((\"meterEnd_kWh\"-\"meterStart_kWh\"),\n  (\"endSOC_pct\" - \"startSOC_pct\") * (\n    CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_capacity\"::NUMERIC\n         ELSE vehicle_settings.\"secondary_capacity\"::NUMERIC\n    END\n    / 100::NUMERIC)))) AS \"Energy Charged\",\n  AVG(COALESCE(\"realCharged_kWh\", COALESCE((\"meterEnd_kWh\"-\"meterStart_kWh\"),\n  (\"endSOC_pct\" - \"startSOC_pct\") * (\n    CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_capacity\"::NUMERIC\n         ELSE vehicle_settings.\"secondary_capacity\"::NUMERIC\n    END\n    / 100::NUMERIC)))) AS \"Avg. Charged\",\n  SUM(\"realCost_ct\"::NUMERIC / 100::NUMERIC) AS \"Cost\"\nFROM \n  charging_sessions\nLEFT JOIN vehicles ON charging_sessions.vehicle_vin = vehicles.vin\nLEFT JOIN vehicle_settings ON charging_sessions.vehicle_vin = vehicle_settings.vehicle_vin\nWHERE\n  $__timeFilter(\"started\") AND\n  charging_sessions.vehicle_vin = '$VIN'\nGROUP BY \"Period\", date_from, date_to\nORDER BY \"date_from\" DESC",
+          "refId": "B",
+          "select": [
+            [
+              {
+                "params": [
+                  "position_latitude"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "refuel_sessions",
+          "timeColumn": "date",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
+          },
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  EXTRACT(EPOCH FROM date_trunc('$period', \"date\"))*1000 AS date_from,\n  EXTRACT(EPOCH FROM date_trunc('$period', \"date\" + ('1 ' || '$period')::INTERVAL))*1000 AS date_to,\n  CASE '$period'\n    WHEN 'month' THEN to_char(date_trunc('month', \"date\" AT TIME ZONE '${__to:date:Z}'), 'YYYY Month')\n    WHEN 'year' THEN to_char(date_trunc('year', \"date\" AT TIME ZONE '${__to:date:Z}'), 'YYYY')\n    WHEN 'week' THEN 'week ' || to_char(date_trunc('week', \"date\" AT TIME ZONE '${__to:date:Z}'), 'WW') || ' starting ' || to_char(date_trunc('week', \"date\" AT TIME ZONE '${__to:date:Z}'), 'YYYY-MM-DD')\n    ELSE to_char(\"date\" AT TIME ZONE '${__to:date:Z}', 'YYYY-MM-DD')\n  END AS \"Period\",\n  COUNT(*) AS \"# Refuels\",\n  SUM(COALESCE(\"realRefueled_l\",((\"endSOC_pct\" - \"startSOC_pct\") * (vehicle_settings.\"primary_capacity\"::NUMERIC / 100::NUMERIC)))) AS \"Fuel Added\",\n  AVG(COALESCE(\"realRefueled_l\",((\"endSOC_pct\" - \"startSOC_pct\") * (vehicle_settings.\"primary_capacity\"::NUMERIC / 100::NUMERIC)))) AS \"Avg. Added\",\n  SUM(\"realCost_ct\"::NUMERIC / 100::NUMERIC) AS \"F. Cost\"\nFROM \n  refuel_sessions\nLEFT JOIN vehicles ON refuel_sessions.vehicle_vin = vehicles.vin\nLEFT JOIN vehicle_settings ON refuel_sessions.vehicle_vin = vehicle_settings.vehicle_vin\nWHERE\n  $__timeFilter(\"date\") AND\n  refuel_sessions.vehicle_vin = '$VIN'\nGROUP BY \"Period\", date_from, date_to\nORDER BY \"date_from\" DESC",
+          "refId": "C",
+          "select": [
+            [
+              {
+                "params": [
+                  "position_latitude"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "refuel_sessions",
+          "timeColumn": "date",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Statistics (per ${period})",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "# Charges": 5,
+              "# Drives": 1,
+              "# Refuels": 11,
+              "Avg. Added": 13,
+              "Avg. Charged": 9,
+              "Avg. charging": 7,
+              "Cost": 10,
+              "Distance": 3,
+              "Energy Charged": 8,
+              "F. Cost": 14,
+              "Fuel Added": 12,
+              "Median Distance": 4,
+              "Period": 0,
+              "Time charging": 6,
+              "Time driven": 2,
+              "date_from": 15,
+              "date_to": 16
+            },
+            "renameByName": {}
+          }
+        }
+      ],
+      "type": "table"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 37,
+  "style": "dark",
+  "tags": [
+    "carconnectivity"
+  ],
+  "templating": {
+    "list": [
+      {
+        "datasource": {
+          "type": "postgres",
+          "uid": "CarConnectivity-PostgreSQL-provisioned"
+        },
+        "definition": "SELECT \"vin\" || ':' || \"name\" || ' (' || \"model\" || ' - ' || \"type\" || ')' FROM vehicles",
+        "description": "Select Car if you have multiple cars in your account",
+        "includeAll": false,
+        "label": "Car",
+        "name": "VIN",
+        "options": [],
+        "query": "SELECT \"vin\" || ':' || \"name\" || ' (' || \"model\" || ' - ' || \"type\" || ')' FROM vehicles",
+        "refresh": 1,
+        "regex": "/(?<value>[A-Z0-9]+):(?<text>.*)/",
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "month",
+          "value": "month"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "name": "period",
+        "options": [
+          {
+            "selected": false,
+            "text": "day",
+            "value": "day"
+          },
+          {
+            "selected": false,
+            "text": "week",
+            "value": "week"
+          },
+          {
+            "selected": true,
+            "text": "month",
+            "value": "month"
+          },
+          {
+            "selected": false,
+            "text": "year",
+            "value": "year"
+          }
+        ],
+        "query": "day,week,month,year",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "1970-01-01T00:00:00.000Z",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Statistics",
+  "uid": "statistics",
+  "version": 1,
+  "weekStart": ""
+}
