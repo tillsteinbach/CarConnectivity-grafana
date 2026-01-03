@@ -21,10 +21,10 @@
       }
     ]
   },
-  "description": "",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
+  "id": 2,
   "links": [
     {
       "asDropdown": true,
@@ -41,7 +41,6 @@
       "url": ""
     }
   ],
-  "liveNow": false,
   "panels": [
     {
       "datasource": {
@@ -57,8 +56,13 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "color-text",
+            "cellOptions": {
+              "type": "color-text"
+            },
             "filterable": false,
+            "footer": {
+              "reducers": []
+            },
             "inspect": false,
             "minWidth": 75
           },
@@ -68,7 +72,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           }
@@ -161,7 +165,7 @@
             },
             "properties": [
               {
-                "id": "custom.hidden",
+                "id": "custom.hideFrom.viz",
                 "value": true
               }
             ]
@@ -271,6 +275,33 @@
                 "value": 2
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "include",
+                "names": [
+                  "Time driven",
+                  "Distance",
+                  "# Charges",
+                  "Time charging",
+                  "Energy Charged",
+                  "Cost",
+                  "Fuel Added",
+                  "F. Cost",
+                  "# Refuels"
+                ]
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.footer.reducers",
+                "value": [
+                  "sum"
+                ]
+              }
+            ]
           }
         ]
       },
@@ -282,27 +313,11 @@
       },
       "id": 2,
       "options": {
-        "footer": {
-          "fields": [
-            "Time driven",
-            "Distance",
-            "# Charges",
-            "Time charging",
-            "Energy Charged",
-            "Cost",
-            "Fuel Added",
-            "F. Cost",
-            "# Refuels"
-          ],
-          "reducer": [
-            "sum"
-          ],
-          "show": true
-        },
+        "cellHeight": "sm",
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "datasource": {
@@ -315,8 +330,8 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  EXTRACT(EPOCH FROM date_trunc('$period', \"startDate\"))*1000 AS date_from,\n  EXTRACT(EPOCH FROM date_trunc('$period', \"startDate\" + ('1 ' || '$period')::INTERVAL))*1000 AS date_to,\n  CASE '$period'\n    WHEN 'month' THEN to_char(date_trunc('month', \"startDate\" AT TIME ZONE '${__to:date:Z}'), 'YYYY Month')\n    WHEN 'year' THEN to_char(date_trunc('year', \"startDate\" AT TIME ZONE '${__to:date:Z}'), 'YYYY')\n    WHEN 'week' THEN 'week ' || to_char(date_trunc('week', \"startDate\" AT TIME ZONE '${__to:date:Z}'), 'WW') || ' starting ' || to_char(date_trunc('week', \"startDate\" AT TIME ZONE '${__to:date:Z}'), 'YYYY-MM-DD')\n    ELSE to_char(\"startDate\" AT TIME ZONE '${__to:date:Z}', 'YYYY-MM-DD')\n  END AS \"Period\",\n  COUNT(*) AS \"# Drives\",\n  EXTRACT(EPOCH FROM SUM(\"endDate\"-\"startDate\")) AS \"Time driven\",\n  SUM(\"end_mileage_km\"-\"start_mileage_km\") AS \"Distance\",\n  percentile_cont(0.5) WITHIN GROUP (ORDER BY (\"end_mileage_km\"-\"start_mileage_km\")) AS \"Median Distance\"\nFROM \n  trips\nWHERE\n  $__timeFilter(\"startDate\") AND\n  trips.vehicle_vin = '$VIN'\nGROUP BY \"Period\", date_from, date_to\nORDER BY \"date_from\" DESC",
-          "refId": "A",
+          "rawSql": "SELECT\n  EXTRACT(EPOCH FROM date_trunc('$period', \"start_date\"))*1000 AS date_from,\n  EXTRACT(EPOCH FROM date_trunc('$period', \"start_date\" + ('1 ' || '$period')::INTERVAL))*1000 AS date_to,\n  CASE '$period'\n    WHEN 'month' THEN to_char(date_trunc('month', \"start_date\" AT TIME ZONE '${__to:date:Z}'), 'YYYY Month')\n    WHEN 'year' THEN to_char(date_trunc('year', \"start_date\" AT TIME ZONE '${__to:date:Z}'), 'YYYY')\n    WHEN 'week' THEN 'week ' || to_char(date_trunc('week', \"start_date\" AT TIME ZONE '${__to:date:Z}'), 'WW') || ' starting ' || to_char(date_trunc('week', \"start_date\" AT TIME ZONE '${__to:date:Z}'), 'YYYY-MM-DD')\n    ELSE to_char(\"start_date\" AT TIME ZONE '${__to:date:Z}', 'YYYY-MM-DD')\n  END AS \"Period\",\n  COUNT(*) AS \"# Drives\",\n  EXTRACT(EPOCH FROM SUM(\"destination_date\"-\"start_date\")) AS \"Time driven\",\n  SUM(\"destination_odometer\"-\"start_odometer\") AS \"Distance\",\n  percentile_cont(0.5) WITHIN GROUP (ORDER BY (\"destination_odometer\"-\"start_odometer\")) AS \"Median Distance\"\nFROM \n  trips\nWHERE\n  $__timeFilter(\"start_date\") AND\n  trips.vin = '$VIN'\nGROUP BY \"Period\", date_from, date_to\nORDER BY \"date_from\" DESC",
+          "refId": "Trips",
           "select": [
             [
               {
@@ -366,8 +381,8 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  EXTRACT(EPOCH FROM date_trunc('$period', \"started\"))*1000 AS date_from,\n  EXTRACT(EPOCH FROM date_trunc('$period', \"started\" + ('1 ' || '$period')::INTERVAL))*1000 AS date_to,\n  CASE '$period'\n    WHEN 'month' THEN to_char(date_trunc('month', \"started\" AT TIME ZONE '${__to:date:Z}'), 'YYYY Month')\n    WHEN 'year' THEN to_char(date_trunc('year', \"started\" AT TIME ZONE '${__to:date:Z}'), 'YYYY')\n    WHEN 'week' THEN 'week ' || to_char(date_trunc('week', \"started\" AT TIME ZONE '${__to:date:Z}'), 'WW') || ' starting ' || to_char(date_trunc('week', \"started\" AT TIME ZONE '${__to:date:Z}'), 'YYYY-MM-DD')\n    ELSE to_char(\"started\" AT TIME ZONE '${__to:date:Z}', 'YYYY-MM-DD')\n  END AS \"Period\",\n  COUNT(*) AS \"# Charges\",\n  EXTRACT(EPOCH FROM SUM(\"ended\"-\"started\")) AS \"Time charging\",\n  EXTRACT(EPOCH FROM AVG(\"ended\"-\"started\")) AS \"Avg. charging\",\n  SUM(COALESCE(\"realCharged_kWh\", COALESCE((\"meterEnd_kWh\"-\"meterStart_kWh\"),\n  (\"endSOC_pct\" - \"startSOC_pct\") * (\n    CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_capacity\"::NUMERIC\n         ELSE vehicle_settings.\"secondary_capacity\"::NUMERIC\n    END\n    / 100::NUMERIC)))) AS \"Energy Charged\",\n  AVG(COALESCE(\"realCharged_kWh\", COALESCE((\"meterEnd_kWh\"-\"meterStart_kWh\"),\n  (\"endSOC_pct\" - \"startSOC_pct\") * (\n    CASE WHEN vehicles.\"carType\" = 'ELECTRIC' THEN vehicle_settings.\"primary_capacity\"::NUMERIC\n         ELSE vehicle_settings.\"secondary_capacity\"::NUMERIC\n    END\n    / 100::NUMERIC)))) AS \"Avg. Charged\",\n  SUM(\"realCost_ct\"::NUMERIC / 100::NUMERIC) AS \"Cost\"\nFROM \n  charging_sessions\nLEFT JOIN vehicles ON charging_sessions.vehicle_vin = vehicles.vin\nLEFT JOIN vehicle_settings ON charging_sessions.vehicle_vin = vehicle_settings.vehicle_vin\nWHERE\n  $__timeFilter(\"started\") AND\n  charging_sessions.vehicle_vin = '$VIN'\nGROUP BY \"Period\", date_from, date_to\nORDER BY \"date_from\" DESC",
-          "refId": "B",
+          "rawSql": "SELECT\n  EXTRACT(EPOCH FROM date_trunc('$period', \"session_start_date\"))*1000 AS date_from,\n  EXTRACT(EPOCH FROM date_trunc('$period', \"session_start_date\" + ('1 ' || '$period')::INTERVAL))*1000 AS date_to,\n  CASE '$period'\n    WHEN 'month' THEN to_char(date_trunc('month', \"session_start_date\" AT TIME ZONE '${__to:date:Z}'), 'YYYY Month')\n    WHEN 'year' THEN to_char(date_trunc('year', \"session_start_date\" AT TIME ZONE '${__to:date:Z}'), 'YYYY')\n    WHEN 'week' THEN 'week ' || to_char(date_trunc('week', \"session_start_date\" AT TIME ZONE '${__to:date:Z}'), 'WW') || ' starting ' || to_char(date_trunc('week', \"session_start_date\" AT TIME ZONE '${__to:date:Z}'), 'YYYY-MM-DD')\n    ELSE to_char(\"session_start_date\" AT TIME ZONE '${__to:date:Z}', 'YYYY-MM-DD')\n  END AS \"Period\",\n  COUNT(*) AS \"# Charges\",\n  EXTRACT(EPOCH FROM SUM(\"session_end_date\"-\"session_start_date\")) AS \"Time charging\",\n  EXTRACT(EPOCH FROM AVG(\"session_end_date\"-\"session_start_date\")) AS \"Avg. charging\",\n  SUM(COALESCE(\"real_charged\", COALESCE((\"meter_end_kwh\"-\"meter_start_kwh\"),\n  (\"end_level\" - \"start_level\") * (capacity / 100::NUMERIC)))) AS \"Energy Charged\",\n  AVG(COALESCE(\"real_charged\", COALESCE((meter_end_kwh-\"meter_start_kwh\"),\n  (\"end_level\" - \"start_level\") * (capacity / 100::NUMERIC)))) AS \"Avg. Charged\",\n  SUM(\"real_cost\"::NUMERIC / 100::NUMERIC) AS \"Cost\"\nFROM \n  charging_sessions\nLEFT JOIN vehicles ON charging_sessions.vin = vehicles.vin\nLEFT JOIN drives ON vehicles.vin = drives.vin\nWHERE\n  drives.type = 'ELECTRIC' AND\n  $__timeFilter(\"session_start_date\") AND\n  charging_sessions.vin = '$VIN'\nGROUP BY \"Period\", date_from, date_to\nORDER BY \"date_from\" DESC",
+          "refId": "Charging",
           "select": [
             [
               {
@@ -417,7 +432,7 @@
           "metricColumn": "none",
           "rawQuery": true,
           "rawSql": "SELECT\n  EXTRACT(EPOCH FROM date_trunc('$period', \"date\"))*1000 AS date_from,\n  EXTRACT(EPOCH FROM date_trunc('$period', \"date\" + ('1 ' || '$period')::INTERVAL))*1000 AS date_to,\n  CASE '$period'\n    WHEN 'month' THEN to_char(date_trunc('month', \"date\" AT TIME ZONE '${__to:date:Z}'), 'YYYY Month')\n    WHEN 'year' THEN to_char(date_trunc('year', \"date\" AT TIME ZONE '${__to:date:Z}'), 'YYYY')\n    WHEN 'week' THEN 'week ' || to_char(date_trunc('week', \"date\" AT TIME ZONE '${__to:date:Z}'), 'WW') || ' starting ' || to_char(date_trunc('week', \"date\" AT TIME ZONE '${__to:date:Z}'), 'YYYY-MM-DD')\n    ELSE to_char(\"date\" AT TIME ZONE '${__to:date:Z}', 'YYYY-MM-DD')\n  END AS \"Period\",\n  COUNT(*) AS \"# Refuels\",\n  SUM(COALESCE(\"realRefueled_l\",((\"endSOC_pct\" - \"startSOC_pct\") * (vehicle_settings.\"primary_capacity\"::NUMERIC / 100::NUMERIC)))) AS \"Fuel Added\",\n  AVG(COALESCE(\"realRefueled_l\",((\"endSOC_pct\" - \"startSOC_pct\") * (vehicle_settings.\"primary_capacity\"::NUMERIC / 100::NUMERIC)))) AS \"Avg. Added\",\n  SUM(\"realCost_ct\"::NUMERIC / 100::NUMERIC) AS \"F. Cost\"\nFROM \n  refuel_sessions\nLEFT JOIN vehicles ON refuel_sessions.vehicle_vin = vehicles.vin\nLEFT JOIN vehicle_settings ON refuel_sessions.vehicle_vin = vehicle_settings.vehicle_vin\nWHERE\n  $__timeFilter(\"date\") AND\n  refuel_sessions.vehicle_vin = '$VIN'\nGROUP BY \"Period\", date_from, date_to\nORDER BY \"date_from\" DESC",
-          "refId": "C",
+          "refId": "Refueling",
           "select": [
             [
               {
@@ -476,9 +491,9 @@
       "type": "table"
     }
   ],
+  "preload": false,
   "refresh": "",
-  "schemaVersion": 37,
-  "style": "dark",
+  "schemaVersion": 42,
   "tags": [
     "carconnectivity"
   ],
@@ -502,13 +517,10 @@
       },
       {
         "current": {
-          "selected": true,
           "text": "month",
           "value": "month"
         },
-        "hide": 0,
         "includeAll": false,
-        "multi": false,
         "name": "period",
         "options": [
           {
@@ -533,8 +545,6 @@
           }
         ],
         "query": "day,week,month,year",
-        "queryValue": "",
-        "skipUrlSync": false,
         "type": "custom"
       }
     ]
@@ -547,6 +557,5 @@
   "timezone": "",
   "title": "Statistics",
   "uid": "statistics",
-  "version": 1,
-  "weekStart": ""
+  "version": 1
 }
