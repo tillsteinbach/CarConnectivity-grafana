@@ -49,9 +49,9 @@ jobs:
         if: startsWith( github.ref, 'refs/tags/v' )
         working-directory: grafana
         run: |
-          PLACEHOLDER="        \"content\": \"CarConnectivity Grafana version: \[0.0.0dev\](https://github.com/tillsteinbach/CarConnectivity-grafana/)\","
+          PLACEHOLDER="        \"content\": \"CarConnectivity Grafana version: [0.0.0dev](https://github.com/tillsteinbach/CarConnectivity-grafana/)\","
           REPLACEMENT="        \"content\": \"CarConnectivity Grafana version: \[${{ env.version }}\](https://github.com/tillsteinbach/CarConnectivity-grafana/releases/tag/v${{ env.version }})\","
-          VERSION_FILE="dashboards/carconnectivity/carconnectivity/overview.json"
+          VERSION_FILE="dashboards/carconnectivity/CarConnectivity/overview.json"
           # ensure the placeholder is there. If grep doesn't find the placeholder
           # it exits with exit code 1 and github actions aborts the build. 
           grep "$PLACEHOLDER" "$VERSION_FILE"
