@@ -1106,7 +1106,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "(SELECT\n '<0.8C' AS \"Type\",\n EXTRACT(SECONDS FROM SUM(\"power\"*(\"last_date\"-\"first_date\"+ INTERVAL '1 minute'))) / (SELECT EXTRACT(SECONDS FROM SUM(\"power\"*(\"last_date\"-\"first_date\"+ INTERVAL '1 minute'))) FROM charging_powers) * 100 AS \"Amount\"\nFROM charging_powers\nLEFT JOIN vehicles ON charging_powers.vin = vehicles.vin\nLEFT JOIN drives ON vehicles.vin = drives.vin\nWHERE\n  drives.type = 'ELECTRIC' AND\n  $__timeFilter(\"first_date\") AND\n  charging_powers.\"power\" <= (capacity * 0.8) AND\n  charging_powers.vin = '$VIN')\nUNION\nSELECT\n '>0.8C' AS label,\n EXTRACT(SECONDS FROM SUM(\"power\"*(\"last_date\"-\"first_date\"+ INTERVAL '1 minute'))) / (SELECT EXTRACT(SECONDS FROM SUM(\"power\"*(\"last_date\"-\"first_date\"+ INTERVAL '1 minute'))) FROM charging_powers) * 100 AS \"Amount\"\nFROM charging_powers\nLEFT JOIN vehicles ON charging_powers.vin = vehicles.vin\nLEFT JOIN drives ON vehicles.vin = drives.vin\nWHERE\n  drives.type = 'ELECTRIC' AND\n  $__timeFilter(\"first_date\") AND\n  charging_powers.\"power\" > ( capacity * 0.8) AND\n  charging_powers.vin = '$VIN'",
+          "rawSql": "(SELECT\n '<0.8C' AS \"Type\",\n EXTRACT(SECONDS FROM SUM(\"power\"*(\"last_date\"-\"first_date\"+ INTERVAL '1 minute'))) / (SELECT EXTRACT(SECONDS FROM SUM(\"power\"*(\"last_date\"-\"first_date\"+ INTERVAL '1 minute'))) FROM charging_powers) * 100 AS \"Amount\"\nFROM charging_powers\nLEFT JOIN vehicles ON charging_powers.vin = vehicles.vin\nLEFT JOIN drives ON vehicles.vin = drives.vin\nWHERE\n  drives.type = 'ELECTRIC' AND\n  $__timeFilter(\"first_date\") AND\n  charging_powers.\"power\" <= (COALESCE(capacity_total, capacity) * 0.8) AND\n  charging_powers.vin = '$VIN')\nUNION\nSELECT\n '>0.8C' AS label,\n EXTRACT(SECONDS FROM SUM(\"power\"*(\"last_date\"-\"first_date\"+ INTERVAL '1 minute'))) / (SELECT EXTRACT(SECONDS FROM SUM(\"power\"*(\"last_date\"-\"first_date\"+ INTERVAL '1 minute'))) FROM charging_powers) * 100 AS \"Amount\"\nFROM charging_powers\nLEFT JOIN vehicles ON charging_powers.vin = vehicles.vin\nLEFT JOIN drives ON vehicles.vin = drives.vin\nWHERE\n  drives.type = 'ELECTRIC' AND\n  $__timeFilter(\"first_date\") AND\n  charging_powers.\"power\" > ( COALESCE(capacity_total, capacity) * 0.8) AND\n  charging_powers.vin = '$VIN'",
           "refId": "A",
           "select": [
             [
@@ -1518,7 +1518,7 @@
             "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "",
+            "axisLabel": "SoC [%]",
             "axisPlacement": "auto",
             "fillOpacity": 50,
             "hideFrom": {
@@ -1573,7 +1573,7 @@
               },
               {
                 "id": "custom.axisLabel",
-                "value": "Power"
+                "value": "kW"
               }
             ]
           },
@@ -1643,8 +1643,14 @@
             },
             "x": {
               "matcher": {
-                "id": "byName",
-                "options": "SoC"
+                "id": "byType",
+                "options": "number"
+              }
+            },
+            "y": {
+              "matcher": {
+                "id": "byType",
+                "options": "number"
               }
             }
           }
@@ -1668,8 +1674,8 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n    FLOOR(drive_levels.level / 10) * 10           AS \"SoC\",\n    MIN(charging_powers.power)                    AS \"Min\",\n    MAX(charging_powers.power)                    AS \"Max\",\n    AVG(charging_powers.power)                    AS \"Avg\"\nFROM charging_powers\nJOIN drives ON drives.vin = charging_powers.vin\nJOIN drive_levels ON drive_levels.drive_id = drives.id\nWHERE\n    drives.type = 'ELECTRIC'\n    AND charging_powers.power > 0\n    -- ensure charging and drive level overlap in time\n    AND tstzrange(charging_powers.first_date, charging_powers.last_date+ interval '1 microsecond', '[]')\n    && tstzrange(drive_levels.first_date, drive_levels.last_date+ interval '1 microsecond', '[]')\n    -- optional: ignore null or zero values\n    AND charging_powers.power IS NOT NULL\nGROUP BY\n    \"SoC\"\nORDER BY\n    \"SoC\";",
-          "refId": "C",
+          "rawSql": "SELECT\n  battery.\"currentSOC_pct\" AS \"SoC\",\n  MAX(charges.\"chargePower_kW\") AS \"Max\",\n  AVG(charges.\"chargePower_kW\") AS \"Avg\",\n  MIN(charges.\"chargePower_kW\") AS \"Min\",\n  'Metrics calculated from ' || COUNT(charges.\"chargePower_kW\")::TEXT  || ' values' AS \"Values\"\nFROM\n  charges\nINNER JOIN charging_sessions ON charges.\"carCapturedTimestamp\" > charging_sessions.started AND charges.\"carCapturedTimestamp\" < charging_sessions.ended\nINNER JOIN battery ON battery.\"carCapturedTimestamp\" = (SELECT battery.\"carCapturedTimestamp\" FROM battery WHERE battery.\"carCapturedTimestamp\" > charges.\"carCapturedTimestamp\" - interval '120 SECONDS' AND battery.\"carCapturedTimestamp\" < charges.\"carCapturedTimestamp\" + interval '120 SECONDS' ORDER BY ABS(EXTRACT(epoch FROM (battery.\"carCapturedTimestamp\" - charges.\"carCapturedTimestamp\"))) ASC LIMIT 1)\nWHERE\n    charging_sessions.acdc = 'DC' AND\n    charges.\"chargePower_kW\" > 0 AND\n    $__timeFilter(charges.\"carCapturedTimestamp\") AND\n    charges.vehicle_vin = '$VIN'\nGROUP BY \"SoC\"\nORDER by \"SoC\" ASC",
+          "refId": "A",
           "select": [
             [
               {
@@ -1718,11 +1724,8 @@
               "Label": false,
               "soc": false
             },
-            "includeByName": {},
             "indexByName": {},
-            "renameByName": {
-              "level_bucket": ""
-            }
+            "renameByName": {}
           }
         }
       ],
@@ -1850,8 +1853,8 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n \"SoC_pct\" AS \"SoC\",\n \"Time\"/ SUM(\"Time\") OVER () * 100 AS \"Proportion\",\n ROUND((\"Time\"/ SUM(\"Time\") OVER () * 100)::numeric, 2)::TEXT || '% of time' AS \"Text\"\nFROM\n(\nSELECT\n \"SoC_pct\",\n SUM(\"Duration\") AS \"Time\"\nFROM\n(SELECT\nfloor(\"level\" / 5) * 5 AS \"SoC_pct\",\nEXTRACT(epoch FROM (\"first_date\" - lag(drive_levels.\"first_date\") over (order by \"first_date\"))) AS \"Duration\"\nFROM drive_levels\nLEFT JOIN drives ON drive_levels.drive_id = drives.id\nWHERE\n  drives.type = 'ELECTRIC' AND\n  $__timeFilter(\"first_date\") AND\n  drives.vin = '$VIN'\nORDER BY 1) AS data\nGROUP BY \"SoC_pct\") AS data2",
-          "refId": "Distribution",
+          "rawSql": "SELECT\n \"SoC_pct\" AS \"SoC\",\n EXTRACT(SECONDS FROM \"Time\") / EXTRACT(SECONDS FROM (SUM(\"Time\") OVER ())) * 100 AS \"Proportion\",\n ROUND((EXTRACT(SECONDS FROM \"Time\") / EXTRACT(SECONDS FROM (SUM(\"Time\") OVER ())) * 100)::numeric, 2)::TEXT || '% of time' AS \"Text\"\nFROM\n(\nSELECT\n \"SoC_pct\",\n SUM(\"Duration\") AS \"Time\"\nFROM\n(SELECT\nfloor(\"level\" / 5) * 5 AS \"SoC_pct\",\n(last_date - first_date) AS \"Duration\"\nFROM drive_levels\nLEFT JOIN drives on drive_levels.id = drives.id\nWHERE\n  drives.type = 'ELECTRIC' AND\n  $__timeFilter(\"first_date\") AND\n  drives.vin = '$VIN'\nORDER BY 1) AS data\nGROUP BY \"SoC_pct\") AS data2",
+          "refId": "A",
           "select": [
             [
               {
