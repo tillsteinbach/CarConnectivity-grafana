@@ -26,7 +26,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 8,
+  "id": 6,
   "links": [
     {
       "asDropdown": false,
@@ -1853,8 +1853,8 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n \"SoC_pct\" AS \"SoC\",\n EXTRACT(SECONDS FROM \"Time\") / EXTRACT(SECONDS FROM (SUM(\"Time\") OVER ())) * 100 AS \"Proportion\",\n ROUND((EXTRACT(SECONDS FROM \"Time\") / EXTRACT(SECONDS FROM (SUM(\"Time\") OVER ())) * 100)::numeric, 2)::TEXT || '% of time' AS \"Text\"\nFROM\n(\nSELECT\n \"SoC_pct\",\n SUM(\"Duration\") AS \"Time\"\nFROM\n(SELECT\nfloor(\"level\" / 5) * 5 AS \"SoC_pct\",\n(last_date - first_date) AS \"Duration\"\nFROM drive_levels\nLEFT JOIN drives on drive_levels.id = drives.id\nWHERE\n  drives.type = 'ELECTRIC' AND\n  $__timeFilter(\"first_date\") AND\n  drives.vin = '$VIN'\nORDER BY 1) AS data\nGROUP BY \"SoC_pct\") AS data2",
-          "refId": "A",
+          "rawSql": "SELECT\n \"SoC_pct\" AS \"SoC\",\n \"Time\"/ SUM(\"Time\") OVER () * 100 AS \"Proportion\",\n ROUND((\"Time\"/ SUM(\"Time\") OVER () * 100)::numeric, 2)::TEXT || '% of time' AS \"Text\"\nFROM\n(\nSELECT\n \"SoC_pct\",\n SUM(\"Duration\") AS \"Time\"\nFROM\n(SELECT\nfloor(\"level\" / 5) * 5 AS \"SoC_pct\",\nEXTRACT(epoch FROM (\"first_date\" - lag(drive_levels.\"first_date\") over (order by \"first_date\"))) AS \"Duration\"\nFROM drive_levels\nLEFT JOIN drives ON drive_levels.drive_id = drives.id\nWHERE\n  drives.type = 'ELECTRIC' AND\n  $__timeFilter(\"first_date\") AND\n  drives.vin = '$VIN'\nORDER BY 1) AS data\nGROUP BY \"SoC_pct\") AS data2",
+          "refId": "Distribution",
           "select": [
             [
               {
@@ -2163,6 +2163,10 @@
         "type": "query"
       },
       {
+        "current": {
+          "text": "",
+          "value": ""
+        },
         "datasource": {
           "type": "postgres",
           "uid": "CarConnectivity-PostgreSQL-provisioned"
