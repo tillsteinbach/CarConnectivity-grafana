@@ -1,0 +1,22 @@
+# config file version
+apiVersion: 1
+
+deleteDatasources:
+  - name: CarConnectivity-live-json
+    orgId: 1
+
+datasources:
+  - name: CarConnectivity-live-json
+    orgId: 1
+    uid: CarConnectivity-live-json-provisioned
+    type: marcusolsson-json-datasource
+    access: proxy
+    url: $CARCONNECTIVITY_UI_URL/garage/json
+    basicAuthUser: $CARCONNECTIVITY_USERNAME
+    secureJsonData:
+      basicAuthPassword: $CARCONNECTIVITY_PASSWORD
+    jsonData:
+      timeout: "1"
+    basicAuth: true
+    isDefault: false
+    editable: false
