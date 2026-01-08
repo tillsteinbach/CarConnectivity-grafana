@@ -11,7 +11,7 @@ datasources:
     uid: CarConnectivity-live-json-provisioned
     type: marcusolsson-json-datasource
     access: proxy
-    url: $CARCONNECTIVITY_UI_URL/garage/json
+    url: ${CARCONNECTIVITY_UI_URL}/garage/json
     basicAuthUser: $CARCONNECTIVITY_USERNAME
     secureJsonData:
       basicAuthPassword: $CARCONNECTIVITY_PASSWORD
