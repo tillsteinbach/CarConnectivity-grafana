@@ -45,7 +45,7 @@
     {
       "datasource": {
         "type": "marcusolsson-json-datasource",
-        "uid": "CarConnectivity-live-json"
+        "uid": "CarConnectivity-live-json-provisioned"
       },
       "description": "Image of the car ${VIN:text} with VIN ${VIN:raw}",
       "fieldConfig": {
@@ -106,7 +106,7 @@
           "cacheDurationSeconds": 30,
           "datasource": {
             "type": "marcusolsson-json-datasource",
-            "uid": "CarConnectivity-live-json"
+            "uid": "CarConnectivity-live-json-provisioned"
           },
           "fields": [
             {
@@ -125,7 +125,7 @@
     {
       "datasource": {
         "type": "marcusolsson-json-datasource",
-        "uid": "CarConnectivity-live-json"
+        "uid": "CarConnectivity-live-json-provisioned"
       },
       "description": "Last time data was received from the car",
       "fieldConfig": {
@@ -178,7 +178,7 @@
           "cacheDurationSeconds": 30,
           "datasource": {
             "type": "marcusolsson-json-datasource",
-            "uid": "CarConnectivity-live-json"
+            "uid": "CarConnectivity-live-json-provisioned"
           },
           "fields": [
             {
@@ -213,7 +213,7 @@
     {
       "datasource": {
         "type": "marcusolsson-json-datasource",
-        "uid": "CarConnectivity-live-json"
+        "uid": "CarConnectivity-live-json-provisioned"
       },
       "description": "Current parking position if available. Not all cars provide a parking position.",
       "fieldConfig": {
@@ -322,7 +322,7 @@
           "cacheDurationSeconds": 30,
           "datasource": {
             "type": "marcusolsson-json-datasource",
-            "uid": "CarConnectivity-live-json"
+            "uid": "CarConnectivity-live-json-provisioned"
           },
           "fields": [
             {
@@ -500,7 +500,7 @@
     {
       "datasource": {
         "type": "marcusolsson-json-datasource",
-        "uid": "CarConnectivity-live-json"
+        "uid": "CarConnectivity-live-json-provisioned"
       },
       "description": "Status of the car ${VIN:text} with VIN ${VIN:raw}",
       "fieldConfig": {
@@ -578,7 +578,7 @@
           "cacheDurationSeconds": 30,
           "datasource": {
             "type": "marcusolsson-json-datasource",
-            "uid": "CarConnectivity-live-json"
+            "uid": "CarConnectivity-live-json-provisioned"
           },
           "fields": [
             {
@@ -597,7 +597,7 @@
           "cacheDurationSeconds": 30,
           "datasource": {
             "type": "marcusolsson-json-datasource",
-            "uid": "CarConnectivity-live-json"
+            "uid": "CarConnectivity-live-json-provisioned"
           },
           "fields": [
             {
@@ -617,7 +617,7 @@
     {
       "datasource": {
         "type": "marcusolsson-json-datasource",
-        "uid": "CarConnectivity-live-json"
+        "uid": "CarConnectivity-live-json-provisioned"
       },
       "description": "Current state of odometer",
       "fieldConfig": {
@@ -674,7 +674,7 @@
           "cacheDurationSeconds": 30,
           "datasource": {
             "type": "marcusolsson-json-datasource",
-            "uid": "CarConnectivity-live-json"
+            "uid": "CarConnectivity-live-json-provisioned"
           },
           "fields": [
             {
@@ -694,7 +694,7 @@
     {
       "datasource": {
         "type": "marcusolsson-json-datasource",
-        "uid": "CarConnectivity-live-json"
+        "uid": "CarConnectivity-live-json-provisioned"
       },
       "description": "Current state of charge",
       "fieldConfig": {
@@ -749,7 +749,7 @@
           "cacheDurationSeconds": 30,
           "datasource": {
             "type": "marcusolsson-json-datasource",
-            "uid": "CarConnectivity-live-json"
+            "uid": "CarConnectivity-live-json-provisioned"
           },
           "fields": [
             {
@@ -825,7 +825,7 @@
         {
           "cacheDurationSeconds": 30,
           "datasource": {
-            "uid": "CarConnectivity-live-json"
+            "uid": "CarConnectivity-live-json-provisioned"
           },
           "fields": [
             {
@@ -915,7 +915,7 @@
     {
       "datasource": {
         "type": "marcusolsson-json-datasource",
-        "uid": "CarConnectivity-live-json"
+        "uid": "CarConnectivity-live-json-provisioned"
       },
       "description": "Remaining time until climatization is turned off",
       "fieldConfig": {
@@ -965,7 +965,7 @@
           "cacheDurationSeconds": 30,
           "datasource": {
             "type": "marcusolsson-json-datasource",
-            "uid": "CarConnectivity-live-json"
+            "uid": "CarConnectivity-live-json-provisioned"
           },
           "fields": [
             {
