@@ -9,14 +9,19 @@ datasources:
   - name: CarConnectivity-live-json
     orgId: 1
     uid: CarConnectivity-live-json-provisioned
-    type: marcusolsson-json-datasource
-    access: proxy
+    type: yesoreyeram-infinity-datasource
     url: ${CARCONNECTIVITY_UI_URL}/garage/json
+    basicAuth: true
     basicAuthUser: $CARCONNECTIVITY_USERNAME
+    jsonData:
+      auth_method: 'basicAuth'
+      allowedHosts:
+      - '${CARCONNECTIVITY_UI_URL}'
+      oauthPassThru: false
+      tlsSkipVerify: true
+      timeoutInSeconds: 5
+      allowDangerousHTTPMethods: false
     secureJsonData:
       basicAuthPassword: $CARCONNECTIVITY_PASSWORD
-    jsonData:
-      timeout: "1"
-    basicAuth: true
     isDefault: false
     editable: false
