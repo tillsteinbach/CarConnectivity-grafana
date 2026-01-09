@@ -692,6 +692,62 @@
               "type": "macro"
             }
           ]
+        },
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "queryText": "SELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', first_date) as time, range as 'Range', drives.drive_id AS label FROM drive_ranges JOIN drives ON drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\"\nUNION\nSELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', last_date) as time, range as 'Range', drives.drive_id AS label FROM drive_ranges JOIN drives ON drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\"",
+          "queryType": "table",
+          "rawQuery": true,
+          "rawQueryText": "SELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', first_date) as time, range as 'Range', drives.drive_id AS label FROM drive_ranges JOIN drives ON drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\"\nUNION\nSELECT STRFTIME('%Y-%m-%dT%H:%M:%SZ', last_date) as time, range as 'Range', drives.drive_id AS label FROM drive_ranges JOIN drives ON drive_ranges.id == drives.id WHERE drives.vin==\"$VIN\"",
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"battery_temperature\" AS \"Battery Temperature\"\nFROM battery_temperatures \nWHERE\n  vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"battery_temperature\" AS \"Battery Temperature\"\nFROM battery_temperatures \nWHERE\n  vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" ASC",
+          "refId": "Battery Temperature",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "timeColumn": "time",
+          "timeColumns": [
+            "time",
+            "ts"
+          ],
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
       "title": "Levels & Range",
@@ -2540,8 +2596,8 @@
           "format": "table",
           "hide": true,
           "rawQuery": true,
-          "rawSql": "SELECT\n    \"carCapturedTimestamp\" AS \"time\",\n    (((\"temperatureHvBatteryMin_K\" + \"temperatureHvBatteryMax_K\")/2) - 273.15) AS \"Battery Temperature\"\nFROM\n    battery_temperature\nWHERE\n    $__timeFilter(\"carCapturedTimestamp\") AND\n    vehicle_vin = '$VIN'\nORDER BY\n    \"carCapturedTimestamp\" DESC",
-          "refId": "B",
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"battery_temperature\" AS \"Battery Temperature\"\nFROM battery_temperatures \nWHERE\n  vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"battery_temperature\" AS \"Battery Temperature\"\nFROM battery_temperatures \nWHERE\n  vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" ASC",
+          "refId": "Battery Temperature",
           "sql": {
             "columns": [
               {
