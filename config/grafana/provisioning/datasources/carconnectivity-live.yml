@@ -10,7 +10,7 @@ datasources:
     orgId: 1
     uid: CarConnectivity-live-json-provisioned
     type: yesoreyeram-infinity-datasource
-    url: ${CARCONNECTIVITY_UI_URL}/garage/json
+    url: ${CARCONNECTIVITY_UI_URL}
     basicAuth: true
     basicAuthUser: $CARCONNECTIVITY_USERNAME
     jsonData:
