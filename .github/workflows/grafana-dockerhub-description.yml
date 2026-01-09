@@ -4,7 +4,7 @@ on:
     branches:
       - main
     paths:
-      - grafana/README.md
+      - README.md
       - .github/workflows/grafana-dockerhub-description.yml
 jobs:
   dockerHubDescription:
