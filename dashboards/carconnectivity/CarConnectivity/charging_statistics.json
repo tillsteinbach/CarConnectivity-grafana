@@ -26,7 +26,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 6,
+  "id": 2,
   "links": [
     {
       "asDropdown": false,
@@ -1106,7 +1106,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "(SELECT\n '<0.8C' AS \"Type\",\n EXTRACT(SECONDS FROM SUM(\"power\"*(\"last_date\"-\"first_date\"+ INTERVAL '1 minute'))) / (SELECT EXTRACT(SECONDS FROM SUM(\"power\"*(\"last_date\"-\"first_date\"+ INTERVAL '1 minute'))) FROM charging_powers) * 100 AS \"Amount\"\nFROM charging_powers\nLEFT JOIN vehicles ON charging_powers.vin = vehicles.vin\nLEFT JOIN drives ON vehicles.vin = drives.vin\nWHERE\n  drives.type = 'ELECTRIC' AND\n  $__timeFilter(\"first_date\") AND\n  charging_powers.\"power\" <= (COALESCE(capacity_total, capacity) * 0.8) AND\n  charging_powers.vin = '$VIN')\nUNION\nSELECT\n '>0.8C' AS label,\n EXTRACT(SECONDS FROM SUM(\"power\"*(\"last_date\"-\"first_date\"+ INTERVAL '1 minute'))) / (SELECT EXTRACT(SECONDS FROM SUM(\"power\"*(\"last_date\"-\"first_date\"+ INTERVAL '1 minute'))) FROM charging_powers) * 100 AS \"Amount\"\nFROM charging_powers\nLEFT JOIN vehicles ON charging_powers.vin = vehicles.vin\nLEFT JOIN drives ON vehicles.vin = drives.vin\nWHERE\n  drives.type = 'ELECTRIC' AND\n  $__timeFilter(\"first_date\") AND\n  charging_powers.\"power\" > ( COALESCE(capacity_total, capacity) * 0.8) AND\n  charging_powers.vin = '$VIN'",
+          "rawSql": "WITH electric_drives AS (\n    SELECT id, vin, COALESCE(capacity_total, capacity) AS capacity_kwh\n    FROM drives\n    WHERE type = 'ELECTRIC' AND vin = '$VIN'\n),\ncharging_ordered AS (\n    SELECT\n        cp.vin,\n        cp.power,\n        cp.first_date,\n        LEAD(cp.first_date) OVER (PARTITION BY cp.vin ORDER BY cp.first_date) AS next_first_date,\n        ed.capacity_kwh\n    FROM charging_powers cp\n    JOIN electric_drives ed ON cp.vin = ed.vin\n    WHERE $__timeFilter(cp.first_date)\n)\nSELECT\n    CASE\n        WHEN power <= capacity_kwh * 0.8 THEN '<=0.8C'\n        ELSE '>0.8C'\n    END AS \"Type\",\n    EXTRACT(EPOCH FROM SUM(\n        COALESCE(next_first_date, first_date + INTERVAL '1 minute') - first_date\n    )) \n    / NULLIF(EXTRACT(EPOCH FROM SUM(SUM(\n        COALESCE(next_first_date, first_date + INTERVAL '1 minute') - first_date\n    )) OVER ()), 0) * 100 AS \"Amount\"\nFROM charging_ordered\nGROUP BY \"Type\"\nORDER BY \"Type\";",
           "refId": "A",
           "select": [
             [
@@ -1276,7 +1276,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "(SELECT\r\n width_bucket(\"power\",-1,15,16) AS power,\r\n ((width_bucket(\"power\",-1,15,16)::decimal-1)) AS \"Center of bucket\",\r\n (((width_bucket(\"power\",-1,15,16)-1.5)))::TEXT || 'kW to ' || (((width_bucket(\"power\",-1,15,16)-0.5)))::TEXT || 'kW' AS \"Bucket\",\r\n EXTRACT(SECONDS FROM SUM(\"power\"*(\"last_date\"-\"first_date\"+ INTERVAL '1 minute'))) / (SELECT EXTRACT(SECONDS FROM SUM(\"power\"*(\"last_date\"-\"first_date\"+ INTERVAL '1 minute'))) FROM charging_powers) * 100 AS \"Proportion\"\r\nFROM charging_powers\r\nWHERE\r\n  $__timeFilter(\"first_date\") AND\r\n  \"power\" < 15 AND\r\n  charging_powers.vin = '$VIN'\r\nGROUP BY power, \"Bucket\", \"Center of bucket\"\r\nORDER BY 1)\r\n\r\nUNION\r\n(SELECT\r\n width_bucket(\"power\",15,205,19) AS power,\r\n ((width_bucket(\"power\",-5,205,21)::decimal-1)*(210/21)) AS \"Center of bucket\",\r\n (((width_bucket(\"power\",-5,205,21)-1.5)*(210/21)))::TEXT || 'kW to ' || (((width_bucket(\"power\",-5,205,21)-0.5)*(210/21)))::TEXT || 'kW' AS \"Bucket\",\r\n SUM(\"power\") / (SELECT SUM(\"power\") FROM charging_powers) * 100 AS \"Proportion\"\r\nFROM charging_powers\r\nWHERE\r\n  $__timeFilter(\"first_date\") AND\r\n  \"power\" > 15 AND\r\n  charging_powers.vin = '$VIN'\r\nGROUP BY power, \"Bucket\", \"Center of bucket\"\r\nORDER BY 1)\r\nORDER BY \"Center of bucket\"",
+          "rawSql": "WITH base AS (\r\n  SELECT\r\n    power,\r\n    (last_date - first_date + INTERVAL '1 minute') AS duration\r\n  FROM charging_powers\r\n  WHERE\r\n    $__timeFilter(first_date)\r\n    AND vin = '$VIN'\r\n),\r\ntotals AS (\r\n  SELECT\r\n    EXTRACT(EPOCH FROM SUM(power * duration)) AS total_energy_seconds,\r\n    SUM(power) AS total_power\r\n  FROM base\r\n),\r\nbuckets AS (\r\n  SELECT\r\n    CASE\r\n      WHEN power < 15 THEN width_bucket(power, -1, 15, 16)\r\n      ELSE width_bucket(power, 15, 205, 19)\r\n    END AS bucket,\r\n    CASE\r\n      WHEN power < 15 THEN\r\n        width_bucket(power, -1, 15, 16)::decimal - 1\r\n      ELSE\r\n        (width_bucket(power, -5, 205, 21)::decimal - 1) * (210.0 / 21)\r\n    END AS center,\r\n    CASE\r\n      WHEN power < 15 THEN\r\n        EXTRACT(EPOCH FROM power * duration)\r\n      ELSE\r\n        power\r\n    END AS weight\r\n  FROM base\r\n)\r\nSELECT\r\n  bucket AS power,\r\n  center AS \"Center of bucket\",\r\n  CASE\r\n    WHEN center < 15 THEN\r\n      (center - 0.5)::text || 'kW to ' || (center + 0.5)::text || 'kW'\r\n    ELSE\r\n      (center - (210.0/42))::text || 'kW to ' || (center + (210.0/42))::text || 'kW'\r\n  END AS \"Bucket\",\r\n  SUM(weight)\r\n    / CASE\r\n        WHEN center < 15 THEN (SELECT total_energy_seconds FROM totals)\r\n        ELSE (SELECT total_power FROM totals)\r\n      END\r\n    * 100 AS \"Proportion\"\r\nFROM buckets\r\nGROUP BY bucket, center\r\nORDER BY center;",
           "refId": "A",
           "select": [
             [
@@ -1518,7 +1518,7 @@
             "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "SoC [%]",
+            "axisLabel": "",
             "axisPlacement": "auto",
             "fillOpacity": 50,
             "hideFrom": {
@@ -1643,14 +1643,8 @@
             },
             "x": {
               "matcher": {
-                "id": "byType",
-                "options": "number"
-              }
-            },
-            "y": {
-              "matcher": {
-                "id": "byType",
-                "options": "number"
+                "id": "byName",
+                "options": "SoC [%]"
               }
             }
           }
@@ -1674,7 +1668,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  battery.\"currentSOC_pct\" AS \"SoC\",\n  MAX(charges.\"chargePower_kW\") AS \"Max\",\n  AVG(charges.\"chargePower_kW\") AS \"Avg\",\n  MIN(charges.\"chargePower_kW\") AS \"Min\",\n  'Metrics calculated from ' || COUNT(charges.\"chargePower_kW\")::TEXT  || ' values' AS \"Values\"\nFROM\n  charges\nINNER JOIN charging_sessions ON charges.\"carCapturedTimestamp\" > charging_sessions.started AND charges.\"carCapturedTimestamp\" < charging_sessions.ended\nINNER JOIN battery ON battery.\"carCapturedTimestamp\" = (SELECT battery.\"carCapturedTimestamp\" FROM battery WHERE battery.\"carCapturedTimestamp\" > charges.\"carCapturedTimestamp\" - interval '120 SECONDS' AND battery.\"carCapturedTimestamp\" < charges.\"carCapturedTimestamp\" + interval '120 SECONDS' ORDER BY ABS(EXTRACT(epoch FROM (battery.\"carCapturedTimestamp\" - charges.\"carCapturedTimestamp\"))) ASC LIMIT 1)\nWHERE\n    charging_sessions.acdc = 'DC' AND\n    charges.\"chargePower_kW\" > 0 AND\n    $__timeFilter(charges.\"carCapturedTimestamp\") AND\n    charges.vehicle_vin = '$VIN'\nGROUP BY \"SoC\"\nORDER by \"SoC\" ASC",
+          "rawSql": "WITH first_electric_drive AS (\n  SELECT d.id, d.vin\n  FROM drives d\n  WHERE d.type = 'ELECTRIC'\n  ORDER BY d.id\n  LIMIT 1\n)\nSELECT\n  dl.level AS \"SoC [%]\",\n  MIN(cp.power) AS \"Min\",\n  AVG(cp.power) AS \"Avg\",\n  MAX(cp.power) AS \"Max\"\nFROM first_electric_drive fed\nJOIN drive_levels dl\n  ON dl.drive_id = fed.id\nJOIN charging_sessions cs\n  ON cs.vin = fed.vin\n AND cs.charging_type = 'DC'\n AND tstzrange(\n       COALESCE(cs.session_start_date, cs.plug_connected_date),\n       COALESCE(cs.session_end_date, cs.plug_disconnected_date),\n       '[]'\n     )\n     && tstzrange(dl.first_date, dl.last_date, '[]')\nJOIN charging_powers cp\n  ON cp.vin = fed.vin\n AND tstzrange(cp.first_date, cp.last_date, '[]')\n     && tstzrange(dl.first_date, dl.last_date, '[]')\n AND tstzrange(cp.first_date, cp.last_date, '[]')\n     && tstzrange(\n          COALESCE(cs.session_start_date, cs.plug_connected_date),\n          COALESCE(cs.session_end_date, cs.plug_disconnected_date),\n          '[]'\n        )\nGROUP BY\n  dl.level\nORDER BY\n  dl.level;",
           "refId": "A",
           "select": [
             [
@@ -1823,13 +1817,13 @@
             "x": {
               "matcher": {
                 "id": "byName",
-                "options": "SoC"
+                "options": "SoC [%]"
               }
             },
             "y": {
               "matcher": {
-                "id": "byType",
-                "options": "number"
+                "id": "byName",
+                "options": "Proportion"
               }
             }
           }
@@ -1853,7 +1847,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n \"SoC_pct\" AS \"SoC\",\n EXTRACT(SECONDS FROM \"Time\") / EXTRACT(SECONDS FROM (SUM(\"Time\") OVER ())) * 100 AS \"Proportion\",\n ROUND((EXTRACT(SECONDS FROM \"Time\") / EXTRACT(SECONDS FROM (SUM(\"Time\") OVER ())) * 100)::numeric, 2)::TEXT || '% of time' AS \"Text\"\nFROM\n(\nSELECT\n \"SoC_pct\",\n SUM(\"Duration\") AS \"Time\"\nFROM\n(SELECT\nfloor(\"level\" / 5) * 5 AS \"SoC_pct\",\n(last_date - first_date) AS \"Duration\"\nFROM drive_levels\nLEFT JOIN drives on drive_levels.id = drives.id\nWHERE\n  drives.type = 'ELECTRIC' AND\n  $__timeFilter(\"first_date\") AND\n  drives.vin = '$VIN'\nORDER BY 1) AS data\nGROUP BY \"SoC_pct\") AS data2",
+          "rawSql": "WITH electric_drive_levels AS (\n  SELECT\n    FLOOR(dl.level / 5) * 5 AS soc_bucket,\n    (dl.last_date - dl.first_date) AS duration\n  FROM drive_levels dl\n  JOIN drives d\n    ON dl.drive_id = d.id\n  WHERE\n    d.type = 'ELECTRIC'\n    AND d.vin = '$VIN'\n    AND $__timeFilter(dl.first_date)\n)\nSELECT\n  soc_bucket AS \"SoC [%]\",\n  EXTRACT(EPOCH FROM SUM(duration)) / EXTRACT(EPOCH FROM SUM(SUM(duration)) OVER ()) * 100 AS \"Proportion\"\nFROM electric_drive_levels\nGROUP BY soc_bucket\nORDER BY soc_bucket;",
           "refId": "A",
           "select": [
             [
@@ -2046,18 +2040,6 @@
                 "id": "byIndex",
                 "options": 0
               }
-            },
-            "x": {
-              "matcher": {
-                "id": "byName",
-                "options": "Battery Temperature"
-              }
-            },
-            "y": {
-              "matcher": {
-                "id": "byType",
-                "options": "number"
-              }
             }
           }
         ],
@@ -2080,7 +2062,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  battery_temperature.\"temperatureHvBatteryMin_K\" - 273.15 AS \"Battery Temperature\",\n  MAX(charges.\"chargePower_kW\") AS \"Max\",\n  AVG(charges.\"chargePower_kW\") AS \"Avg\",\n  MIN(charges.\"chargePower_kW\") AS \"Min\",\n  'Metrics calculated from ' || COUNT(charges.\"chargePower_kW\")::TEXT  || ' values' AS \"Values\"\nFROM\n  charges\nINNER JOIN charging_sessions ON charges.\"carCapturedTimestamp\" > charging_sessions.started AND charges.\"carCapturedTimestamp\" < charging_sessions.ended\nINNER JOIN battery_temperature ON battery_temperature.\"carCapturedTimestamp\" = (SELECT battery_temperature.\"carCapturedTimestamp\" FROM battery_temperature WHERE battery_temperature.\"carCapturedTimestamp\" > charges.\"carCapturedTimestamp\" - interval '600 SECONDS' AND battery_temperature.\"carCapturedTimestamp\" < charges.\"carCapturedTimestamp\" + interval '600 SECONDS' ORDER BY ABS(EXTRACT(epoch FROM (battery_temperature.\"carCapturedTimestamp\" - charges.\"carCapturedTimestamp\"))) ASC LIMIT 1)\nWHERE\n    charging_sessions.acdc = 'DC' AND\n    charges.\"chargePower_kW\" > 0 AND\n    $__timeFilter(charges.\"carCapturedTimestamp\") AND\n    charges.vehicle_vin = '$VIN'\nGROUP BY \"Battery Temperature\"\nORDER by \"Battery Temperature\" ASC",
+          "rawSql": "WITH first_electric_drive AS (\n  SELECT d.id, d.vin\n  FROM drives d\n  WHERE d.type = 'ELECTRIC'\n  ORDER BY d.id\n  LIMIT 1\n)\nSELECT\n  bt.battery_temperature AS \"Battery Temp [°C]\",\n  MIN(cp.power) AS \"Min\",\n  AVG(cp.power) AS \"Avg\",\n  MAX(cp.power) AS \"Max\"\nFROM first_electric_drive fed\nJOIN drive_levels dl\n  ON dl.drive_id = fed.id\nJOIN charging_sessions cs\n  ON cs.vin = fed.vin\n AND cs.charging_type = 'DC'\n AND tstzrange(\n       COALESCE(cs.session_start_date, cs.plug_connected_date),\n       COALESCE(cs.session_end_date, cs.plug_disconnected_date),\n       '[]'\n     )\n     && tstzrange(dl.first_date, dl.last_date, '[]')\nJOIN charging_powers cp\n  ON cp.vin = fed.vin\n AND tstzrange(cp.first_date, cp.last_date, '[]')\n     && tstzrange(dl.first_date, dl.last_date, '[]')\n AND tstzrange(cp.first_date, cp.last_date, '[]')\n     && tstzrange(\n          COALESCE(cs.session_start_date, cs.plug_connected_date),\n          COALESCE(cs.session_end_date, cs.plug_disconnected_date),\n          '[]'\n        )\nJOIN battery_temperatures bt\n  ON bt.vin = fed.vin\n AND tstzrange(bt.first_date, bt.last_date, '[]')\n     && tstzrange(cp.first_date, cp.last_date, '[]')\nGROUP BY\n  bt.battery_temperature\nORDER BY\n  bt.battery_temperature;\n",
           "refId": "A",
           "select": [
             [
@@ -2122,19 +2104,6 @@
         }
       ],
       "title": "DC Charging Speed by Temperature",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Label": false,
-              "soc": false
-            },
-            "indexByName": {},
-            "renameByName": {}
-          }
-        }
-      ],
       "type": "xychart"
     }
   ],
@@ -2185,35 +2154,23 @@
       },
       {
         "allValue": "all_values",
-        "current": {
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
-        },
         "datasource": {
           "type": "postgres",
           "uid": "CarConnectivity-PostgreSQL-provisioned"
         },
-        "definition": "SELECT tag.name || ': ' || tag.description || '$' || tag.name FROM charging_tag LEFT JOIN tag ON charging_sessions_tags.tags_name = tag.name WHERE use_charges = true",
+        "definition": "SELECT tags.name || ': ' || tags.description || '$' || tags.name FROM charging_sessions_tags LEFT JOIN tags ON charging_sessions_tags.tags_name = tags.name",
         "includeAll": true,
         "label": "Show",
         "multi": true,
         "name": "tag",
         "options": [],
-        "query": "SELECT tag.name || ': ' || tag.description || '$' || tag.name FROM charging_tag LEFT JOIN tag ON charging_sessions_tags.tags_name = tag.name WHERE use_charges = true",
+        "query": "SELECT tags.name || ': ' || tags.description || '$' || tags.name FROM charging_sessions_tags LEFT JOIN tags ON charging_sessions_tags.tags_name = tags.name",
         "refresh": 2,
         "regex": "/(?<text>.+)\\$(?<value>.+)/",
         "sort": 5,
         "type": "query"
       },
       {
-        "current": {
-          "text": "",
-          "value": ""
-        },
         "datasource": {
           "type": "postgres",
           "uid": "CarConnectivity-PostgreSQL-provisioned"
