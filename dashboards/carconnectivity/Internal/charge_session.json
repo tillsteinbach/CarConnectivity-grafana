@@ -58,7 +58,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 7,
+  "id": 2,
   "links": [
     {
       "asDropdown": false,
@@ -529,7 +529,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Charge Rate"
+              "options": "Charging Rate"
             },
             "properties": [
               {
@@ -539,6 +539,38 @@
               {
                 "id": "custom.axisLabel",
                 "value": "Charge Rate"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Battery Temperature"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "celsius"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Temperature"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Outside Temperature"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "celsius"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Temperature"
               }
             ]
           }
@@ -715,6 +747,66 @@
               "type": "macro"
             }
           ]
+        },
+        {
+          "dataset": "carconnectivity",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"battery_temperature\" AS \"Battery Temperature\"\nFROM battery_temperatures\nWHERE\n  vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"battery_temperature\" AS \"Battery Temperature\"\nFROM battery_temperatures\nWHERE\n  vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" ASC",
+          "refId": "Battery Temperature",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "dataset": "carconnectivity",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "CarConnectivity-PostgreSQL-provisioned"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"outside_temperature\" AS \"Outside Temperature\"\nFROM outside_temperatures \nWHERE\n  vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"outside_temperature\" AS \"Outside Temperature\"\nFROM outside_temperatures \nWHERE\n  vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" ASC",
+          "refId": "Outside Temperature",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
         }
       ],
       "title": "Charging",
@@ -1056,7 +1148,7 @@
               "type": "fill"
             }
           ],
-          "hide": false,
+          "hide": true,
           "measurement": "",
           "metricColumn": "none",
           "orderByTime": "ASC",
@@ -1139,7 +1231,7 @@
           "query": "",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"outside_temperature\" AS \"Outside Temperature\"\nFROM outside_temperatures \nWHERE\n  vin = '$VIN'\n  AND (\"first_date\" BETWEEN DATE($__timeFrom()) - INTERVAL '2 hours' AND DATE($__timeTo()) + INTERVAL '2 hours' OR \"last_date\" BETWEEN DATE($__timeFrom()) - INTERVAL '2 hours' AND DATE($__timeTo()) + INTERVAL '2 hours')\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"outside_temperature\" AS \"Outside Temperature\"\nFROM outside_temperatures \nWHERE\n  vin = '$VIN'\n  AND (\"first_date\" BETWEEN DATE($__timeFrom()) - INTERVAL '2 hours' AND DATE($__timeTo()) + INTERVAL '2 hours' OR \"last_date\" BETWEEN DATE($__timeFrom()) - INTERVAL '2 hours' AND DATE($__timeTo()) + INTERVAL '2 hours')\nORDER BY \"time\" ASC",
+          "rawSql": "",
           "refId": "Outside Temperature",
           "resultFormat": "time_series",
           "select": [
@@ -1865,27 +1957,14 @@
       {
         "hide": 2,
         "name": "id",
-        "options": [
-          {
-            "selected": true,
-            "text": "1",
-            "value": "1"
-          }
-        ],
-        "query": "1",
+        "options": [],
+        "query": "",
         "type": "textbox"
       },
       {
         "hide": 2,
         "name": "VIN",
-        "options": [
-          {
-            "selected": true,
-            "text": "",
-            "value": ""
-          }
-        ],
-        "query": "",
+        "options": [],
         "type": "textbox"
       },
       {
@@ -1914,6 +1993,10 @@
         "type": "query"
       },
       {
+        "current": {
+          "text": "",
+          "value": ""
+        },
         "datasource": {
           "type": "postgres",
           "uid": "CarConnectivity-PostgreSQL-provisioned"
