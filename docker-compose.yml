@@ -28,7 +28,7 @@ services:
         aliases:
           - ${DB_HOSTNAME-postgresdbbackend}
     volumes:
-      - postgresdb_data:/var/lib/postgresql
+      - postgresdb_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=${DB_USER-admin}
       - POSTGRES_PASSWORD=${DB_PASSWORD-secret}
