@@ -25,7 +25,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 9,
+  "id": 2,
   "links": [
     {
       "asDropdown": false,
@@ -463,7 +463,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH base_sessions AS (\n  SELECT\n    cs.id,\n    cs.vin,\n    COALESCE(cs.session_start_date, cs.plug_locked_date, cs.plug_connected_date) AS start_date,\n    COALESCE(cs.session_end_date,   cs.plug_unlocked_date, cs.plug_disconnected_date) AS end_date,\n    cs.charging_type,\n    cs.start_level,\n    cs.end_level,\n    cs.real_charged,\n    cs.meter_start_kwh,\n    cs.meter_end_kwh,\n    cs.real_cost,\n    cs.session_odometer,\n    d.capacity AS vehicle_capacity,\n    l.display_name,\n    l.name,\n    l.amenity,\n    l.road,\n    l.house_number,\n    l.neighbourhood,\n    l.city,\n    l.postcode,\n    l.country\n  FROM charging_sessions cs\n\n  -- pick ONE drive deterministically (prevents row explosion)\n  LEFT JOIN LATERAL (\n    SELECT capacity\n    FROM drives d\n    WHERE d.vin = cs.vin\n    ORDER BY d.id DESC\n    LIMIT 1\n  ) d ON TRUE\n\n  LEFT JOIN locations l ON cs.location_uid = l.uid\n\n  WHERE\n    cs.vin = '$VIN'\n    AND (\n      $__timeFilter(cs.session_start_date)\n      OR $__timeFilter(cs.plug_connected_date)\n      OR $__timeFilter(cs.plug_locked_date)\n    )\n),\n\nsession_metrics AS (\n  SELECT\n    *,\n    EXTRACT(EPOCH FROM (end_date - start_date)) AS duration_sec,\n    COALESCE(\n      real_charged,\n      meter_end_kwh - meter_start_kwh,\n      (end_level - start_level) * (vehicle_capacity / 100.0)\n    ) AS amount\n  FROM base_sessions\n)\n\nSELECT\n  s.start_date AS \"Date\",\n\n  COALESCE(\n    s.display_name,\n    CONCAT_WS(', ',\n      CONCAT_WS(', ', s.name, s.amenity),\n      NULLIF(CONCAT_WS(' ', s.road, s.house_number), ''),\n      s.neighbourhood,\n      s.city,\n      s.postcode,\n      s.country\n    )\n  ) AS \"Location\",\n\n  s.duration_sec AS \"Duration\",\n\n  s.amount / NULLIF(s.duration_sec / 3600.0, 0) AS \"Avg. Power\",\n\n  cp.max_power AS \"Max. Power\",\n\n  s.charging_type AS \"AC/DC\",\n  s.start_level   AS \"% Start\",\n  s.end_level     AS \"% End\",\n  s.amount        AS \"Amount\",\n\n  CASE\n    WHEN s.real_charged IS NOT NULL\n      OR s.meter_end_kwh IS NOT NULL\n    THEN '✓'\n  END AS \"✓\",\n\n  s.real_cost        AS \"Cost\",\n  s.session_odometer AS \"Odometer\",\n\n  (\n    s.amount\n    - (s.end_level - LAG(s.end_level) OVER (ORDER BY s.start_date))\n      * (s.vehicle_capacity / 100.0)\n  )\n  / NULLIF(\n      (s.session_odometer - LAG(s.session_odometer)\n        OVER (ORDER BY s.start_date)) / 100.0,\n      0\n    ) AS \"Consumption\",\n\n  '⚙' AS \"Edit\",\n  s.id,\n\n  (ROUND(EXTRACT(EPOCH FROM s.start_date)) - 10) * 1000 AS start_date_ts,\n  COALESCE(\n    ((ROUND(EXTRACT(EPOCH FROM s.end_date)) - 10) * 1000)::TEXT,\n    'now'\n  ) AS end_date_ts\n\nFROM session_metrics s\n\nLEFT JOIN LATERAL (\n  SELECT MAX(cp.power) AS max_power\n  FROM charging_powers cp\n  WHERE cp.vin = s.vin\n    AND tstzrange(cp.first_date, cp.last_date, '[]')\n        && tstzrange(s.start_date, s.end_date, '[]')\n) cp ON TRUE\n\nORDER BY s.start_date DESC;\n",
+          "rawSql": "WITH base_sessions AS (\n  SELECT\n    cs.id,\n    cs.vin,\n    COALESCE(cs.session_start_date, cs.plug_locked_date, cs.plug_connected_date) AS start_date,\n    COALESCE(cs.session_end_date,   cs.plug_unlocked_date, cs.plug_disconnected_date) AS end_date,\n    cs.charging_type,\n    cs.start_level,\n    cs.end_level,\n    cs.real_charged,\n    cs.meter_start_kwh,\n    cs.meter_end_kwh,\n    cs.real_cost,\n    cs.session_odometer,\n    d.capacity AS vehicle_capacity,\n    l.display_name,\n    l.name,\n    l.amenity,\n    l.road,\n    l.house_number,\n    l.neighbourhood,\n    l.city,\n    l.postcode,\n    l.country\n  FROM charging_sessions cs\n\n  -- pick ONE drive deterministically (prevents row explosion)\n  LEFT JOIN LATERAL (\n    SELECT capacity\n    FROM drives d\n    WHERE d.vin = cs.vin\n    ORDER BY d.id DESC\n    LIMIT 1\n  ) d ON TRUE\n\n  LEFT JOIN locations l ON cs.location_uid = l.uid\n\n  WHERE\n    cs.vin = '$VIN'\n    AND (\n      $__timeFilter(cs.session_start_date)\n      OR $__timeFilter(cs.plug_connected_date)\n      OR $__timeFilter(cs.plug_locked_date)\n    )\n),\n\nsession_metrics AS (\n  SELECT\n    *,\n    EXTRACT(EPOCH FROM (COALESCE(end_date, NOW()) - start_date)) AS duration_sec,\n    COALESCE(\n      real_charged,\n      meter_end_kwh - meter_start_kwh,\n      (end_level - start_level) * (vehicle_capacity / 100.0)\n    ) AS amount\n  FROM base_sessions\n)\n\nSELECT\n  s.start_date AS \"Date\",\n\n  COALESCE(\n    s.display_name,\n    CONCAT_WS(', ',\n      CONCAT_WS(', ', s.name, s.amenity),\n      NULLIF(CONCAT_WS(' ', s.road, s.house_number), ''),\n      s.neighbourhood,\n      s.city,\n      s.postcode,\n      s.country\n    )\n  ) AS \"Location\",\n\n  s.duration_sec AS \"Duration\",\n\n  s.amount / NULLIF(s.duration_sec / 3600.0, 0) AS \"Avg. Power\",\n\n  cp.max_power AS \"Max. Power\",\n\n  s.charging_type AS \"AC/DC\",\n  s.start_level   AS \"% Start\",\n  s.end_level     AS \"% End\",\n  s.amount        AS \"Amount\",\n\n  CASE\n    WHEN s.real_charged IS NOT NULL\n      OR s.meter_end_kwh IS NOT NULL\n    THEN '✓'\n  END AS \"✓\",\n\n  s.real_cost        AS \"Cost\",\n  s.session_odometer AS \"Odometer\",\n\n  (\n    s.amount\n    - (s.end_level - LAG(s.end_level) OVER (ORDER BY s.start_date))\n      * (s.vehicle_capacity / 100.0)\n  )\n  / NULLIF(\n      (s.session_odometer - LAG(s.session_odometer)\n        OVER (ORDER BY s.start_date)) / 100.0,\n      0\n    ) AS \"Consumption\",\n\n  '⚙' AS \"Edit\",\n  s.id,\n\n  (ROUND(EXTRACT(EPOCH FROM s.start_date)) - 10) * 1000 AS start_date_ts,\n  COALESCE(\n    ((ROUND(EXTRACT(EPOCH FROM s.end_date)) - 10) * 1000)::TEXT,\n    'now'\n  ) AS end_date_ts\n\nFROM session_metrics s\n\nLEFT JOIN LATERAL (\n  SELECT MAX(cp.power) AS max_power\n  FROM charging_powers cp\n  WHERE cp.vin = s.vin\n    AND tstzrange(cp.first_date, cp.last_date, '[]')\n        && tstzrange(s.start_date, s.end_date, '[]')\n) cp ON TRUE\n\nORDER BY s.start_date DESC;\n",
           "refId": "A",
           "select": [
             [
@@ -830,10 +830,6 @@
       },
       {
         "allValue": "all_values",
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        },
         "datasource": {
           "type": "postgres",
           "uid": "CarConnectivity-PostgreSQL-provisioned"
@@ -851,10 +847,6 @@
         "type": "query"
       },
       {
-        "current": {
-          "text": "",
-          "value": ""
-        },
         "datasource": {
           "type": "postgres",
           "uid": "CarConnectivity-PostgreSQL-provisioned"
