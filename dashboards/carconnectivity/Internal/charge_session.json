@@ -758,7 +758,7 @@
           "format": "table",
           "hide": false,
           "rawQuery": true,
-          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"battery_temperature\" AS \"Battery Temperature\"\nFROM battery_temperatures\nWHERE\n  vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"battery_temperature\" AS \"Battery Temperature\"\nFROM battery_temperatures\nWHERE\n  vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" ASC",
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  (\"battery_temperature\" - 273.15) AS \"Battery Temperature\"\nFROM battery_temperatures\nWHERE\n  vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  (\"battery_temperature\" - 273.15) AS \"Battery Temperature\"\nFROM battery_temperatures\nWHERE\n  vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" ASC",
           "refId": "Battery Temperature",
           "sql": {
             "columns": [
@@ -788,7 +788,7 @@
           "format": "table",
           "hide": false,
           "rawQuery": true,
-          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  \"outside_temperature\" AS \"Outside Temperature\"\nFROM outside_temperatures \nWHERE\n  vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  \"outside_temperature\" AS \"Outside Temperature\"\nFROM outside_temperatures \nWHERE\n  vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" ASC",
+          "rawSql": "SELECT\n  \"first_date\" AS \"time\",\n  (\"outside_temperature\" - 273.15) AS \"Outside Temperature\"\nFROM outside_temperatures \nWHERE\n  vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nUNION\nSELECT\n  \"last_date\" AS \"time\",\n  (\"outside_temperature\" - 273.15) AS \"Outside Temperature\"\nFROM outside_temperatures \nWHERE\n  vin = '$VIN'\n  AND ($__timeFilter(\"first_date\") OR $__timeFilter(\"last_date\"))\nORDER BY \"time\" ASC",
           "refId": "Outside Temperature",
           "sql": {
             "columns": [
