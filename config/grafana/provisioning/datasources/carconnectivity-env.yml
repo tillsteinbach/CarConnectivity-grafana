@@ -9,15 +9,10 @@ datasources:
   - name: CarConnectivity-ENV-json
     orgId: 1
     uid: CarConnectivity-Env-json-provisioned
-    type: marcusolsson-json-datasource
-    access: proxy
-    url: http://localhost:8081/env.json
-    basicAuthUser: grafana
-    secureJsonData:
-      basicAuthPassword: grafanasecretaccesshttpd
-    jsonData:
-      timeout: "1"
-    basicAuth: true
+    type: yesoreyeram-infinity-datasource
     isDefault: false
     editable: false
-    
+    jsonData:
+      refData:
+        - name: env
+          data: '[{"carconnectivity_ui_url":"$CARCONNECTIVITY_UI_URL"}]'
