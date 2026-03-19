@@ -1037,7 +1037,7 @@
           "value": ""
         },
         "datasource": {
-          "type": "marcusolsson-json-datasource",
+          "type": "yesoreyeram-infinity-datasource",
           "uid": "CarConnectivity-Env-json-provisioned"
         },
         "definition": "",
@@ -1045,15 +1045,22 @@
         "name": "carconnectivity_url",
         "options": [],
         "query": {
-          "cacheDurationSeconds": 86400,
-          "fields": [
-            {
-              "jsonPath": "$.carconnectivity_ui_url"
-            }
-          ],
-          "method": "GET",
-          "queryParams": "",
-          "urlPath": ""
+          "refId": "variable",
+          "queryType": "infinity",
+          "infinityQuery": {
+            "type": "json",
+            "source": "reference",
+            "referenceName": "env",
+            "parser": "backend",
+            "columns": [
+              {
+                "selector": "carconnectivity_ui_url",
+                "text": "carconnectivity_ui_url",
+                "type": "string"
+              }
+            ],
+            "filters": []
+          }
         },
         "refresh": 1,
         "regex": "",
